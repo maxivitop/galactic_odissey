@@ -6,18 +6,18 @@ using UnityEngine;
 [RequireComponent(typeof(TrajectoryRenderer))]
 public class TrajectoryUserEventReceiver : MonoBehaviour
 {
-    public static List<TrajectoryUserEventReceiver> all = new();
+    public static readonly List<TrajectoryUserEventReceiver> all = new();
     public FutureTransform futureTransform;
     public TrajectoryRenderer trajectoryRenderer;
 
-    void OnEnable()
+    private void OnEnable()
     {
         futureTransform = GetComponent<FutureTransform>();
         trajectoryRenderer = GetComponent<TrajectoryRenderer>();
         all.Add(this);
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         all.Remove(this);
     }

@@ -12,59 +12,48 @@ public class TrajectoryUserEventCreator : MonoBehaviour
     private TrajectoryMarker currentMarker;
     public float maxDistanceOfRenderingMarker = 1;
     private List<TrajectoryMarker> spawnedMarkers = new();
-    private TrajectoryMarker highlightedForEditingMarker = null;
-    private TrajectoryMarker selectedMarker = null;
+    private TrajectoryMarker highlightedForEditingMarker;
+    private TrajectoryMarker selectedMarker;
 
     private List<RaycastResult> raycastResults = new();
-    private bool checkedMouseThisFrame = false;
-    private bool isMouseOverObject = false;
-    private PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
+    private bool checkedMouseThisFrame;
+    private bool isMouseOverObject;
+    private PointerEventData pointerEventData = new(EventSystem.current);
+    private PhysicsRaycaster physicsRaycaster;
 
-    private float maxSnappingDistance
-    {
-        get
-        {
-            return maxDistanceOfRenderingMarker * Camera.main.transform.position.z;
-        }
-    }
+    private float MaxSnappingDistance =>
+        maxDistanceOfRenderingMarker * Camera.main!.transform.position.z;
 
     private void Start()
     {
+        physicsRaycaster = Camera.main!.GetComponent<PhysicsRaycaster>();
         Instance = this;
     }
 
-    void Update()
+    private void Update()
     {
         checkedMouseThisFrame = false;
         if (!HighlightEditMarkers())
-        {
             MoveMarker();
-        }
         else
-        {
             RemoveCurrentMarker();
-        }
-        bool isSpawnedMarkerHighligted = highlightedForEditingMarker != null && highlightedForEditingMarker.isSpawned;
-        if (Input.GetButtonDown("Fire1") && CanHandleMouse() && (currentMarker != null || isSpawnedMarkerHighligted))
+        var isSpawnedMarkerHighligted = highlightedForEditingMarker != null &&
+                                        highlightedForEditingMarker.isSpawned;
+        if (Input.GetButtonDown("Fire1") && CanHandleMouse() &&
+            (currentMarker != null || isSpawnedMarkerHighligted))
         {
             if (highlightedForEditingMarker != null && highlightedForEditingMarker.isSpawned)
-            {
                 SelectMarker(highlightedForEditingMarker);
-            }
             else
-            {
                 SpawnMarker();
-            }
         }
     }
 
-    void RemoveCurrentMarker()
+    private void RemoveCurrentMarker()
     {
-        if (currentMarker != null)
-        {
-            Destroy(currentMarker.gameObject);
-            currentMarker = null;
-        }
+        if (currentMarker == null) return;
+        Destroy(currentMarker.gameObject);
+        currentMarker = null;
     }
 
     public void UnregisterMarker(TrajectoryMarker marker)
@@ -74,59 +63,44 @@ public class TrajectoryUserEventCreator : MonoBehaviour
 
     private void SelectMarker(TrajectoryMarker marker)
     {
-        if (selectedMarker != null)
-        {
-            selectedMarker.IsSelected = false;
-        }
+        if (selectedMarker != null) selectedMarker.IsSelected = false;
         marker.IsSelected = true;
         selectedMarker = marker;
     }
 
-    bool HighlightEditMarkers()
+    private bool HighlightEditMarkers()
     {
         HighlightMarker(currentMarker);
-        if (!CanHandleMouse())
-        {
-            return false;
-        }
-        if (spawnedMarkers.Count == 0)
-        {
-            return false;
-        }
+        if (!CanHandleMouse()) return false;
+        if (spawnedMarkers.Count == 0) return false;
         TrajectoryMarker closestMarker = null;
-        float minDistance = float.MaxValue;
+        var minDistance = float.MaxValue;
         foreach (var marker in spawnedMarkers)
         {
-            var distance = (marker.transform.position - Utils.worldMousePosition).sqrMagnitude;
-            if (minDistance > distance)
-            {
-                closestMarker = marker;
-                minDistance = distance;
-            }
+            var distance = (marker.transform.position - Utils.WorldMousePosition).sqrMagnitude;
+            if (distance > minDistance) continue;
+            closestMarker = marker;
+            minDistance = distance;
         }
-        if (minDistance > maxSnappingDistance * maxSnappingDistance)
-        {
-            return false;
-        }
+
+        if (minDistance > MaxSnappingDistance * MaxSnappingDistance) return false;
         HighlightMarker(closestMarker);
         return true;
     }
 
-    void HighlightMarker(TrajectoryMarker marker)
+    private void HighlightMarker(TrajectoryMarker marker)
     {
         if (highlightedForEditingMarker != null)
         {
             highlightedForEditingMarker.IsHighlighted = false;
             highlightedForEditingMarker = null;
         }
-        if (marker != null)
-        {
-            marker.IsHighlighted = true;
-        }
+
+        if (marker != null) marker.IsHighlighted = true;
         highlightedForEditingMarker = marker;
     }
 
-    void SpawnMarker()
+    private void SpawnMarker()
     {
         if (currentMarker != null)
         {
@@ -134,66 +108,67 @@ public class TrajectoryUserEventCreator : MonoBehaviour
             spawnedMarkers.Add(currentMarker);
             SelectMarker(currentMarker);
         }
+
         currentMarker = Instantiate(markerPrefab.gameObject).GetComponent<TrajectoryMarker>();
     }
-    void MoveMarker()
+
+    private void MoveMarker()
     {
         if (!CanHandleMouse())
         {
             RemoveCurrentMarker();
             return;
         }
-        Vector3 worldMousePosition = Utils.worldMousePosition;
-        float minDistance = float.MaxValue;
+
+        var worldMousePosition = Utils.WorldMousePosition;
+        var minDistance = float.MaxValue;
         Vector3? closest = null;
         FutureTransform closestTransform = null;
-        int closestStep = FuturePhysics.currentStep;
-        foreach (TrajectoryUserEventReceiver reciever in TrajectoryUserEventReceiver.all)
+        var closestStep = FuturePhysics.currentStep;
+        foreach (var receiver in TrajectoryUserEventReceiver.all)
         {
-            int i = 0;
-            foreach (var position in reciever.trajectoryRenderer.trajectory)
+            var i = 0;
+            foreach (var position in receiver.trajectoryRenderer.trajectory)
             {
                 if (!closest.HasValue)
                 {
                     closest = position;
                     minDistance = (closest.Value - worldMousePosition).sqrMagnitude;
-                    closestTransform = reciever.futureTransform;
+                    closestTransform = receiver.futureTransform;
                     closestStep = FuturePhysics.currentStep + i;
                     continue;
                 }
+
                 var distance = (position - worldMousePosition).sqrMagnitude;
                 if (distance < minDistance)
                 {
                     closest = position;
                     minDistance = distance;
-                    closestTransform = reciever.futureTransform;
+                    closestTransform = receiver.futureTransform;
                     closestStep = FuturePhysics.currentStep + i;
                 }
+
                 i++;
             }
         }
-        if (closest.HasValue)
+
+        if (!closest.HasValue) return;
+        if (minDistance < MaxSnappingDistance * MaxSnappingDistance)
         {
-            if (minDistance < maxSnappingDistance * maxSnappingDistance)
-            {
-                if (currentMarker == null)
-                {
-                    SpawnMarker();
-                }
-                currentMarker.transform.position = closest.Value;
-                currentMarker.targetTransform = closestTransform;
-                currentMarker.step = closestStep;
-            }
-            else RemoveCurrentMarker();
+            if (currentMarker == null) SpawnMarker();
+            currentMarker.transform.position = closest.Value;
+            currentMarker.targetTransform = closestTransform;
+            currentMarker.step = closestStep;
+        }
+        else
+        {
+            RemoveCurrentMarker();
         }
     }
 
     private bool CanHandleMouse()
     {
-        if (checkedMouseThisFrame)
-        {
-            return !isMouseOverObject;
-        }
+        if (checkedMouseThisFrame) return !isMouseOverObject;
         isMouseOverObject = IsMouseOverObject();
         checkedMouseThisFrame = true;
         return !isMouseOverObject;
@@ -201,12 +176,9 @@ public class TrajectoryUserEventCreator : MonoBehaviour
 
     private bool IsMouseOverObject()
     {
-        if (EventSystem.current.IsPointerOverGameObject())
-        {
-            return true;
-        }
+        if (EventSystem.current.IsPointerOverGameObject()) return true;
         raycastResults.Clear();
-        Camera.main.GetComponent<PhysicsRaycaster>().Raycast(pointerEventData, raycastResults);
+        physicsRaycaster.Raycast(pointerEventData, raycastResults);
         return raycastResults.Count > 0;
     }
 }

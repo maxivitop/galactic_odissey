@@ -4,6 +4,6 @@ using UnityEngine;
 
 public interface ITrajectoryUserEventProvider
 {
-    bool isEnabled(int step);
+    bool IsEnabled(int step);
     GameObject CreateUI(int step, TrajectoryMarker marker);
 }

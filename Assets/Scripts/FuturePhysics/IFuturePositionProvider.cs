@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IFuturePositionProvider 
+public interface IFuturePositionProvider
 {
-    Vector3 GetFuturePosition(int step, float Dt);
+    Vector3 GetFuturePosition(int step, float dt);
     int GetPriority();
 }

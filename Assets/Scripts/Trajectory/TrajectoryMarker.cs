@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 public class TrajectoryMarker : FutureBehaviour
@@ -12,55 +11,44 @@ public class TrajectoryMarker : FutureBehaviour
     public bool isSpawned;
     private Material usualMaterial;
 
-    private bool _isSelected;
+    private bool isSelected;
+
     public bool IsSelected
     {
-        get { return _isSelected; }
+        get => isSelected;
         set
         {
-            if (_isSelected == value)
-            {
-                return;
-            }
-            _isSelected = value;
-            RectTransform parent = TrajectoryUserEventCreator.Instance.markerUiParent;
+            if (isSelected == value) return;
+            isSelected = value;
+            var parent = TrajectoryUserEventCreator.Instance.markerUiParent;
             if (parent == null || parent.transform == null) // scene is destroying
-            {
                 return;
-            }
-            if (!_isSelected)
+            if (!isSelected)
             {
                 while (parent.transform.childCount > 0)
-                {
                     DestroyImmediate(parent.transform.GetChild(0).gameObject);
-                }
-            } 
+            }
             else
             {
-                ITrajectoryUserEventProvider[] eventProviders = targetTransform.GetComponents<ITrajectoryUserEventProvider>();
+                var eventProviders = targetTransform.GetComponents<ITrajectoryUserEventProvider>();
                 foreach (var provider in eventProviders)
-                {
-                    if (provider.isEnabled(step))
-                    {
+                    if (provider.IsEnabled(step))
                         provider.CreateUI(step, this).transform.SetParent(parent.transform);
-                    }
-                }
             }
+
             UpdateAppearance();
         }
     }
 
-    private bool _isHighlighted;
+    private bool isHighlighted;
+
     public bool IsHighlighted
     {
-        get { return _isHighlighted; }
+        get => isHighlighted;
         set
         {
-            if (_isHighlighted == value)
-            {
-                return;
-            }
-            _isHighlighted = value;
+            if (isHighlighted == value) return;
+            isHighlighted = value;
             UpdateAppearance();
         }
     }
@@ -77,39 +65,36 @@ public class TrajectoryMarker : FutureBehaviour
         targetTrajectoryRenderer = targetTransform.GetComponent<TrajectoryRenderer>();
     }
 
+    // ReSharper disable once ParameterHidesMember
     public override void Step(int step)
     {
-        if (isSpawned && this.step == step)
-        {
-            Destroy(gameObject);
-        }
+        if (isSpawned && this.step == step) Destroy(gameObject);
     }
 
     private void UpdateAppearance()
     {
-        myRenderer.material = IsHighlighted ? highlightedMaterial : IsSelected ? selectedMaterial : usualMaterial;
+        myRenderer.material = IsHighlighted ? highlightedMaterial :
+            IsSelected ? selectedMaterial : usualMaterial;
     }
 
     private void Update()
     {
-        if (isSpawned)
+        if (!isSpawned) return;
+        if (step - FuturePhysics.currentStep >= targetTrajectoryRenderer.trajectory.Length)
         {
-            if(step - FuturePhysics.currentStep >= targetTrajectoryRenderer.trajectory.Length)
-            {
-                transform.position = new Vector3(1e10f, 1e10f);
-                return;
-            }
-            transform.position = targetTrajectoryRenderer.trajectory[step - FuturePhysics.currentStep];
+            transform.position = new Vector3(1e10f, 1e10f);
+            return;
         }
+
+        transform.position =
+            targetTrajectoryRenderer.trajectory[step - FuturePhysics.currentStep];
     }
 
     private void OnDestroy()
     {
-        if (isSpawned)
-        {
-            IsHighlighted = false;
-            IsSelected = false;
-            TrajectoryUserEventCreator.Instance.UnregisterMarker(this);
-        }
+        if (!isSpawned) return;
+        IsHighlighted = false;
+        IsSelected = false;
+        TrajectoryUserEventCreator.Instance.UnregisterMarker(this);
     }
 }

@@ -3,19 +3,27 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class FutureBehaviour:  MonoBehaviour, IFutureState
+public class FutureBehaviour : MonoBehaviour, IFutureState
 {
-    public virtual void Reset(int step){}
+    // ReSharper disable once Unity.IncorrectMethodSignature
+    public virtual void Reset(int step)
+    {
+    }
 
-    public virtual void Step(int step){}
+    public virtual void Step(int step)
+    {
+    }
 
-    public virtual void VirtualStep(int step){}
+    public virtual void VirtualStep(int step)
+    {
+    }
 
-    void Awake()
+    private void Awake()
     {
         FuturePhysics.AddObject(GetType(), this);
     }
-    void OnDestroy()
+
+    private void OnDestroy()
     {
         FuturePhysics.RemoveObject(GetType(), this);
     }

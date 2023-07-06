@@ -1,60 +1,67 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public class CameraMover: MonoBehaviour
+public class CameraMover : MonoBehaviour
 {
-    public float speedOfMovment = 1;
+    [FormerlySerializedAs("speedOfMovment")]
+    public float speedOfMovement = 1;
+
     public float minPos;
     public float maxPos;
     public float minZoom;
     public float maxZoom;
-    private Vector3? previousMousePosition = null;
-    private Vector3 relativePositon;
+    private Vector3? previousMousePosition;
+    private Vector3 relativePosition;
 
     private void Start()
     {
-        relativePositon = transform.position;
-        ReferenceFrameHost.ReferenceFrameChangeOld.AddListener((ReferenceFrameHost old) =>
+        relativePosition = transform.position;
+        ReferenceFrameHost.referenceFrameChangeOld.AddListener((ReferenceFrameHost old) =>
         {
-            relativePositon += old.transform.position - ReferenceFrameHost.ReferenceFrame.transform.position;
+            relativePosition += old.transform.position -
+                                ReferenceFrameHost.ReferenceFrame.transform.position;
         });
     }
-    void Update()
-    {
-        float z = relativePositon.z;
-        Vector3 previousPosition = transform.position;
-        previousPosition.z = 0;
-        Vector3 MousePosition = Utils.worldMousePosition;
-        relativePositon += new Vector3(
-            Input.GetAxis("Horizontal"),
-            Input.GetAxis("Vertical"), 
-            Input.mouseScrollDelta.y
-        ) * speedOfMovment;
-        relativePositon.z = Mathf.Clamp(relativePositon.z, minZoom, maxZoom);
 
-        if (z != relativePositon.z)
+    private void Update()
+    {
+        var z = relativePosition.z;
+        var previousPosition = transform.position;
+        previousPosition.z = 0;
+        var mousePosition = Utils.WorldMousePosition;
+        relativePosition += new Vector3(
+            Input.GetAxis("Horizontal"),
+            Input.GetAxis("Vertical"),
+            Input.mouseScrollDelta.y
+        ) * speedOfMovement;
+        relativePosition.z = Mathf.Clamp(relativePosition.z, minZoom, maxZoom);
+
+        // ReSharper disable once CompareOfFloatsByEqualityOperator
+        if (z != relativePosition.z)
         {
-            float k = z / (z - relativePositon.z);
-            relativePositon += (MousePosition - previousPosition) / k;
+            var k = z / (z - relativePosition.z);
+            relativePosition += (mousePosition - previousPosition) / k;
         }
+
         if (Input.GetMouseButton(1))
         {
             if (previousMousePosition.HasValue)
-            {
-                relativePositon += previousMousePosition.Value - MousePosition;
-            }
+                relativePosition += previousMousePosition.Value - mousePosition;
         }
         else
         {
             previousMousePosition = null;
         }
-        relativePositon.x = Mathf.Clamp(relativePositon.x, minPos, maxPos);
-        relativePositon.y = Mathf.Clamp(relativePositon.y, minPos, maxPos);
-        transform.position = ReferenceFrameHost.ReferenceFrame.transform.position + relativePositon;
+
+        relativePosition.x = Mathf.Clamp(relativePosition.x, minPos, maxPos);
+        relativePosition.y = Mathf.Clamp(relativePosition.y, minPos, maxPos);
+        transform.position =
+            ReferenceFrameHost.ReferenceFrame.transform.position + relativePosition;
         if (Input.GetMouseButton(1))
         {
-            previousMousePosition = Utils.worldMousePosition;
+            previousMousePosition = Utils.WorldMousePosition;
         }
     }
 }

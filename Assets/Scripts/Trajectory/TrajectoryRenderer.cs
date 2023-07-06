@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
@@ -7,25 +8,25 @@ using System.Linq;
 [RequireComponent(typeof(FutureTransform))]
 public class TrajectoryRenderer : MonoBehaviour
 {
-    LineRenderer lineRenderer;
-    FutureTransform futureTransform;
+    private LineRenderer lineRenderer;
+    private FutureTransform futureTransform;
     public float animtionDuration = 0.3f;
     public int minStepsDuringAnimation = 1000;
 
     private bool hasReset;
     private bool shouldRenderUnfinished = false;
-    public Vector3[] trajectory = new Vector3[0];
+    public Vector3[] trajectory = Array.Empty<Vector3>();
     private Gradient initialGradient;
-    private Gradient gradient = new Gradient();
+    private readonly Gradient gradient = new();
     private int minTrajectoryStepsToRender;
-    private int lastResetStep = 0;
+    private int lastResetStep;
 
-    void Start()
+    private void Start()
     {
         lineRenderer = GetComponent<LineRenderer>();
         initialGradient = lineRenderer.colorGradient;
         futureTransform = GetComponent<FutureTransform>();
-        FuturePhysics.beforeReset.AddListener((FuturePhysics.ResetParams resetParams) =>
+        FuturePhysics.beforeReset.AddListener(resetParams =>
         {
             lastResetStep = resetParams.step;
             hasReset = true;
@@ -34,7 +35,7 @@ public class TrajectoryRenderer : MonoBehaviour
         });
     }
 
-    void Update()
+    private void Update()
     {
         trajectory = GetRenderedTrajectory();
         lineRenderer.positionCount = trajectory.Length;
@@ -43,82 +44,60 @@ public class TrajectoryRenderer : MonoBehaviour
     }
 
 
-    Vector3[] GetRenderedTrajectory()
+    private Vector3[] GetRenderedTrajectory()
     {
         var actualTrajectory = GetTrajectory();
-        if (actualTrajectory.Length >= FuturePhysics.maxSteps - 1)
+        if (actualTrajectory.Length >= FuturePhysics.MaxSteps - 1)
         {
             hasReset = false;
             shouldRenderUnfinished = false;
         }
-        if (hasReset && actualTrajectory.Length < minTrajectoryStepsToRender)
-        {
-            return trajectory; // reduce flickering
-        }
-        if (!shouldRenderUnfinished && hasReset)
-        {
-            return trajectory;
-        }
+
+        if (hasReset &&
+            actualTrajectory.Length <
+            minTrajectoryStepsToRender) return trajectory; // reduce flickering
+        if (!shouldRenderUnfinished && hasReset) return trajectory;
         return actualTrajectory;
     }
 
-    Vector3[] GetTrajectory()
+    private Vector3[] GetTrajectory()
     {
-        Vector3[] myTrajectory = futureTransform.GetFutureStates().Select(
-                       state => state.position).ToArray();
-        Vector3[] frameOfReferenceTrajectory = ReferenceFrameHost.ReferenceFrame.FutureTransform.GetFutureStates().Select(
-                       state => state.position).ToArray();
-        if (myTrajectory.Length == 0)
-        {
-            return myTrajectory;
-        }
+        var myTrajectory = futureTransform.GetFutureStates().Select(
+            state => state.position).ToArray();
+        var frameOfReferenceTrajectory = ReferenceFrameHost.ReferenceFrame.futureTransform
+            .GetFutureStates().Select(
+                state => state.position).ToArray();
+        if (myTrajectory.Length == 0) return myTrajectory;
         if (frameOfReferenceTrajectory.Length == 0)
-        {
             return frameOfReferenceTrajectory; // no trajectory available
-        }
-        Vector3 referencePos = ReferenceFrameHost.ReferenceFrame.transform.position;
-        for (int i = 0; i < frameOfReferenceTrajectory.Length && i < myTrajectory.Length; i++)
-        {
+        var referencePos = ReferenceFrameHost.ReferenceFrame.transform.position;
+        for (var i = 0; i < frameOfReferenceTrajectory.Length && i < myTrajectory.Length; i++)
             myTrajectory[i] -= frameOfReferenceTrajectory[i] - referencePos;
-        }
-        for (int i = frameOfReferenceTrajectory.Length; i < myTrajectory.Length; i++)
-        {
+        for (var i = frameOfReferenceTrajectory.Length; i < myTrajectory.Length; i++)
             myTrajectory[i] = myTrajectory[frameOfReferenceTrajectory.Length - 1];
-        }
         return myTrajectory;
     }
 
 
     private void UpdateTrajectoryColor()
     {
-        if (trajectory.Length == 0)
-        {
-            return;
-        }
-        List<GradientColorKey> colorKeys = new();
-        List<GradientAlphaKey> alphaKeys = new();
-        foreach (GradientColorKey colorKey in initialGradient.colorKeys)
-        {
-            float? trajectoryPercent = CalculateTrajectoryPercent(colorKey.time);
-            if (trajectoryPercent.HasValue)
-            {
-                colorKeys.Add(new GradientColorKey(colorKey.color, trajectoryPercent.Value));
-            }
-        }
-        foreach (GradientAlphaKey alphaKey in initialGradient.alphaKeys)
-        {
-            float? trajectoryPercent = CalculateTrajectoryPercent(alphaKey.time);
-            if (trajectoryPercent.HasValue)
-            {
-                alphaKeys.Add(new GradientAlphaKey(alphaKey.alpha, trajectoryPercent.Value));
-            }
-        }
-        float lastPosition = (float)trajectory.Length / FuturePhysics.maxSteps;
-        Color lastColor = initialGradient.Evaluate(lastPosition);
+        if (trajectory.Length == 0) return;
+        var colorKeys = (from colorKey in initialGradient.colorKeys
+            let trajectoryPercent = CalculateTrajectoryPercent(colorKey.time)
+            where trajectoryPercent.HasValue
+            select new GradientColorKey(colorKey.color, trajectoryPercent.Value)).ToList();
+
+        var alphaKeys = (from alphaKey in initialGradient.alphaKeys
+            let trajectoryPercent = CalculateTrajectoryPercent(alphaKey.time)
+            where trajectoryPercent.HasValue
+            select new GradientAlphaKey(alphaKey.alpha, trajectoryPercent.Value)).ToList();
+
+        var lastPosition = (float)trajectory.Length / FuturePhysics.MaxSteps;
+        var lastColor = initialGradient.Evaluate(lastPosition);
         colorKeys.Add(new GradientColorKey(lastColor, 1f));
 
-        float resetTrajectoryPercent = (float) lastResetStep / trajectory.Length;
-        var resetColor = initialGradient.Evaluate((float) lastResetStep / FuturePhysics.maxSteps);
+        var resetTrajectoryPercent = (float)lastResetStep / trajectory.Length;
+        var resetColor = initialGradient.Evaluate((float)lastResetStep / FuturePhysics.MaxSteps);
         colorKeys.Add(new GradientColorKey(resetColor, resetTrajectoryPercent));
         alphaKeys.Add(new GradientAlphaKey(resetColor.a, resetTrajectoryPercent));
 
@@ -128,11 +107,8 @@ public class TrajectoryRenderer : MonoBehaviour
 
     private float? CalculateTrajectoryPercent(float fullTrajectoryPercent)
     {
-        int stepForKey = Mathf.RoundToInt(FuturePhysics.maxSteps * fullTrajectoryPercent);
-        if (stepForKey > trajectory.Length)
-        {
-            return null;
-        }
+        var stepForKey = Mathf.RoundToInt(FuturePhysics.MaxSteps * fullTrajectoryPercent);
+        if (stepForKey > trajectory.Length) return null;
         return (float)stepForKey / trajectory.Length;
     }
 }

@@ -8,34 +8,29 @@ using TMPro;
 public class FuturePhysicsRunner : MonoBehaviour
 {
     public static int timeScale = 0;
-    private bool isThreadStarted = false;
-    AutoResetEvent waitHandle = new AutoResetEvent(false);
+    private bool isThreadStarted;
+    private readonly AutoResetEvent waitHandle = new(false);
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         if (!isThreadStarted)
         {
-            Thread virtualRunner = new Thread(VirtualStepRunner);
+            var virtualRunner = new Thread(VirtualStepRunner);
             virtualRunner.Start();
             isThreadStarted = true;
         }
-        for (int i = 0; i < timeScale; i++)
-        {
-            FuturePhysics.Step();
-        }
+
+        for (var i = 0; i < timeScale; i++) FuturePhysics.Step();
         waitHandle.Set();
     }
 
-    void VirtualStepRunner()
+    private void VirtualStepRunner()
     {
         while (true)
         {
-            while (FuturePhysics.lastVirtualStep - FuturePhysics.currentStep < FuturePhysics.maxSteps)
-            {
-                FuturePhysics.VirtualStep();
-            }
+            while (FuturePhysics.lastVirtualStep - FuturePhysics.currentStep <
+                   FuturePhysics.MaxSteps) FuturePhysics.VirtualStep();
             waitHandle.WaitOne();
         }
-       
     }
 }
