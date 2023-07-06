@@ -393,6 +393,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c713ae44746b5344b2264242bacafea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  stepsPerSecond: 50
 --- !u!4 &251124875
 Transform:
   m_ObjectHideFlags: 0
@@ -649,8 +650,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isActiveInitially: 0
-  isActive: 0
-  FutureTransform: {fileID: 0}
 --- !u!114 &335627508
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -677,7 +676,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0163fd36e2933d645ac7b35d3ab7a828, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animtionDuration: 0.3
+  animationDuration: 0.3
   minStepsDuringAnimation: 100
   trajectory: []
 --- !u!120 &335627510
@@ -1029,7 +1028,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &503510909
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1146,7 +1145,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0163fd36e2933d645ac7b35d3ab7a828, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animtionDuration: 0.3
+  animationDuration: 0.3
   minStepsDuringAnimation: 100
   trajectory: []
 --- !u!120 &503510916
@@ -1293,8 +1292,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isActiveInitially: 0
-  isActive: 0
-  FutureTransform: {fileID: 0}
 --- !u!1 &541117026
 GameObject:
   m_ObjectHideFlags: 0
@@ -1459,7 +1456,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fd86f0a215f85f42947735d62accb75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sources: []
   futureTransform: {fileID: 0}
   futureRigidBody2D: {fileID: 0}
 --- !u!114 &577491971
@@ -1474,7 +1470,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0163fd36e2933d645ac7b35d3ab7a828, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animtionDuration: 0.3
+  animationDuration: 0.3
   minStepsDuringAnimation: 100
   trajectory: []
 --- !u!120 &577491972
@@ -1831,7 +1827,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0163fd36e2933d645ac7b35d3ab7a828, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animtionDuration: 0.3
+  animationDuration: 0.3
   minStepsDuringAnimation: 1000
   trajectory: []
 --- !u!114 &711660715
@@ -1846,7 +1842,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fd86f0a215f85f42947735d62accb75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sources: []
   futureTransform: {fileID: 0}
   futureRigidBody2D: {fileID: 0}
 --- !u!114 &711660716
@@ -1893,7 +1888,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   center: {fileID: 335627511}
   aScale: 1
-  clockWise: 1
+  clockWise: 0
 --- !u!114 &711660719
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1907,8 +1902,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isActiveInitially: 0
-  isActive: 0
-  FutureTransform: {fileID: 0}
 --- !u!1 &841043673
 GameObject:
   m_ObjectHideFlags: 0
@@ -2413,7 +2406,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 620dc02039a271a4886760dd76cb5f4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speedOfMovment: 1
+  speedOfMovement: 1
   minPos: -100
   maxPos: 100
   minZoom: -50
@@ -7436,8 +7429,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isActiveInitially: 1
-  isActive: 0
-  FutureTransform: {fileID: 0}
 --- !u!120 &1323454818
 LineRenderer:
   serializedVersion: 2
@@ -7553,7 +7544,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0163fd36e2933d645ac7b35d3ab7a828, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animtionDuration: 0.3
+  animationDuration: 0.3
   minStepsDuringAnimation: 100
   trajectory: []
 --- !u!1 &1475368981
@@ -7708,7 +7699,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1541972356
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7721,7 +7712,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0163fd36e2933d645ac7b35d3ab7a828, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animtionDuration: 0.3
+  animationDuration: 0.3
   minStepsDuringAnimation: 100
   trajectory: []
 --- !u!120 &1541972357
@@ -7972,8 +7963,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isActiveInitially: 0
-  isActive: 0
-  FutureTransform: {fileID: 0}
 --- !u!1 &1552454183
 GameObject:
   m_ObjectHideFlags: 0

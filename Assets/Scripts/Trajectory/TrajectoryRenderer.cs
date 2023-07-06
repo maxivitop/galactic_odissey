@@ -10,7 +10,7 @@ public class TrajectoryRenderer : MonoBehaviour
 {
     private LineRenderer lineRenderer;
     private FutureTransform futureTransform;
-    public float animtionDuration = 0.3f;
+    public float animationDuration = 0.3f;
     public int minStepsDuringAnimation = 1000;
 
     private bool hasReset;

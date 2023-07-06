@@ -3,57 +3,57 @@ using UnityEngine;
 using UnityEngine.Events;
 using System;
 using System.Linq;
+using UnityEngine.Assertions;
 
 public class FuturePhysics
 {
     public const int MaxSteps = 20000;
     public const float DeltaTime = 0.02f;
-    public static int currentStep;
-    public static volatile int lastVirtualStep;
     public const float G = 1f;
+    
+    public static int currentStep;
+    public static int lastVirtualStep;
     public static readonly UnityEvent<ResetParams> beforeReset = new();
 
     private static readonly List<IFutureState> futureStates = new();
     private static readonly Dictionary<Type, List<IFutureState>> typeToFutureStates = new();
-    private static readonly object @lock = new();
     private static readonly ResetParams lastResetParams = new();
 
     public static void Step()
     {
+        FuturePhysicsRunner.CheckThread();
         currentStep++;
+        while (currentStep >  lastVirtualStep)
+        {
+            VirtualStep();
+        }
         foreach (var state in futureStates) state.Step(currentStep);
     }
 
     public static void VirtualStep()
     {
-        lock (@lock)
-        {
-            foreach (var state in futureStates) state.VirtualStep(lastVirtualStep);
-
-            // ReSharper disable once NonAtomicCompoundOperator
-            lastVirtualStep++;
-        }
+        FuturePhysicsRunner.CheckThread();
+        foreach (var state in futureStates) state.VirtualStep(lastVirtualStep);
+        
+        lastVirtualStep++;
     }
 
     public static void AddObject(Type type, IFutureState obj)
     {
-        lock (@lock)
-        {
-            futureStates.Add(obj);
-            if (!typeToFutureStates.ContainsKey(type))
-                typeToFutureStates[type] = new List<IFutureState>();
+        FuturePhysicsRunner.CheckThread();
 
-            typeToFutureStates[type].Add(obj);
-        }
+        futureStates.Add(obj);
+        if (!typeToFutureStates.ContainsKey(type))
+            typeToFutureStates[type] = new List<IFutureState>();
+
+        typeToFutureStates[type].Add(obj);
     }
 
     public static void RemoveObject(Type type, IFutureState obj)
     {
-        lock (@lock)
-        {
-            futureStates.Remove(obj);
-            if (typeToFutureStates.TryGetValue(type, out var states)) states.Remove(obj);
-        }
+        FuturePhysicsRunner.CheckThread();
+        futureStates.Remove(obj);
+        if (typeToFutureStates.TryGetValue(type, out var states)) states.Remove(obj);
     }
 
     public static IEnumerable<T> GetComponents<T>(int step) where T : class
@@ -63,6 +63,7 @@ public class FuturePhysics
 
     public static void Reset(int step, GameObject cause)
     {
+        FuturePhysicsRunner.CheckThread();
         if (step < currentStep)
         {
             Debug.LogError("reset on " + step + " with current step " + currentStep);
@@ -74,11 +75,8 @@ public class FuturePhysics
         lastResetParams.step = step;
         lastResetParams.cause = cause;
         beforeReset.Invoke(lastResetParams);
-        lock (@lock)
-        {
-            lastVirtualStep = step;
-            foreach (var state in futureStates) state.Reset(step);
-        }
+        lastVirtualStep = step; 
+        foreach (var state in futureStates) state.Reset(step);
     }
 
     public class ResetParams
