@@ -8,16 +8,17 @@ public class FuturePhysicsRunner : MonoBehaviour
 {
     public delegate void ExecuteOnUpdateDelegate();
     
+    public static int timeScale = 0;
+    public static readonly Event<int> onBgThreadIdle = new();
+    public const float StepsPerSecond = 50;
+    public static int stepsNextFrame;
+    
     private static volatile Thread activeThread;
     private static volatile Thread bgThread;
     private static bool isQuitting;
     private static readonly AutoResetEvent mainThreadFinished = new(false);
     private static readonly AutoResetEvent bgThreadFinished = new(true);
     private static readonly List<ExecuteOnUpdateDelegate> executeOnUpdateQueue = new();
-
-    public static int timeScale = 0;
-    public static readonly Event<int> onBgThreadIdle = new();
-    public const float StepsPerSecond = 50;
     
     private bool isThreadStarted;
     private float timePerStep;
@@ -48,11 +49,12 @@ public class FuturePhysicsRunner : MonoBehaviour
         executeOnUpdateQueue.Clear();
         
         StartThreadIfNeeded();
+        var stepsThisFrame = stepsNextFrame;
         unusedDeltaTime += Time.deltaTime;
-        var stepsThisFrame = Mathf.FloorToInt(StepsPerSecond * unusedDeltaTime);
-        unusedDeltaTime -= stepsThisFrame * timePerStep;
-        var scaledSteps = stepsThisFrame * timeScale;
-        for (var i = 0; i < scaledSteps; i++) FuturePhysics.Step();
+        var stepsPerNextFrame = Mathf.FloorToInt(StepsPerSecond * unusedDeltaTime);
+        unusedDeltaTime -= stepsPerNextFrame * timePerStep;
+        stepsNextFrame = stepsPerNextFrame * timeScale;
+        for (var i = 0; i < stepsThisFrame; i++) FuturePhysics.Step();
         // lock is released by [ReleaseLock] after all Updates.
     }
     

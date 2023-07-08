@@ -20,8 +20,8 @@ public class CameraMover : MonoBehaviour
         relativePosition = transform.position;
         ReferenceFrameHost.referenceFrameChangeOld.AddListener((ReferenceFrameHost old) =>
         {
-            relativePosition += old.transform.position -
-                                ReferenceFrameHost.ReferenceFrame.transform.position;
+            relativePosition += GetReferencePosition(old) -
+                                GetReferencePosition(ReferenceFrameHost.ReferenceFrame);
         });
     }
 
@@ -57,11 +57,18 @@ public class CameraMover : MonoBehaviour
 
         relativePosition.x = Mathf.Clamp(relativePosition.x, minPos, maxPos);
         relativePosition.y = Mathf.Clamp(relativePosition.y, minPos, maxPos);
-        transform.position =
-            ReferenceFrameHost.ReferenceFrame.transform.position + relativePosition;
+        transform.position = GetReferencePosition(ReferenceFrameHost.ReferenceFrame) 
+                             + relativePosition;
         if (Input.GetMouseButton(1))
         {
             previousMousePosition = Utils.WorldMousePosition;
         }
+    }
+
+    private static Vector3 GetReferencePosition(ReferenceFrameHost referenceFrameHost)
+    {
+        return referenceFrameHost.futureTransform
+            .GetState(TrajectoryProvider.TrajectoryStepToPhysicsStep(0))
+            .position;
     }
 }

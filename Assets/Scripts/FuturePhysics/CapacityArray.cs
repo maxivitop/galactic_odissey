@@ -8,4 +8,13 @@ public class CapacityArray<T>
         array = new T[capacity];
         this.size = size;
     }
+
+    public void CopyIntoSelf(CapacityArray<T> value)
+    {
+        for (var i = 0; i < value.size; i++)
+        {
+            array[i] = value.array[i];
+        }
+        size = value.size;
+    }
 }

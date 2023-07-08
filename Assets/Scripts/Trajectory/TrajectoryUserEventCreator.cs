@@ -135,7 +135,7 @@ public class TrajectoryUserEventCreator : MonoBehaviour
                     closest = position;
                     minDistance = (closest.Value - worldMousePosition).sqrMagnitude;
                     closestTransform = receiver.futureTransform;
-                    closestStep = receiver.trajectoryProvider.TrajectoryStepToPhysicsStep(i);
+                    closestStep = TrajectoryProvider.TrajectoryStepToPhysicsStep(i);
                     continue;
                 }
 

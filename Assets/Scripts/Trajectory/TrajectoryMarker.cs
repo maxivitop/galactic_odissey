@@ -88,7 +88,7 @@ public class TrajectoryMarker : FutureBehaviour
 
         transform.position =
             targetTrajectoryProvider.trajectory.array[
-                targetTrajectoryProvider.PhysicsStepToTrajectoryStep(step)
+                TrajectoryProvider.PhysicsStepToTrajectoryStep(step)
             ];
     }
 
