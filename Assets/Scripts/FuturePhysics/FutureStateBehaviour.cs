@@ -6,7 +6,7 @@ using System.Linq;
 
 public abstract class FutureStateBehaviour<TState> : FutureBehaviour where TState : IEvolving<TState>
 {
-    private readonly List<TState> states = new();
+    private readonly CyclicArray<TState> states = new(FuturePhysics.MaxSteps+1);
 
     protected abstract TState GetInitialState();
 
@@ -39,6 +39,6 @@ public abstract class FutureStateBehaviour<TState> : FutureBehaviour where TStat
         FuturePhysicsRunner.CheckThread();
 
         if (states.Count <= step) return;
-        states.RemoveRange(step, states.Count - step);
+        states.ReduceSizeTo(step);
     }
 }

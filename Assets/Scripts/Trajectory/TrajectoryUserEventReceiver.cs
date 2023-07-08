@@ -37,7 +37,7 @@ public class TrajectoryUserEventReceiver : MonoBehaviour
         {
             var position = trajectory.array[i];
             var distance = (position - worldMousePosition).sqrMagnitude;
-            if (distance < minDistance)
+            if (distance + 2 * Mathf.Epsilon < minDistance)
             {
                 closestToMouseTrajectoryPosition = position;
                 closestToMouseTrajectoryStep = i;
