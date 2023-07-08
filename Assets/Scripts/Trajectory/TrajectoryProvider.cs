@@ -8,6 +8,9 @@ public class TrajectoryProvider : FutureBehaviour
 {
     [NonSerialized]
     public CapacityArray<Vector3> trajectory = new(FuturePhysics.MaxSteps);
+
+    public readonly Event<CapacityArray<Vector3>> onTrajectoryUpdated = new();
+    
     private static int trajectoryStartStep;
     
     private CapacityArray<Vector3> referenceFrameTrajectory = new(FuturePhysics.MaxSteps);
@@ -105,6 +108,7 @@ public class TrajectoryProvider : FutureBehaviour
         if (updatedThisFrame) return;
         updatedThisFrame = true;
         UpdateTrajectory(step);
+        onTrajectoryUpdated.Invoke(trajectory);
     }
     
     public override void VirtualStep(int step)

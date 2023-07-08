@@ -17,4 +17,10 @@ public class CapacityArray<T>
         }
         size = value.size;
     }
+
+    public T GetOrElse(int index, T value)
+    {
+        if (index < 0 || index > size) return value;
+        return array[index];
+    }
 }

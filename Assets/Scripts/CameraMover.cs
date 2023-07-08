@@ -18,7 +18,7 @@ public class CameraMover : MonoBehaviour
     private void Start()
     {
         relativePosition = transform.position;
-        ReferenceFrameHost.referenceFrameChangeOld.AddListener((ReferenceFrameHost old) =>
+        ReferenceFrameHost.referenceFrameChangeOld.AddListener(old =>
         {
             relativePosition += GetReferencePosition(old) -
                                 GetReferencePosition(ReferenceFrameHost.ReferenceFrame);
@@ -30,7 +30,7 @@ public class CameraMover : MonoBehaviour
         var z = relativePosition.z;
         var previousPosition = transform.position;
         previousPosition.z = 0;
-        var mousePosition = Utils.WorldMousePosition;
+        var mousePosition = MouseHandler.WorldMousePosition;
         relativePosition += new Vector3(
             Input.GetAxis("Horizontal"),
             Input.GetAxis("Vertical"),
@@ -61,7 +61,7 @@ public class CameraMover : MonoBehaviour
                              + relativePosition;
         if (Input.GetMouseButton(1))
         {
-            previousMousePosition = Utils.WorldMousePosition;
+            previousMousePosition = MouseHandler.WorldMousePosition;
         }
     }
 

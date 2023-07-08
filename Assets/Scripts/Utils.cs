@@ -4,24 +4,15 @@ using UnityEngine;
 
 public class Utils
 {
-    public static Vector3 WorldMousePosition =>
-        Camera.main!.ScreenToWorldPoint(new Vector3(
-            Input.mousePosition.x,
-            Input.mousePosition.y,
-            -Camera.main.transform.position.z
-        ));
-
-    public static IFuturePositionProvider SelectFuturePositionProvider(GameObject gameObject)
+    public static Vector3 FindNearestPointOnSegment(Vector3 start, Vector3 end, Vector3 point)
     {
-        var maxPriority = int.MinValue;
-        IFuturePositionProvider maxPriorityFuturePositionProvider = null;
-        foreach (var futurePositionProvider in gameObject.GetComponents<IFuturePositionProvider>())
-            if (maxPriority < futurePositionProvider.GetPriority())
-            {
-                maxPriority = futurePositionProvider.GetPriority();
-                maxPriorityFuturePositionProvider = futurePositionProvider;
-            }
+        var direction = end - start;
+        var magnitudeMax = direction.magnitude;
+        direction /= magnitudeMax; // normalize
 
-        return maxPriorityFuturePositionProvider;
+        //Do projection from the point but clamp it
+        var dotP = Vector3.Dot(point - start, direction);
+        dotP = Mathf.Clamp(dotP, 0f, magnitudeMax);
+        return start + direction * dotP;
     }
 }

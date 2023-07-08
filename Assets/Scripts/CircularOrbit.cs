@@ -16,7 +16,7 @@ public class CircularOrbit : FutureBehaviour, IFuturePositionProvider
 
     private void Start()
     {
-        centerPositionProvider = Utils.SelectFuturePositionProvider(center);
+        centerPositionProvider = IFuturePositionProvider.SelectFuturePositionProvider(center);
         futureTransform = GetComponent<FutureTransform>();
         rigidBody = GetComponent<FutureRigidBody2D>();
         var radiusVector = center.transform.position - transform.position;
