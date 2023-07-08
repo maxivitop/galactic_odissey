@@ -13,7 +13,7 @@ public class FuturePhysics
     
     public static int currentStep;
     public static int lastVirtualStep;
-    public static readonly UnityEvent<ResetParams> beforeReset = new();
+    public static readonly Event<ResetParams> beforeReset = new();
 
     private static readonly List<IFutureState> futureStates = new();
     private static readonly Dictionary<Type, List<IFutureState>> typeToFutureStates = new();
@@ -76,7 +76,7 @@ public class FuturePhysics
         lastResetParams.cause = cause;
         beforeReset.Invoke(lastResetParams);
         lastVirtualStep = step; 
-        foreach (var state in futureStates) state.Reset(step);
+        foreach (var state in futureStates) state.ResetToStep(step, cause);
     }
 
     public class ResetParams

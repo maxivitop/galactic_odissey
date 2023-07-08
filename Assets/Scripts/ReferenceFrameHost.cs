@@ -8,7 +8,7 @@ using UnityEngine.Serialization;
 
 public class ReferenceFrameHost : MonoBehaviour, IPointerClickHandler
 {
-    public static readonly UnityEvent<ReferenceFrameHost> referenceFrameChangeOld = new();
+    public static readonly Event<ReferenceFrameHost> referenceFrameChangeOld = new();
     private static ReferenceFrameHost referenceFrame;
 
     public static ReferenceFrameHost ReferenceFrame
@@ -16,10 +16,6 @@ public class ReferenceFrameHost : MonoBehaviour, IPointerClickHandler
         get => referenceFrame;
         private set
         {
-            if (referenceFrame != null)
-            {
-            }
-
             var oldReferenceFrame = referenceFrame;
             referenceFrame = value;
             if (oldReferenceFrame != null) referenceFrameChangeOld.Invoke(oldReferenceFrame);
@@ -30,6 +26,8 @@ public class ReferenceFrameHost : MonoBehaviour, IPointerClickHandler
 
     [NonSerialized]
     public FutureTransform futureTransform;
+    [NonSerialized]
+    public TrajectoryProvider trajectoryProvider;
 
     private float lastClickTime;
 
@@ -44,6 +42,7 @@ public class ReferenceFrameHost : MonoBehaviour, IPointerClickHandler
         }
 
         futureTransform = GetComponent<FutureTransform>();
+        trajectoryProvider = GetComponent<TrajectoryProvider>();
     }
 
     public void OnPointerClick(PointerEventData eventData)

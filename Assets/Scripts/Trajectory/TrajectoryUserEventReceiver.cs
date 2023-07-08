@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(FutureTransform))]
-[RequireComponent(typeof(TrajectoryRenderer))]
+[RequireComponent(typeof(TrajectoryProvider))]
 public class TrajectoryUserEventReceiver : MonoBehaviour
 {
     public static readonly List<TrajectoryUserEventReceiver> all = new();
     public FutureTransform futureTransform;
-    public TrajectoryRenderer trajectoryRenderer;
+    public TrajectoryProvider trajectoryProvider;
 
     private void OnEnable()
     {
         futureTransform = GetComponent<FutureTransform>();
-        trajectoryRenderer = GetComponent<TrajectoryRenderer>();
+        trajectoryProvider = GetComponent<TrajectoryProvider>();
         all.Add(this);
     }
 

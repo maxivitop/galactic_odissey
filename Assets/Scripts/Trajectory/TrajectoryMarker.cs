@@ -6,7 +6,7 @@ public class TrajectoryMarker : FutureBehaviour
     public Material selectedMaterial;
     public Renderer myRenderer;
     public FutureTransform targetTransform;
-    public TrajectoryRenderer targetTrajectoryRenderer;
+    public TrajectoryProvider targetTrajectoryProvider;
     public int step;
     public bool isSpawned;
     private Material usualMaterial;
@@ -62,7 +62,7 @@ public class TrajectoryMarker : FutureBehaviour
     public void Spawn()
     {
         isSpawned = true;
-        targetTrajectoryRenderer = targetTransform.GetComponent<TrajectoryRenderer>();
+        targetTrajectoryProvider = targetTransform.GetComponent<TrajectoryProvider>();
     }
 
     // ReSharper disable once ParameterHidesMember
@@ -80,14 +80,16 @@ public class TrajectoryMarker : FutureBehaviour
     private void Update()
     {
         if (!isSpawned) return;
-        if (step - FuturePhysics.currentStep >= targetTrajectoryRenderer.trajectory.Length)
+        if (step - FuturePhysics.currentStep >= targetTrajectoryProvider.trajectory.size)
         {
             transform.position = new Vector3(1e10f, 1e10f);
             return;
         }
 
         transform.position =
-            targetTrajectoryRenderer.trajectory[step - FuturePhysics.currentStep];
+            targetTrajectoryProvider.trajectory.array[
+                targetTrajectoryProvider.PhysicsStepToTrajectoryStep(step)
+            ];
     }
 
     private void OnDestroy()

@@ -25,22 +25,16 @@ public abstract class FutureStateBehaviour<TState> : FutureBehaviour where TStat
     {
 #if DEBUG
         FuturePhysicsRunner.CheckThread();
-#endif
-        if (step == 0) SetState(0, GetInitialState());
         if (states.Count < step)
             Debug.LogError("Getting state for step " + step + " when max step is " +
                            states.Count);
-        else if (states.Count == step) SetState(step, states[^1].Next());
+#endif
+        if (step == 0) SetState(0, GetInitialState());
+        if (states.Count == step) SetState(step, states[^1].Next());
         return states[step];
     }
 
-    public IEnumerable<TState> GetFutureStates()
-    {
-        FuturePhysicsRunner.CheckThread();
-        return states.Skip(FuturePhysics.currentStep).ToArray();
-    }
-
-    public override void Reset(int step)
+    public override void ResetToStep(int step, GameObject cause)
     {
         FuturePhysicsRunner.CheckThread();
 

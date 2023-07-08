@@ -127,15 +127,15 @@ public class TrajectoryUserEventCreator : MonoBehaviour
         var closestStep = FuturePhysics.currentStep;
         foreach (var receiver in TrajectoryUserEventReceiver.all)
         {
-            var i = 0;
-            foreach (var position in receiver.trajectoryRenderer.trajectory)
+            for (var i = 0; i < receiver.trajectoryProvider.trajectory.size; i++)
             {
+                var position = receiver.trajectoryProvider.trajectory.array[i];
                 if (!closest.HasValue)
                 {
                     closest = position;
                     minDistance = (closest.Value - worldMousePosition).sqrMagnitude;
                     closestTransform = receiver.futureTransform;
-                    closestStep = FuturePhysics.currentStep + i;
+                    closestStep = receiver.trajectoryProvider.TrajectoryStepToPhysicsStep(i);
                     continue;
                 }
 

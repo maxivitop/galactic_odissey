@@ -6,7 +6,7 @@ using UnityEngine;
 public class FutureBehaviour : MonoBehaviour, IFutureState
 {
     // ReSharper disable once Unity.IncorrectMethodSignature
-    public virtual void Reset(int step)
+    public virtual void ResetToStep(int step, GameObject cause)
     {
     }
 
@@ -25,6 +25,9 @@ public class FutureBehaviour : MonoBehaviour, IFutureState
 
     private void OnDestroy()
     {
-        FuturePhysics.RemoveObject(GetType(), this);
+        FuturePhysicsRunner.ExecuteOnUpdate(() =>
+        {
+            FuturePhysics.RemoveObject(GetType(), this);
+        });
     }
 }

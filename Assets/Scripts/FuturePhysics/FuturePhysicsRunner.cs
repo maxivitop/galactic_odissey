@@ -1,51 +1,70 @@
 ﻿using System.Threading;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Assertions;
+using ThreadPriority = System.Threading.ThreadPriority;
 
 public class FuturePhysicsRunner : MonoBehaviour
 {
+    public delegate void ExecuteOnUpdateDelegate();
+    
     private static volatile Thread activeThread;
+    private static volatile Thread bgThread;
     private static bool isQuitting;
-    private static readonly Mutex mutex = new();
+    private static readonly AutoResetEvent mainThreadFinished = new(false);
+    private static readonly AutoResetEvent bgThreadFinished = new(true);
+    private static readonly List<ExecuteOnUpdateDelegate> executeOnUpdateQueue = new();
 
     public static int timeScale = 0;
-    public float stepsPerSecond = 50;
+    public static readonly Event<int> onBgThreadIdle = new();
+    public const float StepsPerSecond = 50;
+    
     private bool isThreadStarted;
-    private readonly AutoResetEvent waitHandle = new(false);
     private float timePerStep;
     private float unusedDeltaTime;
-    private IEnumerator mutexReleaser;
+    private IEnumerator mainThreadFinishedNotifier;
+    private static volatile bool isMainThreadWaiting = true;
+
 
     private void Awake()
     {
         activeThread = Thread.CurrentThread;
         
-        timePerStep = 1f / stepsPerSecond;
-        mutexReleaser = ReleaseMutex();
-        mutex.WaitOne();
-        StartCoroutine(mutexReleaser);
+        timePerStep = 1f / StepsPerSecond;
+        mainThreadFinishedNotifier = MainThreadFinishedNotifier();
+        StartCoroutine(mainThreadFinishedNotifier);
     }
 
     private void Update()
     {
-        mutex.WaitOne();
+        isMainThreadWaiting = true;
+        bgThreadFinished.WaitOne(100);
         activeThread = Thread.CurrentThread;
+        
+        foreach (var executeOnUpdate in executeOnUpdateQueue)
+        {
+            executeOnUpdate.Invoke();
+        }
+        executeOnUpdateQueue.Clear();
+        
         StartThreadIfNeeded();
         unusedDeltaTime += Time.deltaTime;
-        var stepsThisFrame = Mathf.FloorToInt(stepsPerSecond * unusedDeltaTime);
+        var stepsThisFrame = Mathf.FloorToInt(StepsPerSecond * unusedDeltaTime);
         unusedDeltaTime -= stepsThisFrame * timePerStep;
-        for (var i = 0; i < stepsThisFrame * timeScale; i++) FuturePhysics.Step();
-        waitHandle.Set();
-        // mutex is released by [ReleaseMutex] after all Updates.
+        var scaledSteps = stepsThisFrame * timeScale;
+        for (var i = 0; i < scaledSteps; i++) FuturePhysics.Step();
+        // lock is released by [ReleaseLock] after all Updates.
     }
     
     // IEnumerator is called after all Updates
-    private static IEnumerator ReleaseMutex()
+    private static IEnumerator MainThreadFinishedNotifier()
     {
+        yield return 0;
         while (true)
         {
-            mutex.ReleaseMutex();
+            isMainThreadWaiting = false;
+            activeThread = bgThread;
+            mainThreadFinished.Set();
             yield return 0;
         }
         // ReSharper disable once IteratorNeverReturns
@@ -54,39 +73,50 @@ public class FuturePhysicsRunner : MonoBehaviour
     private void StartThreadIfNeeded()
     {
         if (isThreadStarted) return;
-        var virtualRunner = new Thread(VirtualStepRunner);
-        virtualRunner.Start();
+        bgThread = new Thread(VirtualStepRunner)
+        {
+            Priority = ThreadPriority.AboveNormal
+        };
+        bgThread.Start();
         isThreadStarted = true;
     }
 
     private void VirtualStepRunner()
     {
+        mainThreadFinished.WaitOne();
         while (true)
         {
             while (FuturePhysics.lastVirtualStep - FuturePhysics.currentStep <
                    FuturePhysics.MaxSteps)
             {
-                mutex.WaitOne();
-                activeThread = Thread.CurrentThread;
+                if(isMainThreadWaiting)
+                {
+                    bgThreadFinished.Set();
+                    mainThreadFinished.WaitOne();
+                }
                 FuturePhysics.VirtualStep();
-                mutex.ReleaseMutex();
             }
-            waitHandle.WaitOne();
+            onBgThreadIdle.Invoke(FuturePhysics.lastVirtualStep);
+            bgThreadFinished.Set();
+            mainThreadFinished.WaitOne();
         }
         // ReSharper disable once FunctionNeverReturns
     }
 
-    private void OnApplicationQuit()
+    public static void ExecuteOnUpdate(ExecuteOnUpdateDelegate executeOnUpdateDelegate)
     {
-        isQuitting = true;
+        executeOnUpdateQueue.Add(executeOnUpdateDelegate);
     }
+
 
     public static void CheckThread()
     {
-        if (isQuitting)
+        if (activeThread == Thread.CurrentThread)
         {
             return;
         }
-        Assert.AreEqual(activeThread, Thread.CurrentThread);
+        Debug.LogError("Incorrect thread access from " +
+            (Thread.CurrentThread == bgThread ? "bg" : "main") +
+            " thread, isMainThreadWaiting=" + isMainThreadWaiting);
     }
 }

@@ -393,7 +393,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c713ae44746b5344b2264242bacafea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stepsPerSecond: 50
 --- !u!4 &251124875
 Transform:
   m_ObjectHideFlags: 0
@@ -630,6 +629,7 @@ GameObject:
   - component: {fileID: 335627509}
   - component: {fileID: 335627508}
   - component: {fileID: 335627507}
+  - component: {fileID: 335627518}
   m_Layer: 0
   m_Name: Planet (2)
   m_TagString: Untagged
@@ -676,9 +676,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0163fd36e2933d645ac7b35d3ab7a828, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animationDuration: 0.3
-  minStepsDuringAnimation: 100
-  trajectory: []
 --- !u!120 &335627510
 LineRenderer:
   serializedVersion: 2
@@ -900,6 +897,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &335627518
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 335627506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 366e68824a26432596d2bdc62fbb3e5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animationDuration: 0.3
+  minStepsAfterReset: 1000
 --- !u!1 &451237577
 GameObject:
   m_ObjectHideFlags: 0
@@ -1022,6 +1033,7 @@ GameObject:
   - component: {fileID: 503510915}
   - component: {fileID: 503510919}
   - component: {fileID: 503510920}
+  - component: {fileID: 503510921}
   m_Layer: 0
   m_Name: Moon
   m_TagString: Untagged
@@ -1126,7 +1138,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 503510908}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -49.35, y: 46.27, z: 0}
+  m_LocalPosition: {x: 9.1, y: 27, z: 0}
   m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -1145,9 +1157,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0163fd36e2933d645ac7b35d3ab7a828, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animationDuration: 0.3
-  minStepsDuringAnimation: 100
-  trajectory: []
 --- !u!120 &503510916
 LineRenderer:
   serializedVersion: 2
@@ -1292,6 +1301,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isActiveInitially: 0
+--- !u!114 &503510921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 503510908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 366e68824a26432596d2bdc62fbb3e5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animationDuration: 0.3
+  minStepsAfterReset: 1000
 --- !u!1 &541117026
 GameObject:
   m_ObjectHideFlags: 0
@@ -1407,6 +1430,7 @@ GameObject:
   - component: {fileID: 577491970}
   - component: {fileID: 577491969}
   - component: {fileID: 577491968}
+  - component: {fileID: 577491977}
   m_Layer: 0
   m_Name: Ship (1)
   m_TagString: Untagged
@@ -1443,7 +1467,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   futureTransform: {fileID: 0}
-  trajectoryRenderer: {fileID: 0}
+  trajectoryProvider: {fileID: 0}
 --- !u!114 &577491970
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1470,9 +1494,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0163fd36e2933d645ac7b35d3ab7a828, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animationDuration: 0.3
-  minStepsDuringAnimation: 100
-  trajectory: []
 --- !u!120 &577491972
 LineRenderer:
   serializedVersion: 2
@@ -1631,6 +1652,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &577491977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 577491967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 366e68824a26432596d2bdc62fbb3e5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animationDuration: 0.3
+  minStepsAfterReset: 1000
 --- !u!1 &711660706
 GameObject:
   m_ObjectHideFlags: 0
@@ -1650,6 +1685,7 @@ GameObject:
   - component: {fileID: 711660717}
   - component: {fileID: 711660718}
   - component: {fileID: 711660719}
+  - component: {fileID: 711660720}
   m_Layer: 0
   m_Name: Ship
   m_TagString: Untagged
@@ -1827,9 +1863,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0163fd36e2933d645ac7b35d3ab7a828, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animationDuration: 0.3
-  minStepsDuringAnimation: 1000
-  trajectory: []
 --- !u!114 &711660715
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1857,7 +1890,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   futureTransform: {fileID: 0}
-  trajectoryRenderer: {fileID: 0}
+  trajectoryProvider: {fileID: 0}
 --- !u!114 &711660717
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1902,6 +1935,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isActiveInitially: 0
+--- !u!114 &711660720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 711660706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 366e68824a26432596d2bdc62fbb3e5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animationDuration: 0.3
+  minStepsAfterReset: 1000
 --- !u!1 &841043673
 GameObject:
   m_ObjectHideFlags: 0
@@ -2448,6 +2495,7 @@ GameObject:
   - component: {fileID: 1323454817}
   - component: {fileID: 1323454818}
   - component: {fileID: 1323454819}
+  - component: {fileID: 1323454820}
   m_Layer: 0
   m_Name: Star
   m_TagString: Untagged
@@ -7544,9 +7592,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0163fd36e2933d645ac7b35d3ab7a828, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1323454820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1323454806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 366e68824a26432596d2bdc62fbb3e5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   animationDuration: 0.3
-  minStepsDuringAnimation: 100
-  trajectory: []
+  minStepsAfterReset: 1000
 --- !u!1 &1475368981
 GameObject:
   m_ObjectHideFlags: 0
@@ -7693,6 +7752,7 @@ GameObject:
   - component: {fileID: 1541972356}
   - component: {fileID: 1541972366}
   - component: {fileID: 1541972367}
+  - component: {fileID: 1541972368}
   m_Layer: 0
   m_Name: Planet (1)
   m_TagString: Untagged
@@ -7712,9 +7772,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0163fd36e2933d645ac7b35d3ab7a828, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animationDuration: 0.3
-  minStepsDuringAnimation: 100
-  trajectory: []
 --- !u!120 &1541972357
 LineRenderer:
   serializedVersion: 2
@@ -7929,7 +7986,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1541972354}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -44.23, y: 41.03, z: 0}
+  m_LocalPosition: {x: 14.219999, y: 21.759998, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -7963,6 +8020,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isActiveInitially: 0
+--- !u!114 &1541972368
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1541972354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 366e68824a26432596d2bdc62fbb3e5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animationDuration: 0.3
+  minStepsAfterReset: 1000
 --- !u!1 &1552454183
 GameObject:
   m_ObjectHideFlags: 0
