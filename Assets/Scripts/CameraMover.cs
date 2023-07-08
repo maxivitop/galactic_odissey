@@ -30,6 +30,7 @@ public class CameraMover : MonoBehaviour
         var z = relativePosition.z;
         var previousPosition = transform.position;
         previousPosition.z = 0;
+        MouseHandler.UpdateWorldMousePosition();
         var mousePosition = MouseHandler.WorldMousePosition;
         relativePosition += new Vector3(
             Input.GetAxis("Horizontal"),
@@ -61,6 +62,7 @@ public class CameraMover : MonoBehaviour
                              + relativePosition;
         if (Input.GetMouseButton(1))
         {
+            MouseHandler.UpdateWorldMousePosition();
             previousMousePosition = MouseHandler.WorldMousePosition;
         }
     }

@@ -15,7 +15,14 @@ public class MouseHandler : MonoBehaviour
     private bool isMouseOverObject;
     private readonly PointerEventData pointerEventData = new(EventSystem.current);
     private PhysicsRaycaster physicsRaycaster;
-
+    public static void UpdateWorldMousePosition()
+    {
+        WorldMousePosition = Camera.main!.ScreenToWorldPoint(new Vector3(
+            Input.mousePosition.x,
+            Input.mousePosition.y,
+            -Camera.main.transform.position.z
+        ));
+    }
     private void Start()
     {
         physicsRaycaster = Camera.main!.GetComponent<PhysicsRaycaster>();
@@ -23,12 +30,8 @@ public class MouseHandler : MonoBehaviour
 
     private void Update()
     {
-        WorldMousePosition = Camera.main!.ScreenToWorldPoint(new Vector3(
-            Input.mousePosition.x,
-            Input.mousePosition.y,
-            -Camera.main.transform.position.z
-        ));
 
+        UpdateWorldMousePosition();
         IsMouseOverEmptySpace = !IsMouseOverUiOrGameObject();
     }
 
