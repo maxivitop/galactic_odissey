@@ -6,12 +6,12 @@ using UnityEngine;
 [RequireComponent(typeof(FutureRigidBody2D))]
 public class GravitySource : FutureBehaviour
 {
-    public FutureTransform futureTransform;
     public FutureRigidBody2D futureRigidBody2D;
+    public IFuturePositionProvider futurePositionProvider;
 
     private void Start()
     {
-        futureTransform = GetComponent<FutureTransform>();
         futureRigidBody2D = GetComponent<FutureRigidBody2D>();
+        futurePositionProvider = IFuturePositionProvider.SelectFuturePositionProvider(gameObject);
     }
 }

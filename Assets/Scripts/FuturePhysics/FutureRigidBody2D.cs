@@ -63,16 +63,16 @@ public class FutureRigidBody2D : FutureStateBehaviour<RigidBody2DState>
             // Runge-Kutta 4th order simulation
             var position = (Vector2)futureTransform.GetState(step).position;
             var v1 = stepState.velocity;
-            var a1 = accelerationProvider.CalculateAcceleration(step, position) +
+            var a1 = accelerationProvider.CalculateAcceleration(step, 0f, position) +
                      stepState.acceleration;
             var v2 = v1 + a1 * (0.5f * FuturePhysics.DeltaTime);
-            var a2 = accelerationProvider.CalculateAcceleration(step,
+            var a2 = accelerationProvider.CalculateAcceleration(step, 0.5f,
                 position + v1 * (0.5f * FuturePhysics.DeltaTime)) + stepState.acceleration;
             var v3 = v1 + a2 * (0.5f * FuturePhysics.DeltaTime);
-            var a3 = accelerationProvider.CalculateAcceleration(step,
+            var a3 = accelerationProvider.CalculateAcceleration(step, 0.5f,
                 position + v2 * (0.5f * FuturePhysics.DeltaTime)) + stepState.acceleration;
             var v4 = v1 + a3 * FuturePhysics.DeltaTime;
-            var a4 = accelerationProvider.CalculateAcceleration(step,
+            var a4 = accelerationProvider.CalculateAcceleration(step, 1f,
                 position + v3 * FuturePhysics.DeltaTime) + stepState.acceleration;
 
             stepState.velocity += (a1 + 2 * a2 + 2 * a3 + a4) * (FuturePhysics.DeltaTime / 6.0f);

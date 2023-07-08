@@ -636,7 +636,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &335627507
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -805,7 +805,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4be8438abf89f9647b9bf7cba7990e81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  futureTransform: {fileID: 0}
   futureRigidBody2D: {fileID: 0}
 --- !u!114 &335627513
 MonoBehaviour:
@@ -1053,7 +1052,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4be8438abf89f9647b9bf7cba7990e81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  futureTransform: {fileID: 0}
   futureRigidBody2D: {fileID: 0}
 --- !u!114 &503510910
 MonoBehaviour:
@@ -2625,7 +2623,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4be8438abf89f9647b9bf7cba7990e81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  futureTransform: {fileID: 0}
   futureRigidBody2D: {fileID: 0}
 --- !u!114 &1323454809
 MonoBehaviour:
@@ -7949,7 +7946,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4be8438abf89f9647b9bf7cba7990e81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  futureTransform: {fileID: 0}
   futureRigidBody2D: {fileID: 0}
 --- !u!114 &1541972361
 MonoBehaviour:
