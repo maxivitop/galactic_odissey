@@ -630,6 +630,7 @@ GameObject:
   - component: {fileID: 335627508}
   - component: {fileID: 335627507}
   - component: {fileID: 335627518}
+  - component: {fileID: 335627519}
   m_Layer: 0
   m_Name: Planet (2)
   m_TagString: Untagged
@@ -741,8 +742,8 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0.19230796, g: 0.88235295, b: 0.101960756, a: 1}
-      key1: {r: 0.18039216, g: 0.8352942, b: 0.098039225, a: 0.34509805}
+      key0: {r: 0.6156863, g: 0.6117647, b: 0.6156863, a: 1}
+      key1: {r: 0.6156863, g: 0.6117647, b: 0.6156863, a: 0.34509805}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -910,6 +911,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animationDuration: 0.3
   minStepsAfterReset: 1000
+--- !u!114 &335627519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 335627506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  referenceCameraHeight: -30
+  scaleSelf: 0
 --- !u!1 &451237577
 GameObject:
   m_ObjectHideFlags: 0
@@ -1033,13 +1048,14 @@ GameObject:
   - component: {fileID: 503510919}
   - component: {fileID: 503510920}
   - component: {fileID: 503510921}
+  - component: {fileID: 503510922}
   m_Layer: 0
   m_Name: Moon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &503510909
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1137,7 +1153,7 @@ Transform:
   m_GameObject: {fileID: 503510908}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 9.1, y: 27, z: 0}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -1220,8 +1236,8 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0.101960756, g: 0.110473745, b: 0.88235295, a: 1}
-      key1: {r: 0.10196079, g: 0.10980393, b: 0.882353, a: 0.34509805}
+      key0: {r: 0.44705886, g: 0.37647063, b: 0.29411766, a: 1}
+      key1: {r: 0.44705886, g: 0.37647063, b: 0.29803923, a: 0.34509805}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -1313,6 +1329,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animationDuration: 0.3
   minStepsAfterReset: 1000
+--- !u!114 &503510922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 503510908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  referenceCameraHeight: -30
+  scaleSelf: 0
 --- !u!1 &541117026
 GameObject:
   m_ObjectHideFlags: 0
@@ -1429,6 +1459,7 @@ GameObject:
   - component: {fileID: 577491969}
   - component: {fileID: 577491968}
   - component: {fileID: 577491977}
+  - component: {fileID: 577491978}
   m_Layer: 0
   m_Name: Ship (1)
   m_TagString: Untagged
@@ -1664,6 +1695,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animationDuration: 0.3
   minStepsAfterReset: 1000
+--- !u!114 &577491978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 577491967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  referenceCameraHeight: -30
+  scaleSelf: 0
 --- !u!1 &711660706
 GameObject:
   m_ObjectHideFlags: 0
@@ -1684,6 +1729,7 @@ GameObject:
   - component: {fileID: 711660718}
   - component: {fileID: 711660719}
   - component: {fileID: 711660720}
+  - component: {fileID: 711660721}
   m_Layer: 0
   m_Name: Ship
   m_TagString: Untagged
@@ -1738,8 +1784,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 711660706}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.7, y: 6.9, z: 0}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_LocalPosition: {x: -2.13, y: 3.91, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 883814248}
@@ -1919,7 +1965,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   center: {fileID: 1323454816}
   aScale: 1
-  clockWise: 0
+  clockWise: 1
 --- !u!114 &711660719
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1947,6 +1993,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animationDuration: 0.3
   minStepsAfterReset: 1000
+--- !u!114 &711660721
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 711660706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  referenceCameraHeight: -30
+  scaleSelf: 1
 --- !u!1 &841043673
 GameObject:
   m_ObjectHideFlags: 0
@@ -2436,6 +2496,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1852576119}
   - {fileID: 953841312}
   - {fileID: 280317916}
   - {fileID: 251124875}
@@ -2459,7 +2520,7 @@ MonoBehaviour:
   minPos: -100
   maxPos: 100
   minZoom: -50
-  maxZoom: -3.1
+  maxZoom: -3
 --- !u!114 &963194230
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2542,6 +2603,7 @@ GameObject:
   - component: {fileID: 1323454818}
   - component: {fileID: 1323454819}
   - component: {fileID: 1323454820}
+  - component: {fileID: 1323454821}
   m_Layer: 0
   m_Name: Star
   m_TagString: Untagged
@@ -7651,6 +7713,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animationDuration: 0.3
   minStepsAfterReset: 1000
+--- !u!114 &1323454821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1323454806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  referenceCameraHeight: -30
+  scaleSelf: 0
 --- !u!1 &1475368981
 GameObject:
   m_ObjectHideFlags: 0
@@ -7798,13 +7874,14 @@ GameObject:
   - component: {fileID: 1541972366}
   - component: {fileID: 1541972367}
   - component: {fileID: 1541972368}
+  - component: {fileID: 1541972369}
   m_Layer: 0
   m_Name: Planet (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1541972356
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7882,8 +7959,8 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0.19230796, g: 0.88235295, b: 0.101960756, a: 1}
-      key1: {r: 0.18039216, g: 0.8352942, b: 0.098039225, a: 0.34509805}
+      key0: {r: 0.32941177, g: 0.7137255, b: 1, a: 1}
+      key1: {r: 0.32941177, g: 0.7137255, b: 1, a: 0.34509805}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -8078,6 +8155,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animationDuration: 0.3
   minStepsAfterReset: 1000
+--- !u!114 &1541972369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1541972354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  referenceCameraHeight: -30
+  scaleSelf: 0
 --- !u!1 &1552454183
 GameObject:
   m_ObjectHideFlags: 0
@@ -8312,6 +8403,51 @@ MonoBehaviour:
   timeScaleBase: 10
   timeScaleText: {fileID: 309634209}
   timeScaleSlider: {fileID: 451237579}
+--- !u!1 &1852576118
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1852576119}
+  - component: {fileID: 1852576120}
+  m_Layer: 0
+  m_Name: FrameRateLimiter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1852576119
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1852576118}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -1, z: 30}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 963194228}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1852576120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1852576118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d3980859929343d2ac0eceb33d2c871, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetFrameRate: 60
 --- !u!1 &1884240701
 GameObject:
   m_ObjectHideFlags: 0

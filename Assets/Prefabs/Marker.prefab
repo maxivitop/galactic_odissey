@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2581964592889987461}
   - component: {fileID: 5529724756523525931}
   - component: {fileID: -200392649391974216}
+  - component: {fileID: -2040859055259023540}
   m_Layer: 0
   m_Name: Marker
   m_TagString: Untagged
@@ -28,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 7679639554877760685}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1.82, y: 0, z: -0.0758152}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -100,5 +101,20 @@ MonoBehaviour:
   selectedMaterial: {fileID: 2100000, guid: 97573dabb3c4e964d81b458cf17873f3, type: 2}
   myRenderer: {fileID: 0}
   targetTransform: {fileID: 0}
-  targetTrajectoryRenderer: {fileID: 0}
+  targetTrajectoryProvider: {fileID: 0}
   step: 0
+  isSpawned: 0
+--- !u!114 &-2040859055259023540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7679639554877760685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  referenceCameraHeight: -30
+  scaleSelf: 1

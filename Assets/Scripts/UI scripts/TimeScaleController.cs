@@ -34,7 +34,7 @@ public class TimeScaleController : MonoBehaviour
         }
 
         var availableSteps = FuturePhysics.lastVirtualStep - FuturePhysics.currentStep;
-        if (availableSteps < FuturePhysicsRunner.stepsNextFrame && timeScaleSlider.value > 0)
+        if (availableSteps < FuturePhysicsRunner.stepsNextFrame*2 && timeScaleSlider.value > 0)
         {
             timeScaleSlider.value -= 1;
         }

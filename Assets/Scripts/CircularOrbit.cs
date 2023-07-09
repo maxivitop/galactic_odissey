@@ -32,11 +32,7 @@ public class CircularOrbit : FutureBehaviour, IFuturePositionProvider
 
     public override void VirtualStep(int step)
     {
-        var angle = startAngle + step * angleDelta;
-        futureTransform.GetState(step).position = new Vector3(
-            radius * Mathf.Cos(angle),
-            radius * Mathf.Sin(angle)
-        ) + centerPositionProvider.GetFuturePosition(step, 0);
+        futureTransform.GetState(step).position = GetFuturePosition(step, 0f);
     }
 
     public Vector3 GetFuturePosition(int step, float dt)
