@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class TransformState : IEvolving<TransformState>
 {
-    public Vector3 position;
+    public Vector3d position;
 
-    public TransformState(Vector3 position)
+    public TransformState(Vector3d position)
     {
         this.position = position;
     }
@@ -23,12 +23,12 @@ public class FutureTransform : FutureStateBehaviour<TransformState>, IFuturePosi
 
     private void OnEnable()
     {
-        initial = new TransformState(transform.position);
+        initial = new TransformState(new Vector3d(transform.position));
     }
 
     public override void Step(int step)
     {
-        transform.position = GetState(step).position;
+        transform.position = GetState(step).position.ToVector3();
     }
 
     protected override TransformState GetInitialState()
@@ -36,7 +36,7 @@ public class FutureTransform : FutureStateBehaviour<TransformState>, IFuturePosi
         return initial;
     }
 
-    public Vector3 GetFuturePosition(int step, float dt)
+    public Vector3d GetFuturePosition(int step, double dt)
     {
         return GetState(step).position;
     }

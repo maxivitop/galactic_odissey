@@ -2,5 +2,5 @@ using UnityEngine;
 
 public interface IAccelerationProvider
 {
-    Vector2 CalculateAcceleration(int step, float dt, Vector3 pos);
+    Vector2d CalculateAcceleration(int step, double dt, Vector3d pos);
 }

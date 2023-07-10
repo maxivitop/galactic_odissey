@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,25 +21,25 @@ public class InitialOrbitalVelocity : FutureBehaviour
     private void SetInitialVelocity()
     {
         rigidBody = GetComponent<FutureRigidBody2D>();
-        var r = transform.position - center.transform.position;
+        var r = new Vector3d(transform.position - center.transform.position);
         var initialVelocity =
             clockWise ? PerpendicularCounterClockwise(r) : PerpendicularClockwise(r);
         initialVelocity.Normalize();
         var a = r.magnitude * aScale;
         var actualCoefficient =
-            Mathf.Sqrt(center.initialMass * FuturePhysics.G * (2 / r.magnitude - 1 / a));
+            Math.Sqrt(center.initialMass * FuturePhysics.G * (2 / r.magnitude - 1 / a));
         initialVelocity *= actualCoefficient;
 
         rigidBody.initialVelocity = initialVelocity + center.initialVelocity;
     }
 
-    private static Vector2 PerpendicularClockwise(Vector2 vector2)
+    private static Vector2d PerpendicularClockwise(Vector2d v2)
     {
-        return new Vector2(vector2.y, -vector2.x);
+        return new Vector2d(v2.y, -v2.x);
     }
 
-    private static Vector2 PerpendicularCounterClockwise(Vector2 vector2)
+    private static Vector2d PerpendicularCounterClockwise(Vector2d v2)
     {
-        return new Vector2(-vector2.y, vector2.x);
+        return new Vector2d(-v2.y, v2.x);
     }
 }

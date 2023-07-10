@@ -73,7 +73,7 @@ public class TrajectoryProvider : FutureBehaviour
         var nextStep = trajectoryStartStep;
         for (var i = nextStep; i < step; i++)
         {
-            array.array[i - nextStep] = futureTransform.GetState(i).position;
+            array.array[i - nextStep] = futureTransform.GetState(i).position.ToVector3();
         }
 
         array.size = step - nextStep;
@@ -93,7 +93,7 @@ public class TrajectoryProvider : FutureBehaviour
             return;
         }
         var referencePos = ReferenceFrameHost.ReferenceFrame.futureTransform
-                .GetState(trajectoryStartStep).position;
+                .GetState(trajectoryStartStep).position.ToVector3();
         for (var i = 0; i < frameOfReferenceTrajectory.size && i < trajectory.size; i++)
             trajectory.array[i] -= frameOfReferenceTrajectory.array[i] - referencePos;
         for (var i = frameOfReferenceTrajectory.size; i < trajectory.size; i++)

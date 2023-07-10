@@ -30,14 +30,14 @@ public class GravityBody : FutureBehaviour
             this.myGravitySource = myGravitySource;
         }
 
-        public Vector2 CalculateAcceleration(int step, float dt, Vector3 position)
+        public Vector2d CalculateAcceleration(int step, double dt, Vector3d position)
         {
-            var gravity = Vector2.zero;
+            var gravity = Vector2d.zero;
             var gravitySources = FuturePhysics.GetComponents<GravitySource>(step);
             foreach (var gravitySource in gravitySources)
             {
                 if (gravitySource == myGravitySource) continue;
-                Vector2 direction =
+                Vector2d direction =
                     gravitySource.futurePositionProvider.GetFuturePosition(step, dt) - position;
                 // F = ma
                 // F = G*m1*m2/r^2

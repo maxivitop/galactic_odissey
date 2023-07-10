@@ -8,8 +8,8 @@ using UnityEngine.Assertions;
 public class FuturePhysics
 {
     public const int MaxSteps = 20000;
-    public const float DeltaTime = 0.02f;
-    public const float G = 1f;
+    public const double DeltaTime = 0.02f;
+    public const double G = 1f;
     
     public static int currentStep;
     public static int lastVirtualStep;

@@ -4,23 +4,23 @@ using UnityEngine;
 
 public class RigidBody2DState : IEvolving<RigidBody2DState>
 {
-    public Vector2 velocity;
-    public float mass;
-    public Vector2 acceleration = Vector2.zero;
+    public Vector2d velocity;
+    public double mass;
+    public Vector2d acceleration = Vector2d.zero;
 
-    public RigidBody2DState(Vector2 velocity, float mass)
+    public RigidBody2DState(Vector2d velocity, double mass)
     {
         this.velocity = velocity;
         this.mass = mass;
     }
 
 
-    public void AddAcceleration(Vector2 acceleration)
+    public void AddAcceleration(Vector2d acceleration)
     {
         this.acceleration += acceleration;
     }
 
-    public void AddForce(Vector2 force)
+    public void AddForce(Vector2d force)
     {
         AddAcceleration(force / mass);
     }
@@ -36,8 +36,8 @@ public class RigidBody2DState : IEvolving<RigidBody2DState>
 public class FutureRigidBody2D : FutureStateBehaviour<RigidBody2DState>
 {
     private FutureTransform futureTransform;
-    public Vector2 initialVelocity;
-    public float initialMass;
+    public Vector2d initialVelocity;
+    public double initialMass;
     public IAccelerationProvider accelerationProvider;
 
     private void Start()
@@ -48,7 +48,7 @@ public class FutureRigidBody2D : FutureStateBehaviour<RigidBody2DState>
     public override void VirtualStep(int step)
     {
         var stepState = GetState(step);
-        Vector2 stepDistance;
+        Vector2d stepDistance;
         if (accelerationProvider == null)
         {
             // D = v0*t + 1/2*a*t^2
@@ -61,18 +61,18 @@ public class FutureRigidBody2D : FutureStateBehaviour<RigidBody2DState>
         else
         {
             // Runge-Kutta 4th order simulation
-            var position = (Vector2)futureTransform.GetState(step).position;
+            var position = (Vector2d)futureTransform.GetState(step).position;
             var v1 = stepState.velocity;
             var a1 = accelerationProvider.CalculateAcceleration(step, 0f, position) +
                      stepState.acceleration;
-            var v2 = v1 + a1 * (0.5f * FuturePhysics.DeltaTime);
-            var a2 = accelerationProvider.CalculateAcceleration(step, 0.5f,
-                position + v1 * (0.5f * FuturePhysics.DeltaTime)) + stepState.acceleration;
-            var v3 = v1 + a2 * (0.5f * FuturePhysics.DeltaTime);
-            var a3 = accelerationProvider.CalculateAcceleration(step, 0.5f,
-                position + v2 * (0.5f * FuturePhysics.DeltaTime)) + stepState.acceleration;
+            var v2 = v1 + a1 * (0.5 * FuturePhysics.DeltaTime);
+            var a2 = accelerationProvider.CalculateAcceleration(step, 0.5,
+                position + v1 * (0.5 * FuturePhysics.DeltaTime)) + stepState.acceleration;
+            var v3 = v1 + a2 * (0.5 * FuturePhysics.DeltaTime);
+            var a3 = accelerationProvider.CalculateAcceleration(step, 0.5,
+                position + v2 * (0.5 * FuturePhysics.DeltaTime)) + stepState.acceleration;
             var v4 = v1 + a3 * FuturePhysics.DeltaTime;
-            var a4 = accelerationProvider.CalculateAcceleration(step, 1f,
+            var a4 = accelerationProvider.CalculateAcceleration(step, 1.0,
                 position + v3 * FuturePhysics.DeltaTime) + stepState.acceleration;
 
             stepState.velocity += (a1 + 2 * a2 + 2 * a3 + a4) * (FuturePhysics.DeltaTime / 6.0f);

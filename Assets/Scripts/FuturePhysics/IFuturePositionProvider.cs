@@ -4,7 +4,7 @@ using UnityEngine;
 
 public interface IFuturePositionProvider
 {
-    Vector3 GetFuturePosition(int step, float dt);
+    Vector3d GetFuturePosition(int step, double dt);
     int GetPriority();
 
     public static IFuturePositionProvider SelectFuturePositionProvider(GameObject gameObject)

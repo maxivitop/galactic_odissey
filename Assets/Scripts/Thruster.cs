@@ -162,6 +162,6 @@ public class Thruster : FutureBehaviour, ITrajectoryUserEventProvider
     {
         if (!stepsConfig.ContainsKey(step)) return;
         var currentConfig = stepsConfig[step];
-        futureRigidBody2D.GetState(step).AddForce(currentConfig.direction * currentConfig.thrust);
+        futureRigidBody2D.GetState(step).AddForce(new Vector2d(currentConfig.direction * currentConfig.thrust));
     }
 }

@@ -71,6 +71,6 @@ public class CameraMover : MonoBehaviour
     {
         return referenceFrameHost.futureTransform
             .GetState(TrajectoryProvider.TrajectoryStepToPhysicsStep(0))
-            .position;
+            .position.ToVector3();
     }
 }

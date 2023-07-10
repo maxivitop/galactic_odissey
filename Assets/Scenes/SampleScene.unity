@@ -627,17 +627,17 @@ GameObject:
   - component: {fileID: 335627511}
   - component: {fileID: 335627510}
   - component: {fileID: 335627509}
-  - component: {fileID: 335627508}
   - component: {fileID: 335627507}
   - component: {fileID: 335627518}
   - component: {fileID: 335627519}
+  - component: {fileID: 335627520}
   m_Layer: 0
   m_Name: Planet (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &335627507
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -651,20 +651,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isActiveInitially: 0
---- !u!114 &335627508
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 335627506}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26679710e62343342a446dd58886c532, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  center: {fileID: 1323454806}
-  clockWise: 1
 --- !u!114 &335627509
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -792,7 +778,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29e4c320fc9656d438aa68e21ba8cf9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialVelocity: {x: 0, y: 0}
   initialMass: 10
 --- !u!114 &335627512
 MonoBehaviour:
@@ -890,7 +875,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 335627506}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10.1, y: 10.6, z: 0}
+  m_LocalPosition: {x: -10, y: 10, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -925,6 +910,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   referenceCameraHeight: -30
   scaleSelf: 0
+--- !u!114 &335627520
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 335627506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 388b60d967484ec3899df613290b1562, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  center: {fileID: 1323454806}
+  initialVelocity: {x: 0, y: -3}
+  step0: 0
+  eccentricity: 0
+  p: 10
+  a: 0
 --- !u!1 &451237577
 GameObject:
   m_ObjectHideFlags: 0
@@ -1286,7 +1289,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29e4c320fc9656d438aa68e21ba8cf9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialVelocity: {x: 0, y: 0}
   initialMass: 1
 --- !u!114 &503510919
 MonoBehaviour:
@@ -1638,7 +1640,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29e4c320fc9656d438aa68e21ba8cf9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialVelocity: {x: 0, y: 0}
   initialMass: 0.01
 --- !u!114 &577491974
 MonoBehaviour:
@@ -1749,7 +1750,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29e4c320fc9656d438aa68e21ba8cf9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialVelocity: {x: 0, y: 0}
   initialMass: 0.001
 --- !u!114 &711660708
 MonoBehaviour:
@@ -2769,7 +2769,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1323454806}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1, y: 2, z: 0}
+  m_LocalPosition: {x: 0, y: 10, z: 0}
   m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -7569,7 +7569,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29e4c320fc9656d438aa68e21ba8cf9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialVelocity: {x: 0, y: 0}
   initialMass: 100
 --- !u!114 &1323454817
 MonoBehaviour:
@@ -8009,7 +8008,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29e4c320fc9656d438aa68e21ba8cf9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialVelocity: {x: 0, y: 0}
   initialMass: 10
 --- !u!114 &1541972360
 MonoBehaviour:
