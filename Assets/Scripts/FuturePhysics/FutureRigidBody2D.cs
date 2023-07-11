@@ -36,7 +36,7 @@ public class RigidBody2DState : IEvolving<RigidBody2DState>
 public class FutureRigidBody2D : FutureStateBehaviour<RigidBody2DState>
 {
     private FutureTransform futureTransform;
-    public Vector2d initialVelocity;
+    public Vector2 initialVelocity;
     public double initialMass;
     public IAccelerationProvider accelerationProvider;
 
@@ -86,6 +86,6 @@ public class FutureRigidBody2D : FutureStateBehaviour<RigidBody2DState>
 
     protected override RigidBody2DState GetInitialState()
     {
-        return new RigidBody2DState(initialVelocity, initialMass);
+        return new RigidBody2DState(new Vector2d(initialVelocity), initialMass);
     }
 }

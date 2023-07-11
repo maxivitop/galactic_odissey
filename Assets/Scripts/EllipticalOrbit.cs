@@ -1,111 +1,99 @@
 using System;
 using UnityEngine;
 
-[RequireComponent(typeof(FutureRigidBody2D))]
-public class EllipticalOrbit : FutureBehaviour, IFuturePositionProvider
+public class EllipticalOrbit
 {
-    public GameObject center;
-    public Vector2 initialVelocity;
-
     private IFuturePositionProvider centerPositionProvider;
-    private FutureRigidBody2D rigidBody;
-    private FutureTransform futureTransform;
-    public int step0;
-    public double eccentricity;
-    public Vector3d ecc_vec;
-    private double orbit_period;
+    private FutureRigidBody2D centerRigidBody2D;
+    private int step0;
+    private double eccentricity;
     private double mu;
-    //! semi-parameter that defines orbit size in GE internal units. 
-    //! For a universal orbit p is needed. See SetMajorAxis() if a is needed.
-    public double p = 10.0;
-    public double a;
+    private double p; //! semi-parameter that defines orbit size
 
     private Vector3d r0;
     private Vector3d v0;
-    private const double small = 1E-6;
-    private const double verySmall = 1E-9; // 1E-13;
-    private const double halfpi = Math.PI * 0.5;
-
-    
-    private void Start()
-    {
-        centerPositionProvider = IFuturePositionProvider.SelectFuturePositionProvider(center);
-        futureTransform = GetComponent<FutureTransform>();
-        rigidBody = GetComponent<FutureRigidBody2D>();
-        r0 = new Vector3d(transform.position - center.transform.position);
-        v0 = new Vector3d(initialVelocity);
-        mu = FuturePhysics.G * (rigidBody.initialMass + center.GetComponent<FutureRigidBody2D>().initialMass);
-        InitializeFromRv(r0, v0);
-    }
-
-    public override void VirtualStep(int step)
-    {
-        futureTransform.GetState(step).position = GetFuturePosition(step, 0f);
-    }
-
-    public Vector3d GetFuturePosition(int step, double dt)
-    {
-        Evolve(step, dt, out var position, out var velocity);
-        return position;
-    }
+    private const double Small = 1E-6;
+    private const double VerySmall = 1E-9; // 1E-13;
+    private const double HalfPi = Math.PI * 0.5;
 
     //RVtoCOE
-    public void InitializeFromRv(Vector3d r, Vector3d v)
+    public void InitializeFromRv(
+        Vector3d r,
+        Vector3d v,
+        int step,
+        double muGm,
+        IFuturePositionProvider centerPosition,
+        FutureRigidBody2D centerRigidBody
+    )
     {
-        double  magr, magv, sme, rdotv, temp, c1, magh;
+        mu = muGm;
+        step0 = step;
+        centerPositionProvider = centerPosition;
+        centerRigidBody2D = centerRigidBody;
+        r0 = r;
+        v0 = v;
+        
+        double  magr, magv, rdotv, temp, c1, magh;
 
         // -------------------------  implementation   -----------------
         magr = r.magnitude;
         magv = v.magnitude;
 
         // ------------------  find h n and e vectors   ----------------
-        Vector3d hbar = Vector3d.Cross(r, v);
+        var hbar = Vector3d.Cross(r, v);
         magh = hbar.magnitude;
-        if (!(magh > verySmall)) return;
-        c1 = magv * magv - mu / magr;
+        if (!(magh > VerySmall)) return;
+        c1 = magv * magv - muGm / magr;
         rdotv = Vector3d.Dot(r, v);
-        temp = 1.0 / mu;
-        Vector3d ebar = new Vector3d( ((c1 * r.x - rdotv * v.x) * temp),
+        temp = 1.0 / muGm;
+        var ebar = new Vector3d( ((c1 * r.x - rdotv * v.x) * temp),
             ((c1 * r.y - rdotv * v.y) * temp),
             ((c1 * r.z - rdotv * v.z) * temp));
-        ecc_vec = ebar;
         eccentricity = ebar.magnitude;
 
         // ------------  find a e and semi-latus rectum   ----------
-        sme = (magv * magv * 0.5) - (mu / magr);
-        // was check vs small, but really care about > 0
-        if (Math.Abs(sme) > verySmall)
-            a = -mu / (2.0 * sme);
-        else
-            a = double.NaN;
         p = magh * magh * temp;
-
-        orbit_period = double.NaN;
-        if (eccentricity < 1.0) {
-            orbit_period = 2.0 * Math.PI * Math.Sqrt(a * a * a / mu);
-        }
     }
     
     
-    public void Evolve(int step, double dt, out Vector3d r_new, out Vector3d v_new)
+    public void Evolve(int step, double dt, out Vector3d rNew, out Vector3d vNew)
     {
         int ktr, numiter;
         double f, g, fdot, gdot, rval, xold, xoldsqrd, xnewsqrd, znew, pp, dtnew, rdotv, a, dtsec, alpha, sme, s, w, temp, magro, magvo, magr;
-        double c2new = 0.0;
-        double c3new = 0.0;
-        double xnew = 0.0;
-        double dtseco = (step - step0 + dt) * FuturePhysics.DeltaTime;
-        r_new = Vector3d.zero; v_new = Vector3d.zero;
+        var c2New = 0.0;
+        var c3New = 0.0;
+        var xnew = 0.0;
+        var dtseco = (step - step0 + dt) * FuturePhysics.DeltaTime;
+        rNew = Vector3d.zero; vNew = Vector3d.zero;
 
+        magro = r0.magnitude;
+        magvo = v0.magnitude;
+        rdotv = Vector3d.Dot(r0, v0);
+
+        // -------------  find sme, alpha, and a  ------------------
+        sme = ((magvo * magvo) * 0.5) - (mu / magro);
+        alpha = -sme * 2.0 / mu;
+            
+        if (Math.Abs(sme) > Small)
+            a = -mu / (2.0 * sme);
+        else
+            a = double.NaN;
+        
+        var orbitPeriod = double.NaN;
+        if (eccentricity < 1.0) {
+            orbitPeriod = 2.0 * Math.PI * Math.Sqrt(a * a * a / mu);
+        }
+        
         // Very large times can cause precision issues, normalize if possible
         if (eccentricity < 1 && dtseco > 1E6) {
-            dtseco %= orbit_period;
+            
+            dtseco %= orbitPeriod;
         }
         
         dtsec = dtseco;
 
         var centerPosLast = centerPositionProvider.GetFuturePosition(step, dt);
-        var centerVelLast = Vector3d.zero; // TODO
+        Vector3d centerVelLast = centerRigidBody2D.GetState(step).velocity;
         
         // -------------------------  implementation   -----------------
         // set constants and intermediate printouts
@@ -114,33 +102,20 @@ public class EllipticalOrbit : FutureBehaviour, IFuturePositionProvider
         // --------------------  initialize values   -------------------
         znew = 0.0;
 
-        if (Math.Abs(dtseco) > small) {
+        if (Math.Abs(dtseco) > Small) {
             // <TODO>: (performance) put this where r0, v0 are changed and re-use it. 
-            magro = r0.magnitude;
-            magvo = v0.magnitude;
-            rdotv = Vector3d.Dot(r0, v0);
-            // </TODO>
 
-            // -------------  find sme, alpha, and a  ------------------
-            sme = ((magvo * magvo) * 0.5) - (mu / magro);
-            alpha = -sme * 2.0 / mu;
-            
-            if (Math.Abs(sme) > small)
-                a = -mu / (2.0 * sme);
-            else
-                a = double.NaN;
-
-            bool radialInfall = Vector3d.Cross(r0.normalized, v0.normalized).magnitude < 1E-3;
+            var radialInfall = Vector3d.Cross(r0.normalized, v0.normalized).magnitude < 1E-3;
             if (radialInfall) {
                 if (sme <= 0) {
                     // Not debugged, but normal Kepler handles this case ok
                     // EvolveRecilinearBound(dtsec, sme, ref r_new, ref v_new);
                 } else {
-                    EvolveRecilinearUnbound(dtsec, sme, ref r_new, ref v_new);
+                    EvolveRecilinearUnbound(dtsec, sme, out rNew, out vNew);
                     // Add centerPos to value we ref back
-                    r_new += centerPosLast;
+                    rNew += centerPosLast;
                     // update velocity
-                    v_new += centerVelLast;
+                    vNew += centerVelLast;
                     return;
                 }
             }
@@ -155,17 +130,17 @@ public class EllipticalOrbit : FutureBehaviour, IFuturePositionProvider
             // -----------------  circle and ellipse -------------------
             // if (alpha >= small) {
             if (alpha >= 0) {
-                if (Math.Abs(alpha - 1.0) > small)
+                if (Math.Abs(alpha - 1.0) > Small)
                     xold = Math.Sqrt(mu) * dtsec * alpha;
                 else
                     // - first guess can't be too close. ie a circle, r=a
                     xold = Math.Sqrt(mu) * dtsec * alpha * 0.97;
             } else {
                 // --------------------  parabola  ---------------------
-                if (Math.Abs(alpha) < small) {
-                    Vector3d h = Vector3d.Cross(r0, v0);
+                if (Math.Abs(alpha) < Small) {
+                    var h = Vector3d.Cross(r0, v0);
                     pp = h.sqrMagnitude / mu;
-                    s = 0.5 * (halfpi - Math.Atan(3.0 * Math.Sqrt(mu / (pp * pp * pp)) * dtsec));
+                    s = 0.5 * (HalfPi - Math.Atan(3.0 * Math.Sqrt(mu / (pp * pp * pp)) * dtsec));
                     w = Math.Atan(Math.Pow(Math.Tan(s), (1.0 / 3.0)));
                     xold = Math.Sqrt(p) * (2.0 * MathUtils.Cot(2.0 * w));
                     alpha = 0.0;
@@ -180,20 +155,20 @@ public class EllipticalOrbit : FutureBehaviour, IFuturePositionProvider
             ktr = 1;
             dtnew = -10.0;
             // conv for dtsec to x units
-            double tmp = 1.0 / Math.Sqrt(mu);
+            var tmp = 1.0 / Math.Sqrt(mu);
 
-            while ((Math.Abs(dtnew * tmp - dtsec) >= small) && (ktr < numiter)) {
+            while (Math.Abs(dtnew * tmp - dtsec) >= Small && ktr < numiter) {
                 xoldsqrd = xold * xold;
                 znew = xoldsqrd * alpha;
 
                 // ------------- find c2 and c3 functions --------------
-                OrbitUtils.FindC2C3(znew, out c2new, out c3new);
+                OrbitUtils.FindC2C3(znew, out c2New, out c3New);
 
                 // ------- use a newton iteration for new values -------
-                rval = xoldsqrd * c2new + rdotv * tmp * xold * (1.0 - znew * c3new) +
-                    magro * (1.0 - znew * c2new);
-                dtnew = xoldsqrd * xold * c3new + rdotv * tmp * xoldsqrd * c2new +
-                    magro * xold * (1.0 - znew * c3new);
+                rval = xoldsqrd * c2New + rdotv * tmp * xold * (1.0 - znew * c3New) +
+                    magro * (1.0 - znew * c2New);
+                dtnew = xoldsqrd * xold * c3New + rdotv * tmp * xoldsqrd * c2New +
+                    magro * xold * (1.0 - znew * c3New);
 
                 // ------------- calculate new value for x -------------
                 xnew = xold + (dtsec * Math.Sqrt(mu) - dtnew) / rval;
@@ -216,75 +191,68 @@ public class EllipticalOrbit : FutureBehaviour, IFuturePositionProvider
             } else {
                 // --- find position and velocity vectors at new time --
                 xnewsqrd = xnew * xnew;
-                f = 1.0 - (xnewsqrd * c2new / magro);
-                g = dtsec - xnewsqrd * xnew * c3new / Math.Sqrt(mu);
-                r_new = f * r0 + g * v0;
-                magr = Math.Sqrt(r_new[0] * r_new[0] + r_new[1] * r_new[1] + r_new[2] * r_new[2]);
-                gdot = 1.0 - (xnewsqrd * c2new / magr);
-                fdot = (Math.Sqrt(mu) * xnew / (magro * magr)) * (znew * c3new - 1.0);
+                f = 1.0 - (xnewsqrd * c2New / magro);
+                g = dtsec - xnewsqrd * xnew * c3New / Math.Sqrt(mu);
+                rNew = f * r0 + g * v0;
+                magr = Math.Sqrt(rNew[0] * rNew[0] + rNew[1] * rNew[1] + rNew[2] * rNew[2]);
+                gdot = 1.0 - (xnewsqrd * c2New / magr);
+                fdot = (Math.Sqrt(mu) * xnew / (magro * magr)) * (znew * c3New - 1.0);
                 temp = f * gdot - fdot * g;
                 //if (Math.Abs(temp - 1.0) > 0.00001)
                 //    Debug.LogWarning(string.Format("consistency check failed {0}", (temp - 1.0)));
-                v_new = fdot * r0 + gdot * v0;
+                vNew = fdot * r0 + gdot * v0;
                 // Add centerPos to value we ref back
-                r_new += centerPosLast;
+                rNew += centerPosLast;
                 // update velocity
-                v_new += centerVelLast;
+                vNew += centerVelLast;
             }
         } // if fabs
         else {
             // ----------- set vectors to incoming since 0 time --------
-            r_new = r0;
+            rNew = r0;
             // Add centerPos to value we ref back
-            r_new += centerPosLast;
-            v_new = v0 + centerVelLast;
+            rNew += centerPosLast;
+            vNew = v0 + centerVelLast;
         }
     }
     
     
-    private void EvolveRecilinearUnbound(double t, double sme, ref Vector3d r_new, ref Vector3d v_new)
+    private void EvolveRecilinearUnbound(double t, double sme, out Vector3d rNew, out Vector3d vNew)
     {
-        double eta = sme;
-        double a = -0.5 * mu / eta;
-        double V =  Math.Sqrt(mu / (a * a));
+        var a = -0.5 * mu / sme;
+        var v =  Math.Sqrt(mu / (a * a));
         // HACK to slow down things. Might be an error in Roy (vs "About the rectilinear Kepler motion" paper)
-        V *= 0.5;
-        double a_pos = Math.Abs(a);
+        v *= 0.5;
+        var aPos = Math.Abs(a);
         // TODO: (opt) Can be done when r0 is set
         // NB: Added a V to scale tau so that recover correct M at t=0. (time0 was already subtracted before t was passed in)
         // Find M0 value at t=0 based on r0, v0
         // r = a[cosh(F)-1]
-        double F0 = MathUtils.Acosh(r0.magnitude / a_pos + 1);
-        double M0 = MathUtils.Sinh(F0) - F0;
+        var f0 = MathUtils.Acosh(r0.magnitude / aPos + 1);
+        var m0 = MathUtils.Sinh(f0) - f0;
         // fix sign based on velocity align
-        M0 *= Math.Sign(Vector3d.Dot(r0, v0));
-        double M = V * t + M0;
+        m0 *= Math.Sign(Vector3d.Dot(r0, v0));
+        var m = v * t + m0;
         // Newton's root finder
-        int i = 0;
-        double u = M;
-        double u_next = 0;
+        var i = 0;
+        var u = m;
+        double uNext = 0;
         while (i++ < 1000)
         {
-            u_next = u + (M - (MathUtils.Sinh(u) - u)) / (MathUtils.Cosh(u)-1);
-            if (Math.Abs(u_next - u) < 1E-6)
+            uNext = u + (m - (MathUtils.Sinh(u) - u)) / (MathUtils.Cosh(u)-1);
+            if (Math.Abs(uNext - u) < 1E-6)
                 break;
-            u = u_next;
+            u = uNext;
         }
         if (i >= 100)
         {
             Debug.LogWarning("Did not converge");
         }
         // E is from center of hyperbola, not focus
-        double r = a_pos * (MathUtils.Cosh(u)-1);
-        r_new = r0.normalized * r;
+        var r = aPos * (MathUtils.Cosh(u)-1);
+        rNew = r0.normalized * r;
         // velocity (Roy eqn (4.106): r rdot = a^(1/2) mu^(1/2) sin(E)
-        double rdot = Math.Sqrt(a * mu) * MathUtils.Sinh(u) / r;
-        v_new = r0.normalized * rdot;
-    }
-
-
-    public int GetPriority()
-    {
-        return 1010;
+        var rdot = Math.Sqrt(a * mu) * MathUtils.Sinh(u) / r;
+        vNew = r0.normalized * rdot;
     }
 }
