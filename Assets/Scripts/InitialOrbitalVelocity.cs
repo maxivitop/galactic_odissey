@@ -9,18 +9,45 @@ public class InitialOrbitalVelocity : FutureBehaviour
     public FutureRigidBody2D center;
     [Range(0.5f, 2f)] public float aScale = 1f;
     public bool clockWise = true;
+    public bool addCenterVelocity;
 
     private FutureRigidBody2D rigidBody;
+    private bool hasSet;
 
     // Start is called before the first frame update
-    private void Awake()
+    private void Start()
     {
-        SetInitialVelocity();
+        if (isActiveAndEnabled)
+        {
+            SetInitialVelocity();
+        }
     }
 
     private void SetInitialVelocity()
     {
+        if (hasSet) return;
+        hasSet = true;
+        
         rigidBody = GetComponent<FutureRigidBody2D>();
+        if (center == null)
+        {
+            center = OrbitUtils.FindBiggestGravitySource(new Vector3d(transform.position))
+                .futureRigidBody2D;
+        }
+
+        var centerVelocity = Vector2.zero;
+        if (addCenterVelocity)
+        {
+            center.TryGetComponent<InitialOrbitalVelocity>(out var centerInitialVelocity);
+            if (centerInitialVelocity != null)
+            {
+                centerInitialVelocity.SetInitialVelocity();
+            }
+
+            centerVelocity = center.initialVelocity;
+        }
+        
+        
         var r = transform.position - center.transform.position;
         var initialVelocity =
             clockWise ? PerpendicularCounterClockwise(r) : PerpendicularClockwise(r);
@@ -30,7 +57,7 @@ public class InitialOrbitalVelocity : FutureBehaviour
             Math.Sqrt(center.initialMass * FuturePhysics.G * (2 / r.magnitude - 1 / a));
         initialVelocity *= (float) actualCoefficient;
 
-        rigidBody.initialVelocity = initialVelocity + center.initialVelocity;
+        rigidBody.initialVelocity = initialVelocity + centerVelocity;
     }
 
     private static Vector2 PerpendicularClockwise(Vector2 v2)

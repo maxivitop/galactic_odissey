@@ -21,7 +21,7 @@ public class FutureTransform : FutureStateBehaviour<TransformState>, IFuturePosi
 {
     private TransformState initial;
 
-    private void OnEnable()
+    private void Awake()
     {
         initial = new TransformState(new Vector3d(transform.position));
     }

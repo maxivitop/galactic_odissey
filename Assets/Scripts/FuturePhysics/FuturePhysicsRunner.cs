@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -120,5 +121,10 @@ public class FuturePhysicsRunner : MonoBehaviour
         Debug.LogError("Incorrect thread access from " +
             (Thread.CurrentThread == bgThread ? "bg" : "main") +
             " thread, isMainThreadWaiting=" + isMainThreadWaiting);
+    }
+
+    private void OnDestroy()
+    {
+        bgThread?.Abort();
     }
 }

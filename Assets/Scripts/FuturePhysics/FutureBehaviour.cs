@@ -18,12 +18,12 @@ public class FutureBehaviour : MonoBehaviour, IFutureState
     {
     }
 
-    private void Awake()
+    protected virtual void OnEnable()
     {
         FuturePhysics.AddObject(GetType(), this);
     }
 
-    private void OnDestroy()
+    protected virtual void OnDisable()
     {
         FuturePhysicsRunner.ExecuteOnUpdate(() =>
         {

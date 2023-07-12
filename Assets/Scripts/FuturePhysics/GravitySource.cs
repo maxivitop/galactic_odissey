@@ -9,7 +9,7 @@ public class GravitySource : FutureBehaviour
     public FutureRigidBody2D futureRigidBody2D;
     public IFuturePositionProvider futurePositionProvider;
 
-    private void Start()
+    protected void Awake()
     {
         futureRigidBody2D = GetComponent<FutureRigidBody2D>();
         futurePositionProvider = IFuturePositionProvider.SelectFuturePositionProvider(gameObject);

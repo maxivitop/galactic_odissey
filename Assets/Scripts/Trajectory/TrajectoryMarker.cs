@@ -53,7 +53,7 @@ public class TrajectoryMarker : FutureBehaviour
         }
     }
 
-    private void OnEnable()
+    private void Awake()
     {
         myRenderer = GetComponent<Renderer>();
         usualMaterial = myRenderer.material;
@@ -92,7 +92,7 @@ public class TrajectoryMarker : FutureBehaviour
             ];
     }
 
-    private void OnDestroy()
+    protected void OnDestroy()
     {
         if (!isSpawned) return;
         IsHighlighted = false;

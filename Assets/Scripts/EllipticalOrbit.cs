@@ -3,8 +3,7 @@ using UnityEngine;
 
 public class EllipticalOrbit
 {
-    private IFuturePositionProvider centerPositionProvider;
-    private FutureRigidBody2D centerRigidBody2D;
+    private GravitySource center;
     private int step0;
     private double eccentricity;
     private double mu;
@@ -16,39 +15,35 @@ public class EllipticalOrbit
     private const double VerySmall = 1E-9; // 1E-13;
     private const double HalfPi = Math.PI * 0.5;
 
-    //RVtoCOE
-    public void InitializeFromRv(
-        Vector3d r,
-        Vector3d v,
-        int step,
-        double muGm,
-        IFuturePositionProvider centerPosition,
-        FutureRigidBody2D centerRigidBody
-    )
+    public EllipticalOrbit(GravitySource center, double myMass, int step0, Vector3d r0, Vector3d v0)
     {
-        mu = muGm;
-        step0 = step;
-        centerPositionProvider = centerPosition;
-        centerRigidBody2D = centerRigidBody;
-        r0 = r;
-        v0 = v;
-        
+        this.center = center;
+        this.step0 = step0;
+        this.r0 = r0;
+        this.v0 = v0;
+        mu = FuturePhysics.G * (myMass + center.futureRigidBody2D.initialMass);
+        InitializeFromRv();
+    }
+
+    //RVtoCOE
+    private void InitializeFromRv()
+    {
         double  magr, magv, rdotv, temp, c1, magh;
 
         // -------------------------  implementation   -----------------
-        magr = r.magnitude;
-        magv = v.magnitude;
+        magr = r0.magnitude;
+        magv = v0.magnitude;
 
         // ------------------  find h n and e vectors   ----------------
-        var hbar = Vector3d.Cross(r, v);
+        var hbar = Vector3d.Cross(r0, v0);
         magh = hbar.magnitude;
         if (!(magh > VerySmall)) return;
-        c1 = magv * magv - muGm / magr;
-        rdotv = Vector3d.Dot(r, v);
-        temp = 1.0 / muGm;
-        var ebar = new Vector3d( ((c1 * r.x - rdotv * v.x) * temp),
-            ((c1 * r.y - rdotv * v.y) * temp),
-            ((c1 * r.z - rdotv * v.z) * temp));
+        c1 = magv * magv - mu / magr;
+        rdotv = Vector3d.Dot(r0, v0);
+        temp = 1.0 / mu;
+        var ebar = new Vector3d( ((c1 * r0.x - rdotv * v0.x) * temp),
+            ((c1 * r0.y - rdotv * v0.y) * temp),
+            ((c1 * r0.z - rdotv * v0.z) * temp));
         eccentricity = ebar.magnitude;
 
         // ------------  find a e and semi-latus rectum   ----------
@@ -92,8 +87,8 @@ public class EllipticalOrbit
         
         dtsec = dtseco;
 
-        var centerPosLast = centerPositionProvider.GetFuturePosition(step, dt);
-        Vector3d centerVelLast = centerRigidBody2D.GetState(step).velocity;
+        var centerPosLast = center.futurePositionProvider.GetFuturePosition(step, dt);
+        Vector3d centerVelLast = center.futureRigidBody2D.GetState(step).velocity;
         
         // -------------------------  implementation   -----------------
         // set constants and intermediate printouts
