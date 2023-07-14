@@ -36,7 +36,7 @@ public class FutureTransform : FutureStateBehaviour<TransformState>, IFuturePosi
         return initial;
     }
 
-    public Vector3d GetFuturePosition(int step, double dt)
+    public Vector3d GetFuturePosition(int step, double dt=0)
     {
         return GetState(step).position;
     }
