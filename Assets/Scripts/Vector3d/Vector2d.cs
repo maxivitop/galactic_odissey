@@ -178,7 +178,7 @@ namespace UnityEngine {
       __Boxed<double> local2 = (ValueType) this.y;
       objArray[index2] = (object) local2;
       */
-            return "not implemented";
+            return "Vector2d(" + x + ", "+y+")";
         }
 
         public string ToString(string format) {
@@ -192,7 +192,7 @@ namespace UnityEngine {
       string str2 = this.y.ToString(format);
       objArray[index2] = (object) str2;
       */
-            return "not implemented";
+            return "Vector2d(" + x + ", "+y+")";
         }
 
         public override int GetHashCode() {

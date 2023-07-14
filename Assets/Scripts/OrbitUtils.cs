@@ -16,7 +16,7 @@ public class OrbitUtils
         {
             var sourcePosition = gravitySource.futurePositionProvider.GetFuturePosition(step, dt);
             Vector2d direction = sourcePosition - position;
-            if (direction.sqrMagnitude < Mathf.Epsilon) continue; // dont return self
+            if (direction.sqrMagnitude < 1e-6) continue; // dont return self
             // F = ma
             // F = G*m1*m2/r^2
             // a = F/m = G*m2/r^2

@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class EllipticalOrbit
 {
-    private GravitySource center;
+    public GravitySource center;
     private int step0;
     private double eccentricity;
     private double mu;
@@ -51,7 +51,7 @@ public class EllipticalOrbit
     }
     
     
-    public void Evolve(int step, double dt, out Vector3d rNew, out Vector3d vNew)
+    public bool Evolve(int step, double dt, out Vector3d rNew, out Vector3d vNew)
     {
         int ktr, numiter;
         double f, g, fdot, gdot, rval, xold, xoldsqrd, xnewsqrd, znew, pp, dtnew, rdotv, a, dtsec, alpha, sme, s, w, temp, magro, magvo, magr;
@@ -59,7 +59,6 @@ public class EllipticalOrbit
         var c3New = 0.0;
         var xnew = 0.0;
         var dtseco = (step - step0 + dt) * FuturePhysics.DeltaTime;
-        rNew = Vector3d.zero; vNew = Vector3d.zero;
 
         magro = r0.magnitude;
         magvo = v0.magnitude;
@@ -98,8 +97,6 @@ public class EllipticalOrbit
         znew = 0.0;
 
         if (Math.Abs(dtseco) > Small) {
-            // <TODO>: (performance) put this where r0, v0 are changed and re-use it. 
-
             var radialInfall = Vector3d.Cross(r0.normalized, v0.normalized).magnitude < 1E-3;
             if (radialInfall) {
                 if (sme <= 0) {
@@ -111,7 +108,7 @@ public class EllipticalOrbit
                     rNew += centerPosLast;
                     // update velocity
                     vNew += centerVelLast;
-                    return;
+                    return true;
                 }
             }
 
@@ -180,27 +177,28 @@ public class EllipticalOrbit
                 Debug.LogWarning(string.Format("{0} not converged in {1} iterations. dtnew={2} tmp={3} dto={4} expr={5}",
                     "gameObject.name", numiter, dtnew, tmp, dtsec, Math.Abs(dtnew * tmp - dtsec)));
                 Debug.LogFormat("ecc={0} p={1}", eccentricity, p);
-                // Mitigation: use last known position
-                Debug.LogError("Didn't fix ge.GetPositionDouble(nbody, ref r_new)");
-                // ge.GetPositionDouble(nbody, ref r_new);
-            } else {
-                // --- find position and velocity vectors at new time --
-                xnewsqrd = xnew * xnew;
-                f = 1.0 - (xnewsqrd * c2New / magro);
-                g = dtsec - xnewsqrd * xnew * c3New / Math.Sqrt(mu);
-                rNew = f * r0 + g * v0;
-                magr = Math.Sqrt(rNew[0] * rNew[0] + rNew[1] * rNew[1] + rNew[2] * rNew[2]);
-                gdot = 1.0 - (xnewsqrd * c2New / magr);
-                fdot = (Math.Sqrt(mu) * xnew / (magro * magr)) * (znew * c3New - 1.0);
-                temp = f * gdot - fdot * g;
-                //if (Math.Abs(temp - 1.0) > 0.00001)
-                //    Debug.LogWarning(string.Format("consistency check failed {0}", (temp - 1.0)));
-                vNew = fdot * r0 + gdot * v0;
-                // Add centerPos to value we ref back
-                rNew += centerPosLast;
-                // update velocity
-                vNew += centerVelLast;
-            }
+                // Mitigation: return false, calling side will fox this
+                rNew = Vector3d.zero;
+                vNew = Vector3d.zero;
+                return false;
+            } 
+            // --- find position and velocity vectors at new time --
+            xnewsqrd = xnew * xnew;
+            f = 1.0 - (xnewsqrd * c2New / magro);
+            g = dtsec - xnewsqrd * xnew * c3New / Math.Sqrt(mu);
+            rNew = f * r0 + g * v0;
+            magr = Math.Sqrt(rNew[0] * rNew[0] + rNew[1] * rNew[1] + rNew[2] * rNew[2]);
+            gdot = 1.0 - (xnewsqrd * c2New / magr);
+            fdot = (Math.Sqrt(mu) * xnew / (magro * magr)) * (znew * c3New - 1.0);
+            temp = f * gdot - fdot * g;
+            //if (Math.Abs(temp - 1.0) > 0.00001)
+            //    Debug.LogWarning(string.Format("consistency check failed {0}", (temp - 1.0)));
+            vNew = fdot * r0 + gdot * v0;
+            // Add centerPos to value we ref back
+            rNew += centerPosLast;
+            // update velocity
+            vNew += centerVelLast;
+        
         } // if fabs
         else {
             // ----------- set vectors to incoming since 0 time --------
@@ -209,6 +207,8 @@ public class EllipticalOrbit
             rNew += centerPosLast;
             vNew = v0 + centerVelLast;
         }
+
+        return true;
     }
     
     
@@ -226,7 +226,11 @@ public class EllipticalOrbit
         var f0 = MathUtils.Acosh(r0.magnitude / aPos + 1);
         var m0 = MathUtils.Sinh(f0) - f0;
         // fix sign based on velocity align
-        m0 *= Math.Sign(Vector3d.Dot(r0, v0));
+        var dotrv = Vector3d.Dot(r0, v0);
+        if (double.IsNormal(dotrv))
+        {
+            m0 *= Math.Sign(dotrv);
+        }
         var m = v * t + m0;
         // Newton's root finder
         var i = 0;

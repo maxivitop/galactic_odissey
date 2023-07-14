@@ -26,7 +26,9 @@ public class EllipticalOrbitMover : FutureBehaviour, IFuturePositionProvider
 
     public override void VirtualStep(int step)
     {
-        futureTransform.GetState(step).position = GetFuturePosition(step, 0f);
+        ellipticalOrbit.Evolve(step, 0, out var position, out var velocity);
+        futureTransform.GetState(step).position = position;
+        rigidBody.GetState(step).velocity = velocity;
     }
 
     public Vector3d GetFuturePosition(int step, double dt)

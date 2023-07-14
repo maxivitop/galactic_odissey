@@ -780,7 +780,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialVelocity: {x: 0, y: 6}
-  initialMass: 10
+  initialMass: 100
+  ellipticalOrbitThreshold: 1.5
+  ellipticalOrbitDominatingGravityDistanceThreshold: 0.5
   affectedByGravity: 0
 --- !u!114 &335627512
 MonoBehaviour:
@@ -878,8 +880,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 335627506}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10, y: 10, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -100, y: 10, z: 0}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -1170,8 +1172,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 503510908}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 12.25, y: 21.96, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalPosition: {x: -156.6, y: 102.1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -1305,7 +1307,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialVelocity: {x: 0, y: 0}
-  initialMass: 1
+  initialMass: 10
+  ellipticalOrbitThreshold: 1.5
+  ellipticalOrbitDominatingGravityDistanceThreshold: 0.5
   affectedByGravity: 0
 --- !u!114 &503510920
 MonoBehaviour:
@@ -1418,6 +1422,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   initialVelocity: {x: 0, y: 0}
   initialMass: 0.0010000000474974513
+  ellipticalOrbitThreshold: 2
+  ellipticalOrbitDominatingGravityDistanceThreshold: 0.5
   affectedByGravity: 1
 --- !u!114 &711660708
 MonoBehaviour:
@@ -1452,7 +1458,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 711660706}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -11.05, y: 9.88, z: 0}
+  m_LocalPosition: {x: -113.7, y: 13.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -2147,7 +2153,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -30}
+  m_LocalPosition: {x: 0, y: 1, z: -300}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2171,10 +2177,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 620dc02039a271a4886760dd76cb5f4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speedOfMovement: 1
-  minPos: -100
-  maxPos: 100
-  minZoom: -50
+  speedOfMovement: 10
+  minPos: -1000
+  maxPos: 1000
+  minZoom: -500
   maxZoom: -3
 --- !u!114 &963194230
 MonoBehaviour:
@@ -2279,7 +2285,7 @@ Light:
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 3
-  m_Range: 161.61533
+  m_Range: 254.29903
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
@@ -2425,7 +2431,7 @@ Transform:
   m_GameObject: {fileID: 1323454806}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 10, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -7225,7 +7231,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialVelocity: {x: 0, y: 0}
-  initialMass: 100
+  initialMass: 1000
+  ellipticalOrbitThreshold: 1.5
+  ellipticalOrbitDominatingGravityDistanceThreshold: 0.5
   affectedByGravity: 0
 --- !u!114 &1323454817
 MonoBehaviour:
@@ -7667,7 +7675,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialVelocity: {x: 0, y: 0}
-  initialMass: 10
+  initialMass: 100
+  ellipticalOrbitThreshold: 1.5
+  ellipticalOrbitDominatingGravityDistanceThreshold: 0.5
   affectedByGravity: 0
 --- !u!114 &1541972360
 MonoBehaviour:
@@ -7765,8 +7775,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1541972354}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10.63, y: 21.07, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -143, y: 91.7, z: 0}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}

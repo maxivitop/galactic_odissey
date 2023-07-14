@@ -27,10 +27,10 @@ public abstract class FutureStateBehaviour<TState> : FutureBehaviour where TStat
         FuturePhysicsRunner.CheckThread();
         if (states.Count < step)
             Debug.LogError("Getting state for step " + step + " when max step is " +
-                           states.Count);
+                           states.Count +". Virtual step is " + FuturePhysics.lastVirtualStep);
 #endif
         if (step == 0) SetState(0, GetInitialState());
-        if (states.Count == step) SetState(step, states[^1].Next());
+        if (states.Count == step) SetState(step, states[states.Count - 1].Next());
         return states[step];
     }
 
