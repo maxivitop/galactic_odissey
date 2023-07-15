@@ -37,10 +37,10 @@ public class TrajectoryRenderer : MonoBehaviour
     {
         var trajectorySize = trajectoryProvider.trajectory.size;
         if (trajectorySize == 0) return;
+        var trajectorySizeFraction = (float) trajectorySize / FuturePhysics.MaxSteps;
         for (var i = 0; i < colorKeys.Length; i++)
         {
             var keyFraction = (float)i / (colorKeys.Length - 1);
-            var trajectorySizeFraction = (float) trajectorySize / FuturePhysics.MaxSteps;
             var evaluatedColor = initialGradient.Evaluate(keyFraction * trajectorySizeFraction);
             colorKeys[i].time = keyFraction;
             colorKeys[i].color = evaluatedColor;

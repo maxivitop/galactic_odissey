@@ -71,12 +71,14 @@ public class TrajectoryProvider : FutureBehaviour
     private void UpdateTrajectoryToArray(int step, CapacityArray<Vector3> array)
     {
         var nextStep = trajectoryStartStep;
-        for (var i = nextStep; i < step; i++)
+        var lastStep = nextStep-1;
+        for (var i = nextStep; i < step && IsAlive(i); i++)
         {
             array.array[i - nextStep] = futureTransform.GetState(i).position.ToVector3();
+            lastStep = i;
         }
 
-        array.size = step - nextStep;
+        array.size = lastStep - nextStep + 1;
     }
 
     private void UpdateTrajectory(int step)
@@ -118,6 +120,7 @@ public class TrajectoryProvider : FutureBehaviour
 
     public override void ResetToStep(int step, GameObject cause)
     {
+        base.ResetToStep(step, cause);
         hasReset = true;
         shouldRenderUnfinished = cause == gameObject;
         minVirtualStepToRecalculateTrajectory = minStepsAfterReset + step;

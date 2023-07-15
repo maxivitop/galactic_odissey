@@ -11,9 +11,12 @@ public class FutureCollider : FutureBehaviour
     public bool isPassive = true;
 
     private ICollisionEnterHandler[] collisionEnterHandlers;
-    
-    protected override void OnEnable()
+
+    public override void Register()
     {
+        base.Register();
+        FuturePhysics.AddObject(typeof(FutureCollider), this);
+
         TryGetComponent<FutureRigidBody2D>(out var futureRigidBody2D);
         collisionEnterHandlers = GetComponents<ICollisionEnterHandler>();
         if (futureRigidBody2D.processCollisions)
@@ -21,17 +24,6 @@ public class FutureCollider : FutureBehaviour
             isPassive = false;
         }
         futureTransform = GetComponent<FutureTransform>();
-        FuturePhysics.AddObject(typeof(FutureCollider), this);
-        base.OnEnable();
-    }
-
-    protected override void OnDisable()
-    {
-        FuturePhysicsRunner.ExecuteOnUpdate(() =>
-        {
-            FuturePhysics.RemoveObject(typeof(FutureCollider), this);
-        });
-        base.OnDisable();
     }
 
     public void StepCollisionEnter(int step, FutureCollision collision)

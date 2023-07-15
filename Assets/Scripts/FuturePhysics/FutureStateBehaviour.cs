@@ -37,6 +37,7 @@ public abstract class FutureStateBehaviour<TState> : FutureBehaviour where TStat
     public override void ResetToStep(int step, GameObject cause)
     {
         FuturePhysicsRunner.CheckThread();
+        base.ResetToStep(step, cause);
 
         if (states.Count <= step) return;
         states.ReduceSizeTo(step);
