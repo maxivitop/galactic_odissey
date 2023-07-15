@@ -1,14 +1,32 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class TrajectoryMarker : FutureBehaviour
 {
     public Material highlightedMaterial;
     public Material selectedMaterial;
-    public Renderer myRenderer;
+    public Renderer[] myRenderers;
     public FutureTransform targetTransform;
     public TrajectoryProvider targetTrajectoryProvider;
     public int step;
     public bool isSpawned;
+    private Quaternion? fixedRotation;
+
+    public Quaternion? FixedRotation
+    {
+        get => fixedRotation;
+        set
+        {
+            fixedRotation = value;
+            if (value != null)
+            {
+                transform.rotation = value.Value;
+            }
+        }
+    }
+
+    private UnityAction onDeleteClicked;
+
     private Material usualMaterial;
 
     private bool isSelected;
@@ -25,6 +43,7 @@ public class TrajectoryMarker : FutureBehaviour
                 return;
             if (!isSelected)
             {
+                TrajectoryUserEventCreator.Instance.markerUiDelete.onClick.RemoveListener(onDeleteClicked);
                 while (parent.transform.childCount > 0)
                     DestroyImmediate(parent.transform.GetChild(0).gameObject);
             }
@@ -34,6 +53,7 @@ public class TrajectoryMarker : FutureBehaviour
                 foreach (var provider in eventProviders)
                     if (provider.IsEnabled(step))
                         provider.CreateUI(step, this).transform.SetParent(parent.transform);
+                TrajectoryUserEventCreator.Instance.markerUiDelete.onClick.AddListener(onDeleteClicked);
             }
 
             UpdateAppearance();
@@ -55,14 +75,14 @@ public class TrajectoryMarker : FutureBehaviour
 
     private void Awake()
     {
-        myRenderer = GetComponent<Renderer>();
-        usualMaterial = myRenderer.material;
+        myRenderers = GetComponentsInChildren<Renderer>();
+        usualMaterial = myRenderers[0].material;
+        onDeleteClicked = DestroySelf;
     }
 
     public void Spawn()
     {
         isSpawned = true;
-        targetTrajectoryProvider = targetTransform.GetComponent<TrajectoryProvider>();
     }
 
     // ReSharper disable once ParameterHidesMember
@@ -73,23 +93,47 @@ public class TrajectoryMarker : FutureBehaviour
 
     private void UpdateAppearance()
     {
-        myRenderer.material = IsHighlighted ? highlightedMaterial :
-            IsSelected ? selectedMaterial : usualMaterial;
+        foreach (var myRenderer in myRenderers)
+        {
+            myRenderer.material = IsHighlighted ? highlightedMaterial :
+                IsSelected ? selectedMaterial : usualMaterial;
+        }
     }
 
     private void Update()
     {
-        if (!isSpawned) return;
-        if (step - FuturePhysics.currentStep >= targetTrajectoryProvider.trajectory.size)
+        var trajStep = TrajectoryProvider.PhysicsStepToTrajectoryStep(step);
+        
+        if (isSpawned)
         {
-            transform.position = new Vector3(1e10f, 1e10f);
-            return;
+            if (targetTrajectoryProvider.trajectory.size <= trajStep)
+            {
+                transform.position = new Vector3(1e10f, 1e10f);
+                return;
+            }
+            transform.position = targetTrajectoryProvider.trajectory.array[trajStep];
         }
 
-        transform.position =
-            targetTrajectoryProvider.trajectory.array[
-                TrajectoryProvider.PhysicsStepToTrajectoryStep(step)
-            ];
+        if (fixedRotation == null)
+        {
+            if (targetTrajectoryProvider.trajectory.size <= trajStep+1)
+            {
+                return;
+            }
+
+            var direction = targetTrajectoryProvider.trajectory.array[trajStep + 1] -
+                            targetTrajectoryProvider.trajectory.array[trajStep];
+            transform.rotation = Quaternion.LookRotation(Vector3.forward, direction);
+        }
+    }
+
+    private void DestroySelf()
+    {
+        foreach (var provider in targetTransform.GetComponents<ITrajectoryUserEventProvider>())
+        {
+            provider.Destroy(this);
+        }
+        Destroy(gameObject);
     }
 
     protected void OnDestroy()

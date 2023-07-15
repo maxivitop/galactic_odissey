@@ -3,6 +3,7 @@ using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = System.Random;
 using ThreadPriority = System.Threading.ThreadPriority;
 
 public class FuturePhysicsRunner : MonoBehaviour
@@ -10,7 +11,7 @@ public class FuturePhysicsRunner : MonoBehaviour
     public delegate void ExecuteOnUpdateDelegate();
     
     public static int timeScale = 0;
-    public static readonly Event<int> onBgThreadIdle = new();
+    public static readonly SingleEvent<int> onBgThreadIdle = new();
     public const float StepsPerSecond = 50;
     public static int stepsNextFrame;
     

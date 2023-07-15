@@ -9,7 +9,7 @@ public class TrajectoryProvider : FutureBehaviour
     [NonSerialized]
     public CapacityArray<Vector3> trajectory = new(FuturePhysics.MaxSteps);
 
-    public readonly Event<CapacityArray<Vector3>> onTrajectoryUpdated = new();
+    public readonly SingleEvent<CapacityArray<Vector3>> onTrajectoryUpdated = new();
     
     private static int trajectoryStartStep;
     

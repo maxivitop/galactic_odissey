@@ -1,15 +1,13 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 
 public class ReferenceFrameHost : MonoBehaviour, IPointerClickHandler
 {
-    public static readonly Event<ReferenceFrameHost> referenceFrameChangeOld = new();
+    public static readonly SingleEvent<ReferenceFrameHost> referenceFrameChangeOld = new();
     private static ReferenceFrameHost referenceFrame;
+    [FormerlySerializedAs("cameraScale")] public float cameraHeight;
 
     public static ReferenceFrameHost ReferenceFrame
     {
@@ -28,10 +26,9 @@ public class ReferenceFrameHost : MonoBehaviour, IPointerClickHandler
     public FutureTransform futureTransform;
     [NonSerialized]
     public TrajectoryProvider trajectoryProvider;
-
-    private float lastClickTime;
-
-    private void Start()
+    private CameraMover cameraMover;
+    
+    private void Awake()
     {
         if (isActiveInitially)
         {
@@ -43,11 +40,21 @@ public class ReferenceFrameHost : MonoBehaviour, IPointerClickHandler
 
         futureTransform = GetComponent<FutureTransform>();
         trajectoryProvider = GetComponent<TrajectoryProvider>();
+        cameraMover = Camera.main!.GetComponent<CameraMover>();
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (Time.timeSinceLevelLoad - lastClickTime < 0.5f) ReferenceFrame = this;
-        lastClickTime = Time.timeSinceLevelLoad;
+        if (ReferenceFrame == this)
+        {
+            var targetPos = transform.position;
+            targetPos.z = cameraHeight;
+            cameraMover.MoveToPosition(targetPos);
+        }
+        else
+        {
+            ReferenceFrame = this;
+            cameraMover.Follow(futureTransform);
+        }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(FutureTransform))]
@@ -13,6 +14,7 @@ public class TrajectoryUserEventReceiver : MonoBehaviour
     [NonSerialized]
     public Vector3? closestToMouseTrajectoryPosition;
     public int? closestToMouseTrajectoryStep;
+    public int? closestToMousePhysicsStep;
 
     private void OnEnable()
     {
@@ -33,28 +35,40 @@ public class TrajectoryUserEventReceiver : MonoBehaviour
         var minDistance = float.MaxValue;
         closestToMouseTrajectoryPosition = null;
         closestToMouseTrajectoryStep = null;
+        closestToMousePhysicsStep = null;
+
+        var closestSegmentPos = Vector3.zero;
         for (var i = 0; i < trajectory.size; i++)
         {
             var position = trajectory.array[i];
             var distance = (position - worldMousePosition).sqrMagnitude;
-            if (distance + 2 * Mathf.Epsilon < minDistance)
+            if (!(distance + Mathf.Epsilon < minDistance)) continue;
+            if (closestToMouseTrajectoryStep.HasValue)
             {
-                closestToMouseTrajectoryPosition = position;
-                closestToMouseTrajectoryStep = i;
-                minDistance = distance;
-            }
-            i++;
-        }
+                var prevCurr = trajectory.GetOrElse(i - 1, position);
+                var nextCurr = trajectory.GetOrElse(i + 1, position);
+                var closestCurr = Utils.FindNearestPointOnSegment(
+                    start: prevCurr,
+                    end: nextCurr,
+                    point: worldMousePosition
+                );
+                if (i - closestToMouseTrajectoryStep.Value > 10 &&
+                    (closestCurr - closestSegmentPos).sqrMagnitude < 1e-3)
+                {
+                    continue; // we are in the loop
+                }
 
+                closestSegmentPos = closestCurr;
+            }
+
+            closestToMouseTrajectoryPosition = position;
+            closestToMouseTrajectoryStep = i;
+            minDistance = distance;
+        }
+        
         if (!closestToMouseTrajectoryStep.HasValue) return;
         var step = closestToMouseTrajectoryStep.Value;
-        var pos = closestToMouseTrajectoryPosition!.Value;
-        var prev = trajectory.GetOrElse(step - 1, pos);
-        var next = trajectory.GetOrElse(step + 1, pos);
-        closestToMouseTrajectoryPosition = Utils.FindNearestPointOnSegment(
-            start: prev,
-            end: next,
-            point: worldMousePosition
-        );
+        closestToMousePhysicsStep = TrajectoryProvider.TrajectoryStepToPhysicsStep(step);
+        closestToMouseTrajectoryPosition = closestSegmentPos;
     }
 }

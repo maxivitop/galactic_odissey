@@ -1,14 +1,19 @@
 using System.Collections.Generic;
 
-public class Event<T>
+public class SingleEvent<T>
 {
     public delegate void Listener(T value);
 
-    private List<Listener> listeners = new();
+    private readonly List<Listener> listeners = new();
 
     public void AddListener(Listener listener)
     {
         listeners.Add(listener);
+    }
+    
+    public void RemoveListener(Listener listener)
+    {
+        listeners.Remove(listener);
     }
 
     public void Invoke(T value)

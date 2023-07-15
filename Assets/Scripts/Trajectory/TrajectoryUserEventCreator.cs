@@ -2,11 +2,13 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class TrajectoryUserEventCreator : MonoBehaviour
 {
     public static TrajectoryUserEventCreator Instance;
     public RectTransform markerUiParent;
+    public Button markerUiDelete;
     public TrajectoryMarker markerPrefab;
     private TrajectoryMarker currentMarker;
     public float maxDistanceOfRenderingMarker = 1;
@@ -139,9 +141,9 @@ public class TrajectoryUserEventCreator : MonoBehaviour
             currentMarker.transform.position =
                 closestReceiver.closestToMouseTrajectoryPosition!.Value;
             currentMarker.targetTransform = closestReceiver.futureTransform;
-            currentMarker.step = TrajectoryProvider.TrajectoryStepToPhysicsStep(
-                closestReceiver.closestToMouseTrajectoryStep!.Value
-            );
+            currentMarker.step =
+                closestReceiver.closestToMousePhysicsStep!.Value;
+            currentMarker.targetTrajectoryProvider = closestReceiver.trajectoryProvider;
         }
         else
         {

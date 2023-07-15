@@ -11,7 +11,7 @@ public class FuturePhysics
 
     public static int currentStep;
     public static int lastVirtualStep;
-    public static readonly Event<ResetParams> beforeReset = new();
+    public static readonly SingleEvent<ResetParams> beforeReset = new();
 
     private static readonly HashSet<IFutureObject> futureObjects = new();
     private static readonly Dictionary<IFutureObject, ISet<Type>> objToTypes = new();

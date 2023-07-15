@@ -19,6 +19,7 @@ public class DestroyOnCollision : MonoBehaviour, ICollisionEnterHandler
 
     public void StepCollisionEnter(int step, FutureCollision collision)
     {
+        if (this == null) return;
         Instantiate(explosion, transform.position, Quaternion.identity);
         Destroy(gameObject);
     }

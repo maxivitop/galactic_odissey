@@ -20,7 +20,7 @@ public class CapacityArray<T>
 
     public T GetOrElse(int index, T value)
     {
-        if (index < 0 || index > size) return value;
+        if (index < 0 || index >= size) return value;
         return array[index];
     }
 }

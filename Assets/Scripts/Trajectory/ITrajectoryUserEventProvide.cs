@@ -6,4 +6,6 @@ public interface ITrajectoryUserEventProvider
 {
     bool IsEnabled(int step);
     GameObject CreateUI(int step, TrajectoryMarker marker);
+    
+    void Destroy(TrajectoryMarker marker);
 }

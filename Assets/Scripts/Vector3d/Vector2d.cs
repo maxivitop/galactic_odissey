@@ -35,6 +35,11 @@ namespace UnityEngine {
             }
         }
 
+        public Vector2 ToVector2()
+        {
+            return new Vector2((float)x, (float)y);
+        }
+
         public Vector2d normalized {
             get {
                 Vector2d vector2d = new Vector2d(this.x, this.y);
