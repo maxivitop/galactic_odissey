@@ -75,15 +75,15 @@ public class TrajectoryProvider : FutureBehaviour
 
     private void UpdateTrajectoryToArray(int step, CapacityArray<Vector3> array)
     {
-        var nextStep = trajectoryStartStep;
-        var lastStep = nextStep-1;
-        for (var i = nextStep; i < step && IsAlive(i); i++)
+        var start = trajectoryStartStep;
+        var lastStep = start-1;
+        for (var i = start; i < step && IsAlive(i); i++)
         {
-            array.array[i - nextStep] = futureTransform.GetState(i).position.ToVector3();
+            array.array[i - start] = futureTransform.GetState(i).position.ToVector3();
             lastStep = i;
         }
 
-        array.size = lastStep - nextStep + 1;
+        array.size = lastStep - start + 1;
     }
 
     private void UpdateTrajectory(int step)

@@ -81,11 +81,11 @@ public class CollisionProcessor : FutureStateBehaviour<FutureCollisions>
         for (var i = 0; i < colliders.Count; i++)
         {
             var coll1 = colliders[i];
-            if (coll1.isPassive) continue;
+            if (coll1.isPassive || !coll1.IsAlive(step)) continue;
             for (var j = 0; j < colliders.Count; j++)
             {
                 var coll2 = colliders[j];
-                if (!coll2.isPassive && i <= j) continue; // coll2 already checked collision with coll1
+                if (!coll2.isPassive && i <= j || !coll2.IsAlive(step)) continue; // coll2 already checked collision with coll1
                 if (!CheckCollision(step, coll1, coll2)) continue;
                 
                 var collision = new FutureCollision(coll1, coll2);
