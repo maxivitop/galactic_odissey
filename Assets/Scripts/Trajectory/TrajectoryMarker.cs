@@ -116,7 +116,7 @@ public class TrajectoryMarker : FutureBehaviour
 
         if (fixedRotation == null)
         {
-            if (targetTrajectoryProvider.trajectory.size <= trajStep+1)
+            if (trajStep+1 >= targetTrajectoryProvider.trajectory.size)
             {
                 return;
             }

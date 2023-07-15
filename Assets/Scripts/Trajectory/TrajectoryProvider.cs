@@ -25,7 +25,7 @@ public class TrajectoryProvider : FutureBehaviour
     private bool updatedThisFrame;
     private bool updatedReferenceThisFrame;
     private TrajectoryAnimator animator;
-    
+
     public static int TrajectoryStepToPhysicsStep(int trajectoryStep)
     {
         return trajectoryStep + trajectoryStartStep;
@@ -42,16 +42,21 @@ public class TrajectoryProvider : FutureBehaviour
         futureTransform = GetComponent<FutureTransform>();
         animator = new TrajectoryAnimator(animationDuration);
 
-        FuturePhysicsRunner.onBgThreadIdle.AddListener(step =>
-        {
-            hasReset = false;
-            shouldRenderUnfinished = false;
-            UpdateTrajectoryIfNeeded(step);
-        });
-        ReferenceFrameHost.referenceFrameChangeOld.AddListener((unused) =>
-        {
-            animator.Capture(trajectory);
-        });
+        FuturePhysicsRunner.onBgThreadIdle.AddListener(OnBgThreadIdle);
+        FuturePhysics.afterVirtualStep.AddListener(UpdateTrajectoryIfNeeded);
+        ReferenceFrameHost.referenceFrameChangeOld.AddListener(OnReferenceFrameChange);
+    }
+
+    private void OnBgThreadIdle(int step)
+    {
+        hasReset = false;
+        shouldRenderUnfinished = false;
+        UpdateTrajectoryIfNeeded(step);
+    }
+
+    private void OnReferenceFrameChange(ReferenceFrameHost old)
+    {
+        animator.Capture(trajectory);
     }
 
     private void UpdateReferenceTrajectoryIfNeeded(int step)
@@ -112,11 +117,6 @@ public class TrajectoryProvider : FutureBehaviour
         UpdateTrajectory(step);
         onTrajectoryUpdated.Invoke(trajectory);
     }
-    
-    public override void VirtualStep(int step)
-    {
-        UpdateTrajectoryIfNeeded(step);
-    }
 
     public override void ResetToStep(int step, GameObject cause)
     {
@@ -131,5 +131,12 @@ public class TrajectoryProvider : FutureBehaviour
         animator.ForwardTime(Time.deltaTime);
         updatedThisFrame = false;
         updatedReferenceThisFrame = false;
+    }
+
+    private void OnDestroy()
+    {
+        FuturePhysicsRunner.onBgThreadIdle.AddListener(OnBgThreadIdle);
+        FuturePhysics.afterVirtualStep.AddListener(UpdateTrajectoryIfNeeded);
+        ReferenceFrameHost.referenceFrameChangeOld.AddListener(OnReferenceFrameChange);
     }
 }

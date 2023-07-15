@@ -10,7 +10,6 @@ public class TrajectoryRenderer : MonoBehaviour
     private TrajectoryProvider trajectoryProvider;
     private Gradient initialGradient;
     private readonly Gradient gradient = new();
-    private int lastResetStep;
     private GradientColorKey[] colorKeys = new GradientColorKey[8];
     private GradientAlphaKey[] alphaKeys = new GradientAlphaKey[8];
     
@@ -19,10 +18,6 @@ public class TrajectoryRenderer : MonoBehaviour
         lineRenderer = GetComponent<LineRenderer>();
         initialGradient = lineRenderer.colorGradient;
         trajectoryProvider = GetComponent<TrajectoryProvider>();
-        FuturePhysics.beforeReset.AddListener(resetParams =>
-        {
-            lastResetStep = resetParams.step;
-        });
     }
 
     private void Update()

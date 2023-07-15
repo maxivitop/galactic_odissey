@@ -20,8 +20,11 @@ public class CameraMover : MonoBehaviour
     [NonSerialized]
     public FutureTransform followee;
 
+    private Camera myCamera;
+
     private void Start()
     {
+        myCamera = GetComponent<Camera>();
         var position = transform.position;
         relativePosition = position;
         startPosZ = position.z;
@@ -86,6 +89,7 @@ public class CameraMover : MonoBehaviour
             MouseHandler.UpdateWorldMousePosition();
             previousMousePosition = MouseHandler.WorldMousePosition;
         }
+        myCamera.orthographicSize = -transform.position.z;
     }
 
     public void MoveToPosition(Vector3 target)

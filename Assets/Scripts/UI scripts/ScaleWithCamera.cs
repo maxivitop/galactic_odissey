@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ScaleWithCamera : MonoBehaviour
 {
-    public float referenceCameraHeight = -30;
+    private const float ReferenceCameraHeight = -20;
     public bool scaleSelf;
     private LineRenderer lineRenderer;
     private bool hasLineRenderer;
@@ -30,7 +30,7 @@ public class ScaleWithCamera : MonoBehaviour
 
     private void UpdateScale()
     {
-        var scale = Camera.main!.transform.position.z / referenceCameraHeight;
+        var scale = Camera.main!.transform.position.z / ReferenceCameraHeight;
         if (scaleSelf)
         {
             transform.localScale = initialScale * scale;
