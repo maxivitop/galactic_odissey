@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -66,10 +67,14 @@ public class GravityBody: FutureBehaviour
         // Use elliptical orbit
         if (stepState.orbit.Evolve(step, 0f, out var rNew, out var vNew))
         {
-            if (rNew.sqrMagnitude > 1e6)
+            if (vNew.sqrMagnitude > 1e6)
             {
-                IntegrateStep(step, position, stepState);
-                return;
+                if (!double.IsNormal(vNew.sqrMagnitude))
+                {
+                    vNew = stepState.velocity;
+                }
+                vNew = Vector2d.ClampMagnitude(vNew, 1e3);
+                rNew = position + (Vector2d)vNew * FuturePhysics.DeltaTime;
             }
             futureTransform.GetState(step).position = rNew;
             stepState.velocity = vNew;

@@ -418,7 +418,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  referenceCameraHeight: -30
   scaleSelf: 1
 --- !u!135 &133686116
 SphereCollider:
@@ -1070,7 +1069,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  referenceCameraHeight: -30
   scaleSelf: 0
 --- !u!114 &335627521
 MonoBehaviour:
@@ -1160,7 +1158,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  referenceCameraHeight: -30
   scaleSelf: 1
 --- !u!135 &425278680
 SphereCollider:
@@ -1632,7 +1629,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  referenceCameraHeight: -30
   scaleSelf: 0
 --- !u!114 &503510924
 MonoBehaviour:
@@ -1706,7 +1702,7 @@ Transform:
   m_LocalScale: {x: 0.4, y: 0.1, z: 0.4}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1698006512}
+  m_Father: {fileID: 2115893677}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!136 &532574196
@@ -2514,16 +2510,15 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 711660706}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -49, y: 15.4, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
+  m_LocalPosition: {x: -39, y: 8.2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1944891839}
-  - {fileID: 2115893677}
   m_Father: {fileID: 0}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
 --- !u!120 &711660713
 LineRenderer:
   serializedVersion: 2
@@ -2713,7 +2708,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  referenceCameraHeight: -30
   scaleSelf: 0
 --- !u!114 &711660722
 MonoBehaviour:
@@ -3256,7 +3250,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
+  m_BackGroundColor: {r: 0.11320752, g: 0.11320752, b: 0.11320752, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -3272,7 +3266,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
+  orthographic: 1
   orthographic size: 5
   m_Depth: -1
   m_CullingMask:
@@ -3297,7 +3291,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.5, y: 9, z: -40}
+  m_LocalPosition: {x: -40, y: 9, z: -80}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3326,7 +3320,7 @@ MonoBehaviour:
   speedOfZoom: 10
   minPos: -1000
   maxPos: 1000
-  minZoom: -500
+  minZoom: -250
   maxZoom: -3
   targetPositionAnimationDuration: 0.3
 --- !u!114 &963194230
@@ -8757,7 +8751,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  referenceCameraHeight: -30
   scaleSelf: 0
 --- !u!114 &1323454822
 MonoBehaviour:
@@ -9202,7 +9195,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  referenceCameraHeight: -30
   scaleSelf: 0
 --- !u!114 &1541972371
 MonoBehaviour:
@@ -9368,7 +9360,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  referenceCameraHeight: -30
   scaleSelf: 1
 --- !u!135 &1690779056
 SphereCollider:
@@ -9433,54 +9424,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1690779053}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &1698006511
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1698006512}
-  - component: {fileID: 1698006513}
-  m_Layer: 0
-  m_Name: Model (1)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1698006512
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1698006511}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1911074368}
-  - {fileID: 532574195}
-  m_Father: {fileID: 2115893677}
-  m_RootOrder: -1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1698006513
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1698006511}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  referenceCameraHeight: -30
-  scaleSelf: 1
 --- !u!1 &1727644326
 GameObject:
   m_ObjectHideFlags: 0
@@ -9779,7 +9722,7 @@ Transform:
   m_LocalScale: {x: 0.28, y: 0.5, z: 0.28}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1698006512}
+  m_Father: {fileID: 2115893677}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!136 &1911074369
@@ -9875,6 +9818,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2115893677}
   - {fileID: 883814248}
   - {fileID: 1264459118}
   - {fileID: 860299821}
@@ -9893,7 +9837,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  referenceCameraHeight: -30
   scaleSelf: 1
 --- !u!1 &2008077393
 GameObject:
@@ -9942,7 +9885,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  referenceCameraHeight: -30
   scaleSelf: 1
 --- !u!135 &2008077396
 SphereCollider:
@@ -10016,7 +9958,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2115893677}
-  - component: {fileID: 2115893678}
   m_Layer: 0
   m_Name: ClickHelper (Ship)
   m_TagString: Untagged
@@ -10033,24 +9974,11 @@ Transform:
   m_GameObject: {fileID: 2115893676}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 1
   m_Children:
-  - {fileID: 1698006512}
-  m_Father: {fileID: 711660712}
+  - {fileID: 1911074368}
+  - {fileID: 532574195}
+  m_Father: {fileID: 1944891839}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2115893678
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2115893676}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  referenceCameraHeight: -30
-  scaleSelf: 1

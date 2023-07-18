@@ -6,7 +6,7 @@ using System.Linq;
 public class FuturePhysics
 {
     public const int MaxSteps = 10000;
-    public const double DeltaTime = 0.06f;
+    public const double DeltaTime = 0.04f;
     public const double G = 1f;
 
     public static int currentStep;

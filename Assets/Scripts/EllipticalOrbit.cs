@@ -174,10 +174,7 @@ public class EllipticalOrbit
             }  // while
 
             if (ktr >= numiter) {
-                Debug.LogWarning(string.Format("{0} not converged in {1} iterations. dtnew={2} tmp={3} dto={4} expr={5}",
-                    "gameObject.name", numiter, dtnew, tmp, dtsec, Math.Abs(dtnew * tmp - dtsec)));
-                Debug.LogFormat("ecc={0} p={1}", eccentricity, p);
-                // Mitigation: return false, calling side will fox this
+                // Mitigation: return false, calling side will fix this
                 rNew = Vector3d.zero;
                 vNew = Vector3d.zero;
                 return false;
