@@ -79,7 +79,7 @@ public class FuturePhysicsRunner : MonoBehaviour
         if (isThreadStarted) return;
         bgThread = new Thread(VirtualStepRunner)
         {
-            Priority = ThreadPriority.AboveNormal
+            Priority = ThreadPriority.Highest
         };
         bgThread.Start();
         isThreadStarted = true;
@@ -99,6 +99,11 @@ public class FuturePhysicsRunner : MonoBehaviour
                     mainThreadFinished.WaitOne();
                 }
                 FuturePhysics.VirtualStep();
+            }
+            if(isMainThreadWaiting)
+            {
+                bgThreadFinished.Set();
+                mainThreadFinished.WaitOne();
             }
             onBgThreadIdle.Invoke(FuturePhysics.lastVirtualStep);
             bgThreadFinished.Set();

@@ -260,8 +260,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92bb8e4bf7e43ad4f97a5d5790cf6314, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightedMaterial: {fileID: 2100000, guid: fbe99822a5af27840ad59fb793236e26, type: 2}
-  selectedMaterial: {fileID: 2100000, guid: 97573dabb3c4e964d81b458cf17873f3, type: 2}
+  highlightedMaterial: {fileID: 2100000, guid: c159fe06335974e9d81fa4b2b3cc4cd5, type: 2}
+  selectedMaterial: {fileID: 2100000, guid: 4cdaaac72e9574e6b9c0140c8190c633, type: 2}
   myRenderers: []
   targetTransform: {fileID: 0}
   targetTrajectoryProvider: {fileID: 0}
@@ -279,5 +279,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  referenceCameraHeight: -30
   scaleSelf: 1
