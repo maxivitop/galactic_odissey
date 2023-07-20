@@ -138,8 +138,8 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 1, g: 0.53333336, b: 0.1764706, a: 1}
-      key1: {r: 1, g: 0.53333336, b: 0.1764706, a: 1}
+      key0: {r: 0.7830189, g: 0.3393082, b: 0, a: 1}
+      key1: {r: 0.7843138, g: 0.34117648, b: 0, a: 1}
       key2: {r: 1, g: 0, b: 0, a: 0}
       key3: {r: 1, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -185,10 +185,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1450791607778856604}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 88e7a554c6b3443aa8113b2740ccc1de, type: 3}
+  m_Script: {fileID: 11500000, guid: 32f142f0376ee4e0d9443c0811b76b28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scaleSelf: 0
+  sizePx: 30
+  scaleTransform: 0
+  scaleLineRenderer: 1
 --- !u!1 &7966821745688105738
 GameObject:
   m_ObjectHideFlags: 0

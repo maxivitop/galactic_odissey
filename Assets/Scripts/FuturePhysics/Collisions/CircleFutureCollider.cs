@@ -1,27 +1,23 @@
-using System;
 using UnityEngine;
 
 public class CircleFutureCollider : FutureCollider
 {
-   [NonSerialized]
    public float radius;
 
    private void Start()
    {
-      TryGetComponent<SphereCollider>(out var sphere);
-      if (sphere != null)
+      var spheres = gameObject.GetComponentsInChildren<SphereCollider>();
+      if (spheres.Length > 0)
       {
-         radius = sphere.radius;
+         radius = spheres[0].radius * spheres[0].transform.lossyScale.x;
       }
-      TryGetComponent<CircleFutureCollider>(out var circle);
-      if (circle != null)
+      else
       {
-         radius = circle.radius;
+         var circles = gameObject.GetComponentsInChildren<CircleCollider2D>();
+         if (circles.Length > 0)
+         {
+            radius = circles[0].radius * circles[0].transform.lossyScale.x;
+         }
       }
-
-      var lossyScale = transform.lossyScale;
-      radius *= Mathf.Max(lossyScale.x,
-         lossyScale.y,
-         lossyScale.z);
    }
 }

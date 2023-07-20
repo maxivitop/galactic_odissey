@@ -5,7 +5,8 @@ using UnityEngine;
 [RequireComponent(typeof(TrajectoryProvider))]
 public class RotateShipToDirection : MonoBehaviour
 {
-    public float speed = 10;
+    public float speed = 300;
+    public Transform transformToRotate;
     private FutureRigidBody2D futureRigidBody2D;
     private TrajectoryProvider trajectoryProvider;
 
@@ -34,8 +35,8 @@ public class RotateShipToDirection : MonoBehaviour
                             - trajectoryProvider.trajectory.array[trajStep];
             }
         }
-        transform.rotation = Quaternion.Lerp( // not perfect, but does the job
-            transform.rotation,
+        transformToRotate.rotation = Quaternion.RotateTowards(
+            transformToRotate.rotation,
             Quaternion.LookRotation(Vector3.forward, direction),
             Time.deltaTime * speed * FuturePhysicsRunner.timeScale
         );
