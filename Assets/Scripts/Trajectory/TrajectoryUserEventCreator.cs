@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine.UI;
 
 public class TrajectoryUserEventCreator : MonoBehaviour
@@ -20,9 +21,13 @@ public class TrajectoryUserEventCreator : MonoBehaviour
     private float MaxSnappingDistance =>
         maxDistanceOfRenderingMarker * Camera.main!.transform.position.z;
 
+    private IEnumerable<ShadowClone> shadowClones;
+
     private void Start()
     {
         Instance = this;
+        shadowClones = FindObjectsOfType<ShadowCloneProvider>().Select(
+            provider => provider.CreateShadowClone()).ToList();
     }
 
     private void Update()
@@ -31,16 +36,16 @@ public class TrajectoryUserEventCreator : MonoBehaviour
             MoveMarker();
         else
             RemoveCurrentMarker();
-
+        UpdateShadowClones();
         HandleClick();
     }
 
     private void HandleClick()
     {
-        var isSpawnedMarkerHighligted = highlightedForEditingMarker != null &&
+        var isSpawnedMarkerHighlighted = highlightedForEditingMarker != null &&
                                         highlightedForEditingMarker.isSpawned;
         if (!Input.GetButtonDown("Fire1") || !MouseHandler.IsMouseOverEmptySpace ||
-            (currentMarker == null && !isSpawnedMarkerHighligted)) return;
+            (currentMarker == null && !isSpawnedMarkerHighlighted)) return;
 
         if (highlightedForEditingMarker != null && highlightedForEditingMarker.isSpawned)
             SelectMarker(highlightedForEditingMarker);
@@ -110,6 +115,39 @@ public class TrajectoryUserEventCreator : MonoBehaviour
         }
 
         currentMarker = Instantiate(markerPrefab.gameObject).GetComponent<TrajectoryMarker>();
+    }
+
+    private void UpdateShadowClones()
+    {
+        var position = -1;
+        if (highlightedForEditingMarker != null)
+        {
+            position = highlightedForEditingMarker.step;
+        }
+        else if (selectedMarker != null)
+        {
+            position = selectedMarker.step;
+        }
+        else if (currentMarker != null)
+        {
+            position = currentMarker.step;
+        }
+
+        if (position == -1)
+        {
+            foreach (var shadowClone in shadowClones)
+            {
+                shadowClone.gameObject.SetActive(false);
+            }
+        }
+        else
+        {
+            foreach (var shadowClone in shadowClones)
+            {
+                shadowClone.gameObject.SetActive(true);
+                shadowClone.SetStep(position);
+            }
+        }
     }
 
     private void MoveMarker()

@@ -121,6 +121,10 @@ public class CameraMover : MonoBehaviour
 
     private Vector3 GetReferencePosition(FutureTransform futureTransform)
     {
+        if (futureTransform == null)
+        {
+            return transform.position - relativePosition;
+        }
         return futureTransform.GetState(TrajectoryProvider.TrajectoryStepToPhysicsStep(0))
             .position.ToVector3();
     }
