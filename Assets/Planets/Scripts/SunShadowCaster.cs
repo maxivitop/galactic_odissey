@@ -7,7 +7,10 @@ public class SunShadowCaster : MonoBehaviour {
 		track = Camera.main!.transform;
 	}
 
-	void LateUpdate () {
-		transform.LookAt (track.position);
+	void LateUpdate ()
+	{
+		var targetPos = track.position;
+		targetPos.z = 0;
+		transform.LookAt (targetPos);
 	}
 }
