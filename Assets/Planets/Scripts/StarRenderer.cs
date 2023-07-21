@@ -1,0 +1,111 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[ExecuteInEditMode]
+public class StarRenderer : MonoBehaviour {
+
+	public int seed = 0;
+	public int numStars;
+	public int numVertsPerStar = 5;
+	public Vector2 sizeMinMax;
+	public float minBrightness;
+	public float maxBrightness = 1;
+	public Vector2 dstMinMax;
+	public Material mat;
+	Mesh mesh;
+
+	public Gradient colourSpectrum;
+	Texture2D spectrum;
+	bool settingsUpdated;
+
+	void Start () {
+		Init (true);
+	}
+
+	void OnValidate () {
+		settingsUpdated = true;
+	}
+
+	void Update () {
+		if (!Application.isPlaying) {
+			Init (settingsUpdated);
+			settingsUpdated = false;
+		}
+	}
+
+	void Init (bool regenerateMesh) {
+		if (regenerateMesh) {
+			GenerateMesh ();
+		}
+		TextureHelper.TextureFromGradient (colourSpectrum, 64, ref spectrum);
+		mat.SetTexture ("_Spectrum", spectrum);
+	}
+
+	void GenerateMesh () {
+		if (mesh) {
+			mesh.Clear ();
+		}
+
+		mesh = new Mesh ();
+		var tris = new List<int> ();
+		var verts = new List<Vector3> ();
+		var uvs = new List<Vector2> ();
+
+		Random.InitState (seed);
+		for (int starIndex = 0; starIndex < numStars; starIndex++) {
+			var dir = Random.onUnitSphere;
+			if (dir.z < 0) continue; // I don't need stars on the other side
+			var (circleVerts, circleTris, circleUvs) = GenerateCircle (dir, verts.Count);
+			verts.AddRange (circleVerts);
+			tris.AddRange (circleTris);
+			uvs.AddRange (circleUvs);
+		}
+
+		mesh.SetVertices (verts);
+		mesh.SetTriangles (tris, 0, true);
+		mesh.SetUVs (0, uvs);
+		var meshRenderer = GetComponent<MeshRenderer> ();
+		GetComponent<MeshFilter> ().sharedMesh = mesh;
+		meshRenderer.sharedMaterial = mat;
+		meshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+		meshRenderer.receiveShadows = false;
+	}
+
+	(Vector3[] verts, int[] tris, Vector2[] uvs) GenerateCircle (Vector3 dir, int indexOffset)
+	{
+		var dist = Random.Range(dstMinMax.x, dstMinMax.y);
+		float size = Random.Range (sizeMinMax.x, sizeMinMax.y) * dist;
+		float brightness = Random.Range (minBrightness, maxBrightness);
+		float spectrumT = Random.value;
+
+		var axisA = Vector3.Cross (dir, Vector3.up).normalized;
+		if (axisA == Vector3.zero) {
+			axisA = Vector3.Cross (dir, Vector3.forward).normalized;
+		}
+		var axisB = Vector3.Cross (dir, axisA);
+		var centre = dir * dist;
+
+		Vector3[] verts = new Vector3[numVertsPerStar + 1];
+		Vector2[] uvs = new Vector2[numVertsPerStar + 1];
+		int[] tris = new int[numVertsPerStar * 3];
+
+		verts[0] = centre;
+		uvs[0] = new Vector2 (brightness, spectrumT);
+
+		for (int vertIndex = 0; vertIndex < numVertsPerStar; vertIndex++) {
+			float currAngle = (vertIndex / (float) (numVertsPerStar)) * Mathf.PI * 2;
+			var vert = centre + (axisA * Mathf.Sin (currAngle) + axisB * Mathf.Cos (currAngle)) * size;
+			verts[vertIndex + 1] = vert;
+			uvs[vertIndex + 1] = new Vector2 (0, spectrumT);
+
+			if (vertIndex < numVertsPerStar) {
+				tris[vertIndex * 3 + 0] = 0 + indexOffset;
+				tris[vertIndex * 3 + 1] = (vertIndex + 1) + indexOffset;
+				tris[vertIndex * 3 + 2] = ((vertIndex + 1) % (numVertsPerStar) + 1) + indexOffset;
+			}
+		}
+
+		return (verts, tris, uvs);
+	}
+}

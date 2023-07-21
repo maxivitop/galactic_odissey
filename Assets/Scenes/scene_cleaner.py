@@ -2,6 +2,8 @@ import re
 import os, shutil
 
 scene_name = "/Users/evgeek/Code/unity/galactic_odissey/Assets/Scenes/SampleScene.unity"
+bac_name = "/Users/evgeek/Code/unity/galactic_odissey/Assets/Scenes/SampleScene.unity.bac"
+
 tmp_name = "tmp.unity"
 
 input_file = open(scene_name, "r")
@@ -24,5 +26,6 @@ for line in input_file:
 
 output_file.close()
 
+shutil.copy(scene_name, bac_name)
 os.remove(scene_name)
 shutil.move(tmp_name, scene_name)
