@@ -43,11 +43,15 @@ public class ConstantSizePx : MonoBehaviour
     {
         var scale = canvas.scaleFactor;
         var scaledSizePx = sizePx * scale;
-        var position = transform.position;
-        var screenPos = mainCamera.WorldToScreenPoint(position);
-        var screenUp = screenPos + Vector3.up * scaledSizePx;
-        screenUp.z = -mainCamera.transform.position.z;
-        var size = Vector3.Distance(position,  mainCamera.ScreenToWorldPoint(screenUp));
+        var screenUp =  Vector3.up * scaledSizePx;
+        var zero = Vector3.zero;
+        var cameraPos = mainCamera.transform.position;
+        zero.z = -cameraPos.z;
+        screenUp.z = -cameraPos.z;
+        var size = Vector3.Distance(
+            mainCamera.ScreenToWorldPoint(zero), 
+            mainCamera.ScreenToWorldPoint(screenUp)
+        );
         if (scaleTransform)
         {
             transform.localScale = initialScale * size;

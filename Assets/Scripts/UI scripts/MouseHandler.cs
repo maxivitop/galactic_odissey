@@ -15,16 +15,19 @@ public class MouseHandler : MonoBehaviour
     private bool isMouseOverObject;
     private readonly PointerEventData pointerEventData = new(EventSystem.current);
     private PhysicsRaycaster physicsRaycaster;
+    private static Plane worldPlane = new Plane(Vector3.forward, 0);
+    private static Camera myCamera;
+
     public static void UpdateWorldMousePosition()
     {
-        WorldMousePosition = Camera.main!.ScreenToWorldPoint(new Vector3(
-            Input.mousePosition.x,
-            Input.mousePosition.y,
-            -Camera.main.transform.position.z
-        ));
+        var ray = myCamera.ScreenPointToRay(Input.mousePosition);
+        if (worldPlane.Raycast(ray, out var distance)){
+            WorldMousePosition = ray.GetPoint(distance);
+        }
     }
     private void Start()
     {
+        myCamera = Camera.main!;
         physicsRaycaster = Camera.main!.GetComponent<PhysicsRaycaster>();
     }
 

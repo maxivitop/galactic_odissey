@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class CameraMover : MonoBehaviour
 {
@@ -9,16 +10,19 @@ public class CameraMover : MonoBehaviour
     public float minPos;
     public float maxPos;
     public float minZoom;
-    public float maxZoom;
+    public float maxZoom;   
     private Vector3? previousMousePosition;
     private Vector3 relativePosition;
     private float startPosZ;
     private Vector3? targetRelativePosition;
-    private Vector3 targetPositionAnimationStartRelativePosition;
-    private float targetPositionAnimationTime;
     public float targetPositionAnimationDuration = 0.3f;
     [NonSerialized]
     public FutureTransform followee;
+    private Vector3Animator targetPositionAnimator;
+    [Range(0, 1)]
+    public float lookRotationBias = 0.7f;
+    [Range(0, 85)]
+    public float maxAngle = 20f;
 
     private Camera myCamera;
 
@@ -29,6 +33,7 @@ public class CameraMover : MonoBehaviour
         relativePosition = position;
         startPosZ = position.z;
         followee = ReferenceFrameHost.ReferenceFrame.futureTransform;
+        targetPositionAnimator = new Vector3Animator(targetPositionAnimationDuration);
     }
 
     private void Update()
@@ -44,7 +49,7 @@ public class CameraMover : MonoBehaviour
             Input.GetAxis("Vertical") * movementSpeed,
             Input.mouseScrollDelta.y * speedOfZoom
         );
-        if (targetPositionAnimationTime >= targetPositionAnimationDuration)
+        if (targetPositionAnimator.HasFinished())
         {
             targetRelativePosition = null;
         }
@@ -54,11 +59,8 @@ public class CameraMover : MonoBehaviour
         }
         if (targetRelativePosition.HasValue)
         {
-            targetPositionAnimationTime += Time.deltaTime;
-            var progress = Mathf.Min(
-                targetPositionAnimationTime / targetPositionAnimationDuration, 1f);
-            relativePosition = targetPositionAnimationStartRelativePosition + progress * (
-                        targetRelativePosition.Value - targetPositionAnimationStartRelativePosition);
+            targetPositionAnimator.ForwardTime(Time.deltaTime);
+            relativePosition = targetPositionAnimator.AnimateTowards(targetRelativePosition.Value);
         }
         
         relativePosition += input;
@@ -83,20 +85,32 @@ public class CameraMover : MonoBehaviour
 
         relativePosition.x = Mathf.Clamp(relativePosition.x, minPos, maxPos);
         relativePosition.y = Mathf.Clamp(relativePosition.y, minPos, maxPos);
-        transform.position = GetReferencePosition(followee) + relativePosition;
+        var referencePos = GetReferencePosition(followee);
+        transform.position = referencePos + relativePosition;
+        
+        var groundRelativePos = relativePosition;
+        groundRelativePos.z = 0;
+      
+        var lookTarget = referencePos + groundRelativePos * lookRotationBias;
+        Quaternion initialRotation = transform.rotation;
+        transform.LookAt(lookTarget);
+        Quaternion targetRotation = // limit rotation to be no more than maxAngle from identity
+            Quaternion.RotateTowards(Quaternion.identity, transform.rotation, maxAngle);
+        transform.rotation = // animate for smooth rotation channges
+            Quaternion.RotateTowards(initialRotation, targetRotation, 
+               maxAngle / targetPositionAnimationDuration * Time.deltaTime);
+
         if (Input.GetMouseButton(1))
         {
             MouseHandler.UpdateWorldMousePosition();
             previousMousePosition = MouseHandler.WorldMousePosition;
         }
-        myCamera.orthographicSize = -transform.position.z;
     }
 
     public void MoveToPosition(Vector3 target)
     {
         targetRelativePosition = target - GetReferencePosition(followee);
-        targetPositionAnimationStartRelativePosition = relativePosition;
-        targetPositionAnimationTime = 0f;
+        targetPositionAnimator.Capture(relativePosition);
     }
     
     public void Follow(FutureTransform followee)
