@@ -8,10 +8,17 @@ public class ClickHelper: MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public Color highlightedColor;
     private SpriteRenderer spriteRenderer;
     private Color initialColor;
+    private Transform mainCamera;
     private void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         initialColor = spriteRenderer.color;
+        mainCamera = Camera.main!.transform;
+    }
+
+    private void Update()
+    {
+        transform.LookAt(mainCamera);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
