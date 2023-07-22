@@ -1,21 +1,31 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(ShadowCloneProvider))]
 public class ShadowOnCollision: MonoBehaviour, ICollisionEnterHandler
 {
     private ShadowCloneProvider shadowCloneProvider;
-    private ShadowClone shadowClone;
-    private bool hasShadowClone;
-    private int collisionStep;
+    private Dictionary<FutureCollider, CollisionInfo> colliderToCollisionInfo = new();
     public Material collisionMaterial;
 
     private void Start()
     {
         shadowCloneProvider = GetComponent<ShadowCloneProvider>();
+        var collidersToDestroy = new List<FutureCollider>();
         FuturePhysics.beforeReset.AddListener(resetParams =>
         {
-            if (!hasShadowClone || resetParams.step > collisionStep) return;
-            DestroyShadowClone();
+            foreach (var kv in colliderToCollisionInfo)
+            {
+                if (resetParams.step > kv.Value.collisionStep) 
+                    continue;
+                collidersToDestroy.Add(kv.Key);
+            }
+            foreach (var futureCollider in collidersToDestroy)
+            {
+                DestroyShadowClone(futureCollider);
+            }
+            collidersToDestroy.Clear();
         });
     }
 
@@ -23,29 +33,76 @@ public class ShadowOnCollision: MonoBehaviour, ICollisionEnterHandler
     {
         FuturePhysicsRunner.ExecuteOnUpdate(() =>
         {
-            hasShadowClone = true;
-            collisionStep = step;
-            shadowClone = shadowCloneProvider.CreateShadowClone();
-            shadowClone.SetStep(step);
-            shadowClone.meshRenderer.material = collisionMaterial;
-            shadowClone.Activate();
+            var collisionInfo = new CollisionInfo(shadowCloneProvider.CreateShadowClone(), step);
+            collisionInfo.shadowClone.SetStep(step);
+            collisionInfo.shadowClone.meshRenderer.material = collisionMaterial;
+            collisionInfo.shadowClone.Activate();
+            colliderToCollisionInfo[collision.other] = collisionInfo;
         });
     }
 
     public void StepCollisionEnter(int step, FutureCollision collision)
     {
-        DestroyShadowClone();
+        DestroyShadowClone(collision.other);
     }
 
     private void OnDestroy()
     {
-        DestroyShadowClone();
+        foreach (var collider in colliderToCollisionInfo.Keys)
+        {
+            DestroyShadowClone(collider);
+        }
     }
 
-    private void DestroyShadowClone()
+    private void DestroyShadowClone(FutureCollider futureCollider)
     {
-        hasShadowClone = false;
-        if (shadowClone != null) Destroy(shadowClone.gameObject);
-        shadowClone = null;
+        var collisionInfo = colliderToCollisionInfo[futureCollider];
+        colliderToCollisionInfo.Remove(futureCollider);
+        if (collisionInfo != null && collisionInfo.shadowClone != null)
+        {
+            Destroy(collisionInfo.shadowClone.gameObject);
+        }
+        
+    }
+    
+    
+    private class CollisionInfo
+    {
+        public readonly ShadowClone shadowClone;
+        public readonly int collisionStep;
+
+        public CollisionInfo(ShadowClone shadowClone, int collisionStep)
+        {
+            this.shadowClone = shadowClone;
+            this.collisionStep = collisionStep;
+        }
+
+        protected bool Equals(CollisionInfo other)
+        {
+            return Equals(shadowClone, other.shadowClone) && collisionStep == other.collisionStep;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((CollisionInfo)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(shadowClone, collisionStep);
+        }
+
+        public static bool operator ==(CollisionInfo left, CollisionInfo right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(CollisionInfo left, CollisionInfo right)
+        {
+            return !Equals(left, right);
+        }
     }
 }
