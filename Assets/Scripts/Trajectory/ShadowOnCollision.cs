@@ -26,9 +26,9 @@ public class ShadowOnCollision: MonoBehaviour, ICollisionEnterHandler
             hasShadowClone = true;
             collisionStep = step;
             shadowClone = shadowCloneProvider.CreateShadowClone();
-            shadowClone.gameObject.SetActive(true);
             shadowClone.SetStep(step);
             shadowClone.meshRenderer.material = collisionMaterial;
+            shadowClone.Activate();
         });
     }
 

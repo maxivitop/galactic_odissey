@@ -1,6 +1,4 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.UI;
@@ -17,6 +15,7 @@ public class TrajectoryUserEventCreator : MonoBehaviour
     private List<TrajectoryMarker> spawnedMarkers = new();
     private TrajectoryMarker highlightedForEditingMarker;
     private TrajectoryMarker selectedMarker;
+    public Animator trajectoryEventsOpenClose;
 
     private float MaxSnappingDistance =>
         maxDistanceOfRenderingMarker * Camera.main!.transform.position.z;
@@ -53,6 +52,15 @@ public class TrajectoryUserEventCreator : MonoBehaviour
             SpawnMarker();
     }
 
+    public void DeselectMarker()
+    {
+        if (selectedMarker == null) return;
+
+        selectedMarker.IsSelected = false;
+        trajectoryEventsOpenClose.SetBool("open", false);
+        selectedMarker = null;
+    }
+
     private void RemoveCurrentMarker()
     {
         if (currentMarker == null) return;
@@ -63,13 +71,30 @@ public class TrajectoryUserEventCreator : MonoBehaviour
     public void UnregisterMarker(TrajectoryMarker marker)
     {
         spawnedMarkers.Remove(marker);
+        if (selectedMarker == marker)
+        {
+            DeselectMarker();
+        }
+        if (highlightedForEditingMarker == marker)
+        {
+            highlightedForEditingMarker = null;
+        }
+        if (currentMarker == marker)
+        {
+            currentMarker = null;
+        }
     }
 
     private void SelectMarker(TrajectoryMarker marker)
     {
-        if (selectedMarker != null) selectedMarker.IsSelected = false;
+        if (selectedMarker != null)
+        {
+            selectedMarker.IsSelected = false;
+        }
+        trajectoryEventsOpenClose.SetBool("open", true);
         marker.IsSelected = true;
         selectedMarker = marker;
+        
     }
 
     private bool HighlightEditMarkers()
@@ -137,15 +162,22 @@ public class TrajectoryUserEventCreator : MonoBehaviour
         {
             foreach (var shadowClone in shadowClones)
             {
-                shadowClone.gameObject.SetActive(false);
+                shadowClone.Deactivate();
             }
         }
         else
         {
             foreach (var shadowClone in shadowClones)
             {
-                shadowClone.gameObject.SetActive(true);
-                shadowClone.SetStep(position);
+                if (shadowClone.targetGameObject == ReferenceFrameHost.ReferenceFrame.gameObject)
+                {
+                    shadowClone.Deactivate();
+                }
+                else
+                { 
+                    shadowClone.Activate();
+                    shadowClone.SetStep(position);
+                }
             }
         }
     }

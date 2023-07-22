@@ -53,7 +53,7 @@ public class TrajectoryUserEventReceiver : MonoBehaviour
                     point: worldMousePosition
                 );
                 if (i - closestToMouseTrajectoryStep.Value > 10 &&
-                    (closestCurr - closestSegmentPos).sqrMagnitude < 1e-3)
+                    (closestCurr - closestSegmentPos).sqrMagnitude < 1e-2)
                 {
                     continue; // we are in the loop
                 }

@@ -156,6 +156,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32f142f0376ee4e0d9443c0811b76b28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sizePx: 100
+  sizePx: 30
   scaleTransform: 1
   scaleLineRenderer: 0

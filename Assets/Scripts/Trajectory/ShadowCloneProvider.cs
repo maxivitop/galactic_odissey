@@ -7,7 +7,7 @@ public class ShadowCloneProvider: MonoBehaviour
     private TrajectoryProvider trajectoryProvider;
     private MeshFilter targetMesh;
 
-    private void Start()
+    private void Awake()
     {
         trajectoryProvider = GetComponent<TrajectoryProvider>();
         targetMesh = GetComponentInChildren<MeshFilter>();
@@ -15,9 +15,10 @@ public class ShadowCloneProvider: MonoBehaviour
 
     public ShadowClone CreateShadowClone()
     {
-        var shadowClone = Instantiate(shadowClonePrefab).GetComponent<ShadowClone>();
-        shadowClone.gameObject.SetActive(false);
-        shadowClone.target = targetMesh;
+        var shadowClone = Instantiate(shadowClonePrefab);
+        shadowClone.Deactivate();
+        shadowClone.targetMesh = targetMesh;
+        shadowClone.targetGameObject = gameObject;
         shadowClone.trajectoryProvider = trajectoryProvider;
         return shadowClone;
     }

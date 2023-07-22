@@ -10,18 +10,30 @@ public class ShadowClone: MonoBehaviour
     public MeshRenderer meshRenderer;
     private MeshFilter meshFilter;
     [NonSerialized]
-    public MeshFilter target;
+    public MeshFilter targetMesh;
+    [NonSerialized]
+    public GameObject targetGameObject;
     [NonSerialized]
     public TrajectoryProvider trajectoryProvider;
-    private int step;
+    private int step = -1;
+
+    public void Activate()
+    {
+        gameObject.SetActive(true);
+    }
+    
+    public void Deactivate()
+    {
+        gameObject.SetActive(false);
+    }
 
     private void OnEnable()
     {
         meshRenderer = GetComponent<MeshRenderer>();
         meshFilter = GetComponent<MeshFilter>();
-        if (target == null) return;
-        meshFilter.mesh = target.mesh;
-        transform.localScale = target.transform.lossyScale;
+        if (targetMesh == null) return;
+        meshFilter.mesh = targetMesh.mesh;
+        transform.localScale = targetMesh.transform.lossyScale;
     }
 
     public void SetStep(int step)
@@ -31,9 +43,13 @@ public class ShadowClone: MonoBehaviour
 
     public void Update()
     {
+        if (!isActiveAndEnabled)
+        {
+            return;
+        }
         var trajStep = TrajectoryProvider.PhysicsStepToTrajectoryStep(step);
         
-        if (trajectoryProvider.trajectory.size <= trajStep || trajStep < 0)
+        if (trajStep < 0 || trajectoryProvider.trajectory.size <= trajStep)
         {
             transform.position = new Vector3(1e10f, 1e10f);
             return;
