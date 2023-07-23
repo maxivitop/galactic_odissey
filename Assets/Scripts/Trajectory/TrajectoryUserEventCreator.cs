@@ -57,7 +57,10 @@ public class TrajectoryUserEventCreator : MonoBehaviour
         if (selectedMarker == null) return;
 
         selectedMarker.IsSelected = false;
-        trajectoryEventsOpenClose.SetBool("open", false);
+        if (trajectoryEventsOpenClose !=  null)
+        {
+            trajectoryEventsOpenClose.SetBool("open", false);
+        }
         selectedMarker = null;
     }
 

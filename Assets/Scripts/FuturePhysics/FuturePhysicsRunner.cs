@@ -27,6 +27,7 @@ public class FuturePhysicsRunner : MonoBehaviour
     private float unusedDeltaTime;
     private IEnumerator mainThreadFinishedNotifier;
     private static volatile bool isMainThreadWaiting = true;
+    private static volatile bool hasBgThreadWorked = true;
 
 
     private void Awake()
@@ -41,7 +42,12 @@ public class FuturePhysicsRunner : MonoBehaviour
     private void Update()
     {
         isMainThreadWaiting = true;
+        if (!hasBgThreadWorked)
+        {
+            Debug.LogWarning("Scheduler is slow");
+        }
         bgThreadFinished.WaitOne(100);
+        hasBgThreadWorked = false;
         activeThread = Thread.CurrentThread;
         
         foreach (var executeOnUpdate in executeOnUpdateQueue)
@@ -57,7 +63,6 @@ public class FuturePhysicsRunner : MonoBehaviour
         unusedDeltaTime -= stepsPerNextFrame * timePerStep;
         stepsNextFrame = stepsPerNextFrame * timeScale;
         for (var i = 0; i < stepsThisFrame; i++) FuturePhysics.Step();
-        // lock is released by [ReleaseLock] after all Updates.
     }
     
     // IEnumerator is called after all Updates
@@ -88,6 +93,7 @@ public class FuturePhysicsRunner : MonoBehaviour
     private void VirtualStepRunner()
     {
         mainThreadFinished.WaitOne();
+        hasBgThreadWorked = true;
         while (true)
         {
             while (FuturePhysics.lastVirtualStep - FuturePhysics.currentStep <
@@ -97,6 +103,7 @@ public class FuturePhysicsRunner : MonoBehaviour
                 {
                     bgThreadFinished.Set();
                     mainThreadFinished.WaitOne();
+                    hasBgThreadWorked = true;
                 }
                 FuturePhysics.VirtualStep();
             }
@@ -104,10 +111,12 @@ public class FuturePhysicsRunner : MonoBehaviour
             {
                 bgThreadFinished.Set();
                 mainThreadFinished.WaitOne();
+                hasBgThreadWorked = true;
             }
             onBgThreadIdle.Invoke(FuturePhysics.lastVirtualStep);
             bgThreadFinished.Set();
             mainThreadFinished.WaitOne();
+            hasBgThreadWorked = true;
         }
         // ReSharper disable once FunctionNeverReturns
     }

@@ -8,7 +8,7 @@ public class FutureBehaviour : MonoBehaviour, IFutureObject
     private int disablingSourceStep;
     private int disabledFromStep = NotDisabled;
     [NonSerialized]
-    public new string name;
+    public string myName;
     
     public virtual void ResetToStep(int step, GameObject cause)
     {
@@ -28,7 +28,7 @@ public class FutureBehaviour : MonoBehaviour, IFutureObject
     protected virtual void OnEnable()
     {
         Register();
-        name = ToString();
+        myName = ToString();
     }
 
     protected virtual void OnDisable()

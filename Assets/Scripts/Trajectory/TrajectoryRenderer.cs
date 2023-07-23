@@ -23,6 +23,11 @@ public class TrajectoryRenderer : MonoBehaviour
     private void Update()
     {
         lineRenderer.positionCount = trajectoryProvider.trajectory.size;
+        if (trajectoryProvider.trajectory.start != 0)
+        {
+            Debug.Log("Normalize in update");
+            trajectoryProvider.trajectory.Normalize();
+        }
         lineRenderer.SetPositions(trajectoryProvider.trajectory.array);
         UpdateTrajectoryColor();
     }

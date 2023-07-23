@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class TrajectoryAnimator
@@ -22,25 +23,20 @@ public class TrajectoryAnimator
         animationTime += time;
     }
 
-    public void Animate(CapacityArray<Vector3> targetValue)
+    public bool Animate(CapacityArray<Vector3> targetValue)
     {
-        if (animationTime > animationDuration) return;
-        if (initialValue.size == 0) return;
+        if (animationTime <= 0f || animationTime > animationDuration) return false;
+        if (initialValue.size == 0) return false;
         var animationFraction = animationTime / animationDuration;
-        for (var i = 0; i < targetValue.size && i < initialValue.size; i++)
+        targetValue.size = Math.Min(targetValue.size, initialValue.size);
+        for (var i = 0; i < targetValue.size; i++)
         {
-            
             targetValue.array[i] = initialValue.array[i] +
                                    (targetValue.array[i] - initialValue.array[i]) *
                                    animationFraction;
         }
 
-        var lastInitialValue = initialValue.array[initialValue.size - 1];
-        for (var i = initialValue.size; i < targetValue.size; i++)
-        {
-            targetValue.array[i] = lastInitialValue +
-                                   (targetValue.array[i] - lastInitialValue) * animationFraction;
-        }
+        return true;
     }
 
 }
