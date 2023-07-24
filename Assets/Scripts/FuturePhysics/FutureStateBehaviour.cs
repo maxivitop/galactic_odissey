@@ -23,13 +23,13 @@ public abstract class FutureStateBehaviour<TState> : FutureBehaviour where TStat
 
     public TState GetState(int step)
     {
+        if (step <= 1) SetState(0, GetInitialState());
 #if DEBUG
         FuturePhysicsRunner.CheckThread();
         if (states.size < step)
             Debug.LogError("Getting state for step " + step + " when max step is " +
-                           states.size +". Virtual step is " + FuturePhysics.lastVirtualStep);
+                           states.size +". Virtual step is " + FuturePhysics.lastVirtualStep + " " + myName);
 #endif
-        if (step == 0) SetState(0, GetInitialState());
         if (states.size == step) SetState(step, states[states.size - 1].Next());
         return states[step];
     }
@@ -38,7 +38,7 @@ public abstract class FutureStateBehaviour<TState> : FutureBehaviour where TStat
     {
         FuturePhysicsRunner.CheckThread();
         base.ResetToStep(step, cause);
-
+        if (cause != gameObject) return;
         if (states.size <= step) return;
         states.size = step;
     }

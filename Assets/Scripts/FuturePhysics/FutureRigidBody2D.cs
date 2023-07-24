@@ -41,7 +41,6 @@ public class FutureRigidBody2D : FutureStateBehaviour<RigidBody2DState>
 {
     public Vector2 initialVelocity;
     public double initialMass;
-    public bool processCollisions;
 
     protected override RigidBody2DState GetInitialState()
     {

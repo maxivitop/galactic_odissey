@@ -1,32 +1,36 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(ShadowCloneProvider))]
-public class ShadowOnCollision: MonoBehaviour, ICollisionEnterHandler
+public class ShadowOnCollision : FutureBehaviour, ICollisionEnterHandler
 {
     private ShadowCloneProvider shadowCloneProvider;
-    private Dictionary<FutureCollider, CollisionInfo> colliderToCollisionInfo = new();
+    private readonly Dictionary<FutureCollider, CollisionInfo> colliderToCollisionInfo = new();
     public Material collisionMaterial;
+    private readonly List<FutureCollider> collidersToDestroy = new();
 
     private void Start()
     {
         shadowCloneProvider = GetComponent<ShadowCloneProvider>();
-        var collidersToDestroy = new List<FutureCollider>();
-        FuturePhysics.beforeReset.AddListener(resetParams =>
+    }
+
+    public override void ResetToStep(int step, GameObject cause)
+    {
+        foreach (var kv in colliderToCollisionInfo)
         {
-            foreach (var kv in colliderToCollisionInfo)
-            {
-                if (resetParams.step > kv.Value.collisionStep) 
-                    continue;
-                collidersToDestroy.Add(kv.Key);
-            }
-            foreach (var futureCollider in collidersToDestroy)
-            {
-                DestroyShadowClone(futureCollider);
-            }
-            collidersToDestroy.Clear();
-        });
+            if (step > kv.Value.collisionStep)
+                continue;
+            collidersToDestroy.Add(kv.Key);
+        }
+
+        foreach (var futureCollider in collidersToDestroy)
+        {
+            DestroyShadowClone(futureCollider);
+        }
+
+        collidersToDestroy.Clear();
     }
 
     public void VirtualStepCollisionEnter(int step, FutureCollision collision)
@@ -48,7 +52,8 @@ public class ShadowOnCollision: MonoBehaviour, ICollisionEnterHandler
 
     private void OnDestroy()
     {
-        foreach (var collider in colliderToCollisionInfo.Keys)
+        foreach (var collider in colliderToCollisionInfo.Keys.ToArray()) 
+            // ToArray protects from concurrent modification
         {
             DestroyShadowClone(collider);
         }
@@ -62,10 +67,9 @@ public class ShadowOnCollision: MonoBehaviour, ICollisionEnterHandler
         {
             Destroy(collisionInfo.shadowClone.gameObject);
         }
-        
     }
-    
-    
+
+
     private class CollisionInfo
     {
         public readonly ShadowClone shadowClone;

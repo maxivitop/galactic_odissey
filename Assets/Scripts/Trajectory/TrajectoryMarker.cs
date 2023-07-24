@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-public class TrajectoryMarker : FutureBehaviour
+public class TrajectoryMarker : MonoBehaviour
 {
     public Material highlightedMaterial;
     public Material selectedMaterial;
@@ -85,12 +85,6 @@ public class TrajectoryMarker : FutureBehaviour
         isSpawned = true;
     }
 
-    // ReSharper disable once ParameterHidesMember
-    public override void Step(int step)
-    {
-        if (isSpawned && this.step == step) Destroy(gameObject);
-    }
-
     private void UpdateAppearance()
     {
         foreach (var myRenderer in myRenderers)
@@ -102,8 +96,12 @@ public class TrajectoryMarker : FutureBehaviour
 
     private void Update()
     {
+        if (isSpawned && step <= FuturePhysics.currentStep)
+        {
+            Destroy(gameObject);
+            return;
+        }
         var trajStep = TrajectoryProvider.PhysicsStepToTrajectoryStep(step);
-        
         if (isSpawned)
         {
             if (targetTrajectoryProvider.trajectory.size <= trajStep)
@@ -114,17 +112,11 @@ public class TrajectoryMarker : FutureBehaviour
             transform.position = targetTrajectoryProvider.trajectory.array[trajStep];
         }
 
-        if (fixedRotation == null)
-        {
-            if (trajStep+1 >= targetTrajectoryProvider.trajectory.size)
-            {
-                return;
-            }
-
-            var direction = targetTrajectoryProvider.trajectory.array[trajStep + 1] -
+        if (fixedRotation != null) return;
+        if (trajStep + 1 >= targetTrajectoryProvider.trajectory.size) return;
+        var direction = targetTrajectoryProvider.trajectory.array[trajStep + 1] -
                             targetTrajectoryProvider.trajectory.array[trajStep];
-            transform.rotation = Quaternion.LookRotation(Vector3.forward, direction);
-        }
+        transform.rotation = Quaternion.LookRotation(Vector3.forward, direction);
     }
 
     private void DestroySelf()

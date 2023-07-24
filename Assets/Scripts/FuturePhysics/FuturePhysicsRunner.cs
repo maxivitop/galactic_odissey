@@ -97,7 +97,7 @@ public class FuturePhysicsRunner : MonoBehaviour
         while (true)
         {
             while (FuturePhysics.lastVirtualStep - FuturePhysics.currentStep <
-                   FuturePhysics.MaxSteps)
+                   FuturePhysics.MaxSteps || !FuturePhysics.upToDateWithLastStep)
             {
                 if(isMainThreadWaiting)
                 {
@@ -105,7 +105,7 @@ public class FuturePhysicsRunner : MonoBehaviour
                     mainThreadFinished.WaitOne();
                     hasBgThreadWorked = true;
                 }
-                FuturePhysics.VirtualStep();
+                FuturePhysics.MakeVirtualCalculations();
             }
             if(isMainThreadWaiting)
             {

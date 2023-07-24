@@ -218,7 +218,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6146545414153545499, guid: 61753401622c2a947a30e2147430e97d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 50
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6146545414153545499, guid: 61753401622c2a947a30e2147430e97d, type: 3}
       propertyPath: m_LocalPosition.y
@@ -259,23 +259,3 @@ PrefabInstance:
     m_RemovedComponents: []
     m_AddedGameObjects: []
   m_SourcePrefab: {fileID: 100100000, guid: 61753401622c2a947a30e2147430e97d, type: 3}
---- !u!1 &2864221240062662802 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6146545414153545494, guid: 61753401622c2a947a30e2147430e97d, type: 3}
-  m_PrefabInstance: {fileID: 8283008635030601604}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2037029196027663597
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2864221240062662802}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 32f142f0376ee4e0d9443c0811b76b28, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sizePx: 10
-  scaleTransform: 1
-  scaleLineRenderer: 0

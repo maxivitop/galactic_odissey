@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class FutureCollision
 {
-    public FutureCollider my;
-    public FutureCollider other;
+    public readonly FutureCollider my;
+    public readonly FutureCollider other;
 
     public FutureCollision(FutureCollider my, FutureCollider other)
     {
@@ -14,22 +14,22 @@ public class FutureCollision
         this.other = other;
     }
 
-    private bool Equals(FutureCollision another)
+    protected bool Equals(FutureCollision other)
     {
-        return Equals(my, another.my) && Equals(other, another.other) ||
-               Equals(other, another.my) && Equals(my, another.other);
+        return Equals(my, other.my) && Equals(this.other, other.other);
     }
 
     public override bool Equals(object obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        return obj.GetType() == GetType() && Equals((FutureCollision)obj);
+        if (obj.GetType() != GetType()) return false;
+        return Equals((FutureCollision)obj);
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(my, other) + HashCode.Combine(other, my);
+        return HashCode.Combine(my, other);
     }
 
     public static bool operator ==(FutureCollision left, FutureCollision right)
@@ -57,8 +57,24 @@ public class FutureCollisions: IEvolving<FutureCollisions>
         return new FutureCollisions();
     }
 }
-public class CollisionProcessor : FutureStateBehaviour<FutureCollisions>
+public class CollisionDetector : FutureStateBehaviour<FutureCollisions>
 {
+
+    private readonly HashSet<FutureCollider> myColliders = new();
+    private void Start()
+    {
+        myColliders.UnionWith(GetComponents<FutureCollider>());
+        foreach (var futureCollider in myColliders)
+        {
+            futureCollider.isPassive = false;
+        }
+    }
+
+    public override bool IsAlive(int step)
+    {
+        return true; // Needs to dispatch collision events
+    }
+
     public override void Step(int step)
     {
         var prevStepCollisions = step == 0
@@ -68,7 +84,9 @@ public class CollisionProcessor : FutureStateBehaviour<FutureCollisions>
         {
             if (prevStepCollisions.Contains(collision)) continue;
             collision.my.StepCollisionEnter(step, collision);
-            collision.other.StepCollisionEnter(step, collision);
+            if (!collision.other.isPassive) continue;
+            var otherCollision = new FutureCollision(collision.other, collision.my);
+            collision.other.StepCollisionEnter(step, otherCollision);
         }
     }
 
@@ -77,22 +95,24 @@ public class CollisionProcessor : FutureStateBehaviour<FutureCollisions>
         var prevStepCollisions = step == 0
             ? new HashSet<FutureCollision>()
             : GetState(step - 1).collisions;
-        var colliders = FuturePhysics.GetComponents<FutureCollider>(step).ToList();
-        for (var i = 0; i < colliders.Count; i++)
+        var colliders = FuturePhysics.GetComponents<FutureCollider>(step);
+        foreach(var otherCollider in colliders)
         {
-            var coll1 = colliders[i];
-            if (coll1.isPassive || !coll1.IsAlive(step)) continue;
-            for (var j = 0; j < colliders.Count; j++)
+            if (!otherCollider.IsAlive(step)) continue;
+            if (myColliders.Contains(otherCollider)) continue;
+            foreach (var myCollider in myColliders)
             {
-                var coll2 = colliders[j];
-                if (!coll2.isPassive && i <= j || !coll2.IsAlive(step)) continue; // coll2 already checked collision with coll1
-                if (!CheckCollision(step, coll1, coll2)) continue;
-                
-                var collision = new FutureCollision(coll1, coll2);
+                if (!myCollider.IsAlive(step)) continue;
+                if (!CheckCollision(step, myCollider, otherCollider)) continue;
+                var collision = new FutureCollision(myCollider, otherCollider);
                 if (!prevStepCollisions.Contains(collision))
                 {
-                    coll1.VirtualStepCollisionEnter(step, collision);
-                    coll2.VirtualStepCollisionEnter(step, collision);
+                    myCollider.VirtualStepCollisionEnter(step, collision);
+                    if (otherCollider.isPassive)
+                    {
+                        var otherCollision = new FutureCollision(otherCollider, myCollider);
+                        otherCollider.VirtualStepCollisionEnter(step, otherCollision);
+                    }
                 } // OnCollisionStay goes in else if needed 
                 GetState(step).collisions.Add(collision);
             }

@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class TrajectoryAnimator
 {
-    private readonly CapacityArray<Vector3> initialValue = new(FuturePhysics.MaxSteps);
+    private readonly CapacityArray<Vector3> initialValue = new(FuturePhysics.MaxSteps+1);
     private readonly float animationDuration;
     private float animationTime;
 

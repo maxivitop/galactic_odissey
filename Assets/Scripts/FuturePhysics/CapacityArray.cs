@@ -69,12 +69,16 @@ public class CapacityArray<T>
             0, 
             endSliceSize
             );
-        Array.Copy(
-            array,
-            0,
-            tmpArray, endSliceSize,
-            size - endSliceSize
+        if (endSliceSize < size)
+        {
+            Array.Copy(
+                array,
+                0,
+                tmpArray,
+                endSliceSize,
+                size - endSliceSize
             );
+        }
         (tmpArray, array) = (array, tmpArray);
         start = 0;
     }

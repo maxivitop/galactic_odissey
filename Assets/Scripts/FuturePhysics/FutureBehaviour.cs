@@ -9,9 +9,14 @@ public class FutureBehaviour : MonoBehaviour, IFutureObject
     private int disabledFromStep = NotDisabled;
     [NonSerialized]
     public string myName;
+
+    protected int myLastVirtualStep = -1;
+    private GameObject myGameObject;
     
     public virtual void ResetToStep(int step, GameObject cause)
     {
+        if (cause != myGameObject) return;
+        myLastVirtualStep = step-1;
         if (disablingSourceStep < step) return;
         disablingSourceStep = 0;
         disabledFromStep = NotDisabled;
@@ -21,6 +26,15 @@ public class FutureBehaviour : MonoBehaviour, IFutureObject
     {
     }
 
+    public virtual bool CatchUpWithVirtualStep(int virtualStep)
+    {
+        if (myLastVirtualStep >= virtualStep) return true;
+        if (!IsAlive(myLastVirtualStep)) return true;
+        myLastVirtualStep++;
+        VirtualStep(myLastVirtualStep);
+        return myLastVirtualStep >= virtualStep;
+    }
+
     public virtual void VirtualStep(int step)
     {
     }
@@ -28,6 +42,7 @@ public class FutureBehaviour : MonoBehaviour, IFutureObject
     protected virtual void OnEnable()
     {
         Register();
+        myGameObject = gameObject;
         myName = ToString();
     }
 
@@ -36,28 +51,25 @@ public class FutureBehaviour : MonoBehaviour, IFutureObject
         FuturePhysicsRunner.ExecuteOnUpdate(Unregister);
     }
 
-    public virtual void Register()
+    protected virtual void Register()
     {
         FuturePhysics.AddObject(GetType(), this);
     }
 
-    public virtual void Unregister()
+    protected virtual void Unregister()
     {
         FuturePhysics.RemoveObject(this);
     }
 
-    public bool IsAlive(int step)
+    public virtual bool IsAlive(int step)
     {
-        return !IsObsolete(step);
-    }
-
-    public bool IsObsolete(int step)
-    {
-        return disabledFromStep != NotDisabled && disabledFromStep <= step;
+        return disabledFromStep == NotDisabled || disabledFromStep > step;
     }
 
     public virtual void Disable(int disablingSourceStep, int disabledFromStep)
     {
+        if (this.disabledFromStep != NotDisabled && this.disabledFromStep < disabledFromStep)
+            return;
         this.disablingSourceStep = disablingSourceStep;
         this.disabledFromStep = disabledFromStep;
     }

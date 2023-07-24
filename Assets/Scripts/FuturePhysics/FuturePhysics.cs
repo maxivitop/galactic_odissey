@@ -11,44 +11,43 @@ public class FuturePhysics
 
     public static int currentStep;
     public static int lastVirtualStep;
-    public static readonly SingleEvent<ResetParams> beforeReset = new();
-    public static readonly SingleEvent<int> afterVirtualStep = new();
+    public static bool upToDateWithLastStep;
 
     private static readonly HashSet<IFutureObject> futureObjects = new();
     private static readonly Dictionary<IFutureObject, ISet<Type>> objToTypes = new();
     private static readonly Dictionary<Type, ISet<IFutureObject>> typeToObjs = new();
-    private static readonly ResetParams lastResetParams = new();
-    private static readonly List<IFutureObject> obsoleteObjs = new();
 
     public static void Step()
     {
         FuturePhysicsRunner.CheckThread();
         currentStep++;
-        while (currentStep > lastVirtualStep)
+        while (true)
         {
-            VirtualStep();
+            var areAllPrerequisiteVirtualStepsComplete = true;
+            foreach (var obj in GetAliveObjects(currentStep))
+            {
+                var isComplete = obj.CatchUpWithVirtualStep(currentStep);
+                if (!isComplete)
+                {
+                    Debug.LogWarning("Did not complete in time " + currentStep + " " + obj);
+                }
+                areAllPrerequisiteVirtualStepsComplete &= isComplete;
+            }
+            if (areAllPrerequisiteVirtualStepsComplete) break;
         }
         foreach (var obj in GetAliveObjects(currentStep)) obj.Step(currentStep);
-        foreach (var obj in futureObjects)
-        {
-            if (!obj.IsObsolete(currentStep)) continue;
-            obsoleteObjs.Add(obj);
-        }
-        foreach (var obsolete in obsoleteObjs)
-        {
-            RemoveObject(obsolete);
-        }
-        obsoleteObjs.Clear();
     }
 
-    public static void VirtualStep()
+    public static void MakeVirtualCalculations()
     {
         FuturePhysicsRunner.CheckThread();
-        foreach (var obj in GetAliveObjects(lastVirtualStep))
-            obj.VirtualStep(lastVirtualStep);
-
-        afterVirtualStep.Invoke(lastVirtualStep);
-        lastVirtualStep++;
+        if (upToDateWithLastStep)
+        {
+            lastVirtualStep++;
+        }
+        upToDateWithLastStep = true;
+        foreach (var obj in futureObjects)
+            upToDateWithLastStep &= obj.CatchUpWithVirtualStep(lastVirtualStep);
     }
 
     public static void AddObject(Type type, IFutureObject obj)
@@ -82,7 +81,7 @@ public class FuturePhysics
         return typeToObjs[typeof(T)].Cast<T>();
     }
 
-    public static void Reset(int step, GameObject cause)
+    public static void Reset(int step, GameObject whom)
     {
         FuturePhysicsRunner.CheckThread();
         if (step < currentStep)
@@ -90,24 +89,13 @@ public class FuturePhysics
             Debug.LogError("reset on " + step + " with current step " + currentStep);
             return;
         }
-
         if (step == lastVirtualStep) return;
-
-        lastResetParams.step = step;
-        lastResetParams.cause = cause;
-        beforeReset.Invoke(lastResetParams);
-        lastVirtualStep = step; 
-        foreach (var state in futureObjects) state.ResetToStep(step, cause);
+        upToDateWithLastStep = false;
+        foreach (var state in futureObjects) state.ResetToStep(step, whom);
     }
 
     private static IEnumerable<IFutureObject> GetAliveObjects(int step)
     {
         return futureObjects.Where(obj => obj.IsAlive(step));
-    }
-
-    public class ResetParams
-    {
-        public GameObject cause;
-        public int step;
     }
 }

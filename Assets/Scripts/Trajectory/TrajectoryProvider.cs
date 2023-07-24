@@ -1,31 +1,29 @@
 using System;
-using System.Collections;
+using System.Threading;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 [RequireComponent(typeof(FutureTransform))]
 public class TrajectoryProvider : FutureBehaviour
 {
-    [NonSerialized] public CapacityArray<Vector3> trajectory = new(FuturePhysics.MaxSteps);
+    [NonSerialized] public CapacityArray<Vector3> trajectory = new(FuturePhysics.MaxSteps+1);
 
     public readonly SingleEvent<CapacityArray<Vector3>> onTrajectoryUpdated = new();
 
-    private static int trajectoryStartStep;
+    public static int trajectoryStartStep;
 
-    private CapacityArray<Vector3> absoluteTrajectory = new(FuturePhysics.MaxSteps);
+    private CapacityArray<Vector3> absoluteTrajectory = new(FuturePhysics.MaxSteps+1);
     private FutureTransform futureTransform;
     private ReferenceFrameHost referenceFrameHost;
     public float animationDuration = 0.3f;
     public int minStepsAfterReset = 1000;
 
-    private bool hasReset;
-    private bool shouldRenderUnfinished;
     private int minVirtualStepToRecalculateTrajectory;
     private bool updatedThisFrame;
     private TrajectoryAnimator animator;
-    private int lastValidAbsoluteStep;
-    private int lastValidStep;
-    private bool movedAbsTrajThisFrame = false;
+    private int lastValidAbsoluteStep = -1;
+    private int lastValidStep = -1;
+    private bool movedAbsTrajThisFrame;
+    private bool hasNotFinishedTraj = true;
 
     public static int TrajectoryStepToPhysicsStep(int trajectoryStep)
     {
@@ -44,27 +42,27 @@ public class TrajectoryProvider : FutureBehaviour
         animator = new TrajectoryAnimator(animationDuration);
 
         FuturePhysicsRunner.onBgThreadIdle.AddListener(OnBgThreadIdle);
-        FuturePhysics.afterVirtualStep.AddListener(UpdateTrajectoryIfNeeded);
         ReferenceFrameHost.referenceFrameChangeOld.AddListener(OnReferenceFrameChange);
     }
 
     private void OnBgThreadIdle(int step)
     {
-        hasReset = false;
-        shouldRenderUnfinished = false;
-        UpdateTrajectoryIfNeeded(step);
+        hasNotFinishedTraj = false;
+        UpdateTrajectoryIfNeeded(myLastVirtualStep);
     }
 
     private void OnReferenceFrameChange(ReferenceFrameHost old)
     {
         animator.Capture(trajectory);
-        lastValidStep = 0;
+        lastValidStep = -1;
     }
 
     private void UpdateAbsoluteTrajectory(int step)
     {
-        var lastStep = Math.Max(trajectoryStartStep, lastValidAbsoluteStep) - 1;
-        for (var i = lastStep + 1; i < step && IsAlive(i); i++)
+        var lastStep = trajectoryStartStep - 1;
+        for (var i = Math.Max(trajectoryStartStep, lastValidAbsoluteStep);
+             i < step && IsAlive(i);
+             i++)
         {
             futureTransform.GetState(i).position.SetToVector3(
                 ref absoluteTrajectory.array[i - trajectoryStartStep]
@@ -84,11 +82,11 @@ public class TrajectoryProvider : FutureBehaviour
         {
             ReferenceFrameHost.ReferenceFrame.trajectoryProvider.UpdateTrajectoryIfNeeded(step);
         }
-        
+
         var frameOfReferenceTrajectory =
             ReferenceFrameHost.ReferenceFrame.trajectoryProvider.absoluteTrajectory;
         trajectory.size = Math.Min(absoluteTrajectory.size, frameOfReferenceTrajectory.size);
-        
+
         var referencePos = ReferenceFrameHost.ReferenceFrame.futureTransform
             .GetState(trajectoryStartStep).position.ToVector3();
         var updateStartTrajStep = Math.Max(0, PhysicsStepToTrajectoryStep(lastValidStep));
@@ -100,7 +98,7 @@ public class TrajectoryProvider : FutureBehaviour
 
         if (animator.Animate(trajectory))
         {
-            lastValidStep = 0;
+            lastValidStep = -1;
         }
         else
         {
@@ -111,17 +109,26 @@ public class TrajectoryProvider : FutureBehaviour
     private void UpdateTrajectoryIfNeeded(int step)
     {
         if (updatedThisFrame) return;
+
+        if (step < minVirtualStepToRecalculateTrajectory && hasNotFinishedTraj) // reduce flickering
+        {
+            if (movedAbsTrajThisFrame) return;
+            trajectory.MoveStart(FuturePhysicsRunner.stepsNextFrame);
+            trajectory.Normalize();
+            absoluteTrajectory.MoveStart(FuturePhysicsRunner.stepsNextFrame);
+            absoluteTrajectory.Normalize();
+            movedAbsTrajThisFrame = true;
+            return;
+        }
+
+        updatedThisFrame = true;
         if (FuturePhysicsRunner.stepsNextFrame > 0 && !movedAbsTrajThisFrame)
         {
-            lastValidStep = 0; // reference frame probably moved
+            lastValidStep = -1; // reference frame probably moved
             absoluteTrajectory.MoveStart(FuturePhysicsRunner.stepsNextFrame);
             absoluteTrajectory.Normalize();
             movedAbsTrajThisFrame = true;
         }
-        if (hasReset && step < minVirtualStepToRecalculateTrajectory)
-            return; // reduce flickering
-        if (!shouldRenderUnfinished && hasReset) return;
-        updatedThisFrame = true;
 
         UpdateTrajectory(step);
         onTrajectoryUpdated.Invoke(trajectory);
@@ -130,15 +137,22 @@ public class TrajectoryProvider : FutureBehaviour
     public override void ResetToStep(int step, GameObject cause)
     {
         base.ResetToStep(step, cause);
-        hasReset = true;
         if (cause == gameObject)
         {
-            lastValidStep = 0;
-            lastValidAbsoluteStep = 0;
+            lastValidStep = -1;
+            lastValidAbsoluteStep = -1;
+            hasNotFinishedTraj = true;
         }
 
-        shouldRenderUnfinished = cause == gameObject;
         minVirtualStepToRecalculateTrajectory = minStepsAfterReset + step;
+    }
+
+    public override bool CatchUpWithVirtualStep(int virtualStep)
+    {
+        UpdateTrajectoryIfNeeded(myLastVirtualStep);
+        if (myLastVirtualStep >= virtualStep - 1) return true;
+        myLastVirtualStep++;
+        return true;
     }
 
     private void Update()
@@ -150,8 +164,7 @@ public class TrajectoryProvider : FutureBehaviour
 
     private void OnDestroy()
     {
-        FuturePhysicsRunner.onBgThreadIdle.AddListener(OnBgThreadIdle);
-        FuturePhysics.afterVirtualStep.AddListener(UpdateTrajectoryIfNeeded);
-        ReferenceFrameHost.referenceFrameChangeOld.AddListener(OnReferenceFrameChange);
+        FuturePhysicsRunner.onBgThreadIdle.RemoveListener(OnBgThreadIdle);
+        ReferenceFrameHost.referenceFrameChangeOld.RemoveListener(OnReferenceFrameChange);
     }
 }
