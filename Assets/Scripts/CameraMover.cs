@@ -125,7 +125,7 @@ public class CameraMover : MonoBehaviour
         {
             return transform.position - relativePosition;
         }
-        return futureTransform.GetFuturePosition(TrajectoryProvider.TrajectoryStepToPhysicsStep(0))
-            .ToVector3();
+
+        return futureTransform.GetFuturePosition(TrajectoryProvider.TrajectoryStepToPhysicsStep(0));
     }
 }

@@ -48,7 +48,7 @@ public class Projectile: FutureBehaviour
                 var other = otherCollider as CircleFutureCollider;
                 var my = futureCollider;
                 var dist = Vector3.SqrMagnitude(
-                    other!.futureTransform.GetFuturePosition(step).ToVector3()
+                    other!.futureTransform.GetFuturePosition(step)
                     - traj[idx]);
                 var collisionDistance = other.radius + my.radius;
                 if (dist < collisionDistance * collisionDistance)

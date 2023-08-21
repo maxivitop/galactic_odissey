@@ -5,18 +5,18 @@ public class OrbitUtils
 {
     
     public static GravitySource FindBiggestGravitySource(
-        Vector3d position,
+        Vector3 position,
         int step=0,
-        double dt=0.0
+        float dt=0.0f
         )
     {
-        var maxGravity = 0.0;
+        var maxGravity = 0.0f;
         GravitySource closestSource = null;
         foreach (var gravitySource in FuturePhysics.GetComponents<GravitySource>(step))
         {
             var sourcePosition = gravitySource.futurePositionProvider.GetFuturePosition(step, dt);
-            Vector2d direction = sourcePosition - position;
-            if (direction.sqrMagnitude < 1e-6) continue; // dont return self
+            Vector2 direction = sourcePosition - position;
+            if (direction.sqrMagnitude < 1e-6f) continue; // dont return self
             // F = ma
             // F = G*m1*m2/r^2
             // a = F/m = G*m2/r^2
@@ -30,12 +30,12 @@ public class OrbitUtils
         return closestSource;
     }
 
-    public static Vector2d CalculateGravityVector(
+    public static Vector2 CalculateGravityVector(
         GravitySource gravitySource,
-        Vector3d position,
-        double myMass,
+        Vector3 position,
+        float myMass,
         int step=0,
-        double dt=0.0
+        float dt=0.0f
     )
     {
         var gsPosition = gravitySource.futurePositionProvider.GetFuturePosition(step, dt);

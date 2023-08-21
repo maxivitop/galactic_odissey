@@ -34,11 +34,11 @@ public class FuturePhysicalClone : FutureBehaviour
             myFutureComponent.Disable(targetBody.disabledFromStep);
         }
         var step = FuturePhysics.currentStep;
-        if (Vector3d.SqrMagnitude(futureTransform.GetFuturePosition(step) -
+        if (Vector3.SqrMagnitude(futureTransform.GetFuturePosition(step) -
                                   targetTransform.GetFuturePosition(step)) < Precision &&
-            Vector2d.SqrMagnitude(futureRigidBody2D.GetState(step).acceleration -
+            Vector2.SqrMagnitude(futureRigidBody2D.GetState(step).acceleration -
                                   targetBody.GetState(step).acceleration) < Precision &&
-            Vector2d.SqrMagnitude(futureRigidBody2D.GetState(step).velocity -
+            Vector2.SqrMagnitude(futureRigidBody2D.GetState(step).velocity -
                                   targetBody.GetState(step).velocity) < Precision) return;
         FuturePhysics.Reset(step + 1, gameObject);
         CloneParams(step);

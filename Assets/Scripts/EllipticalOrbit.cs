@@ -1,4 +1,5 @@
 using System;
+using UnityEditor;
 using UnityEngine;
 
 public class EllipticalOrbit
@@ -15,12 +16,12 @@ public class EllipticalOrbit
     private const double VerySmall = 1E-9; // 1E-13;
     private const double HalfPi = Math.PI * 0.5;
 
-    public EllipticalOrbit(GravitySource center, double myMass, int step0, Vector3d r0, Vector3d v0)
+    public EllipticalOrbit(GravitySource center, float myMass, int step0, Vector3 r0, Vector3 v0)
     {
         this.center = center;
         this.step0 = step0;
-        this.r0 = r0;
-        this.v0 = v0;
+        this.r0 = new Vector3d(r0);
+        this.v0 = new Vector3d(v0);
         mu = FuturePhysics.G * (myMass + center.futureRigidBody2D.initialMass);
         InitializeFromRv();
     }
@@ -51,14 +52,14 @@ public class EllipticalOrbit
     }
     
     
-    public bool Evolve(int step, double dt, out Vector3d rNew, out Vector3d vNew)
+    public bool Evolve(int step, float dt, out Vector3 rNew, out Vector3 vNew)
     {
         int ktr, numiter;
         double f, g, fdot, gdot, rval, xold, xoldsqrd, xnewsqrd, znew, pp, dtnew, rdotv, a, dtsec, alpha, sme, s, w, temp, magro, magvo, magr;
         var c2New = 0.0;
         var c3New = 0.0;
         var xnew = 0.0;
-        var dtseco = (step - step0 + dt) * FuturePhysics.DeltaTime;
+        double dtseco = (step - step0 + dt) * FuturePhysics.DeltaTime;
 
         magro = r0.magnitude;
         magvo = v0.magnitude;
@@ -87,7 +88,7 @@ public class EllipticalOrbit
         dtsec = dtseco;
 
         var centerPosLast = center.futurePositionProvider.GetFuturePosition(step, dt);
-        Vector3d centerVelLast = center.futureRigidBody2D.GetState(step).velocity;
+        Vector3 centerVelLast = center.futureRigidBody2D.GetState(step).velocity;
         
         // -------------------------  implementation   -----------------
         // set constants and intermediate printouts
@@ -175,22 +176,22 @@ public class EllipticalOrbit
 
             if (ktr >= numiter) {
                 // Mitigation: return false, calling side will fix this
-                rNew = Vector3d.zero;
-                vNew = Vector3d.zero;
+                rNew = Vector3.zero;
+                vNew = Vector3.zero;
                 return false;
             } 
             // --- find position and velocity vectors at new time --
             xnewsqrd = xnew * xnew;
             f = 1.0 - (xnewsqrd * c2New / magro);
             g = dtsec - xnewsqrd * xnew * c3New / Math.Sqrt(mu);
-            rNew = f * r0 + g * v0;
+            rNew = (f * r0 + g * v0).ToVector3();
             magr = Math.Sqrt(rNew[0] * rNew[0] + rNew[1] * rNew[1] + rNew[2] * rNew[2]);
             gdot = 1.0 - (xnewsqrd * c2New / magr);
             fdot = (Math.Sqrt(mu) * xnew / (magro * magr)) * (znew * c3New - 1.0);
             temp = f * gdot - fdot * g;
             //if (Math.Abs(temp - 1.0) > 0.00001)
             //    Debug.LogWarning(string.Format("consistency check failed {0}", (temp - 1.0)));
-            vNew = fdot * r0 + gdot * v0;
+            vNew = (fdot * r0 + gdot * v0).ToVector3();
             // Add centerPos to value we ref back
             rNew += centerPosLast;
             // update velocity
@@ -199,17 +200,17 @@ public class EllipticalOrbit
         } // if fabs
         else {
             // ----------- set vectors to incoming since 0 time --------
-            rNew = r0;
+            rNew = r0.ToVector3();
             // Add centerPos to value we ref back
             rNew += centerPosLast;
-            vNew = v0 + centerVelLast;
+            vNew = v0.ToVector3() + centerVelLast;
         }
 
         return true;
     }
     
     
-    private void EvolveRecilinearUnbound(double t, double sme, out Vector3d rNew, out Vector3d vNew)
+    private void EvolveRecilinearUnbound(double t, double sme, out Vector3 rNew, out Vector3 vNew)
     {
         var a = -0.5 * mu / sme;
         var v =  Math.Sqrt(mu / (a * a));
@@ -246,9 +247,9 @@ public class EllipticalOrbit
         }
         // E is from center of hyperbola, not focus
         var r = aPos * (MathUtils.Cosh(u)-1);
-        rNew = r0.normalized * r;
+        rNew = (r0.normalized * r).ToVector3();
         // velocity (Roy eqn (4.106): r rdot = a^(1/2) mu^(1/2) sin(E)
         var rdot = Math.Sqrt(a * mu) * MathUtils.Sinh(u) / r;
-        vNew = r0.normalized * rdot;
+        vNew = (r0.normalized * rdot).ToVector3();
     }
 }

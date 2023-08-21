@@ -23,7 +23,7 @@ public class RotateShipToDirection : MonoBehaviour
         var direction = Vector3.up;
         if (acceleration.sqrMagnitude > Mathf.Epsilon)
         {
-            direction = acceleration.ToVector2();
+            direction = acceleration;
         }
         else
         {

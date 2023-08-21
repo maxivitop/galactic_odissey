@@ -144,7 +144,7 @@ public class CollisionDetector : FutureStateBehaviour<FutureCollisions>
     {
         var left = lhs as CircleFutureCollider;
         var right = rhs as CircleFutureCollider;
-        var dist = Vector3d.SqrMagnitude(
+        var dist = Vector3.SqrMagnitude(
             left!.futureTransform.GetFuturePosition(step)-
             right!.futureTransform.GetFuturePosition(step));
         var collisionDistance = left.radius + right.radius;

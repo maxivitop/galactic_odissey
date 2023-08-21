@@ -31,7 +31,7 @@ public class InitialOrbitalVelocity : FutureBehaviour
         rigidBody = GetComponent<FutureRigidBody2D>();
         if (center == null)
         {
-            center = OrbitUtils.FindBiggestGravitySource(new Vector3d(transform.position))
+            center = OrbitUtils.FindBiggestGravitySource(transform.position)
                 .futureRigidBody2D;
         }
 

@@ -57,9 +57,8 @@ public class TrajectoryProvider : FutureBehaviour
              i < step && IsAlive(i);
              i++)
         {
-            futureTransform.GetFuturePosition(i).SetToVector3(
-                ref absoluteTrajectory.array[i - trajectoryStartStep]
-            );
+            absoluteTrajectory.array[i - trajectoryStartStep] =
+                futureTransform.GetFuturePosition(i);
             lastStep = i;
         }
 
@@ -81,7 +80,7 @@ public class TrajectoryProvider : FutureBehaviour
         trajectory.size = Math.Min(absoluteTrajectory.size, frameOfReferenceTrajectory.size);
 
         var referencePos = ReferenceFrameHost.ReferenceFrame.futureTransform
-            .GetFuturePosition(trajectoryStartStep).ToVector3();
+            .GetFuturePosition(trajectoryStartStep);
         var updateStartTrajStep = Math.Max(0, PhysicsStepToTrajectoryStep(lastValidStep));
         for (var i = updateStartTrajStep; i < trajectory.size; i++)
         {

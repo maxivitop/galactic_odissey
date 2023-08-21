@@ -11,8 +11,8 @@ public class EllipticalOrbitMover : FutureBehaviour, IFuturePositionProvider
     private FutureTransform futureTransform;
     private EllipticalOrbit ellipticalOrbit;
 
-    private readonly CapacityArray<Vector3d> positionsCache = new(FuturePhysics.MaxSteps * 2 + 2);
-    private readonly CapacityArray<Vector3d> velocitiesCache = new(FuturePhysics.MaxSteps * 2 + 2);
+    private readonly CapacityArray<Vector3> positionsCache = new(FuturePhysics.MaxSteps * 2 + 2);
+    private readonly CapacityArray<Vector3> velocitiesCache = new(FuturePhysics.MaxSteps * 2 + 2);
     private int lastCacheStep = -1;
 
     private void Start()
@@ -21,10 +21,10 @@ public class EllipticalOrbitMover : FutureBehaviour, IFuturePositionProvider
         rigidBody = GetComponent<FutureRigidBody2D>();
         if (center == null)
         {
-            center = OrbitUtils.FindBiggestGravitySource(new Vector3d(transform.position));
+            center = OrbitUtils.FindBiggestGravitySource(transform.position);
         }
-        var r0 = new Vector3d(transform.position - center.transform.position);
-        var v0 = new Vector3d( rigidBody.initialVelocity);
+        var r0 = transform.position - center.transform.position;
+        var v0 =  rigidBody.initialVelocity;
         ellipticalOrbit = new EllipticalOrbit(center, rigidBody.initialMass, 0, r0, v0); 
     }
 
@@ -35,24 +35,24 @@ public class EllipticalOrbitMover : FutureBehaviour, IFuturePositionProvider
         rigidBody.GetState(step).velocity = velocity;
     }
 
-    public Vector3d GetFuturePosition(int step, double dt)
+    public Vector3 GetFuturePosition(int step, float dt)
     {
         if (ellipticalOrbit == null) // not initialized yet
         {
-            return new Vector3d(transform.position);
+            return transform.position;
         }
 
         return GetPositionAndVelocity(step, dt).Item1;
     }
 
-    private (Vector3d, Vector3d) GetPositionAndVelocity(int step, double dt)
+    private (Vector3, Vector3) GetPositionAndVelocity(int step, float dt)
     {
         // ReSharper disable once CompareOfFloatsByEqualityOperator
-        if (dt == 1.0)
+        if (dt == 1.0f)
         {
             return GetPositionAndVelocity(step + 1, 0);
         }
-        var canBeCached = dt is 0 or 0.5;
+        var canBeCached = dt is 0 or 0.5f;
         if (!canBeCached)
         {
             Debug.LogWarning("Cannot use cache dt="+dt);
@@ -69,7 +69,7 @@ public class EllipticalOrbitMover : FutureBehaviour, IFuturePositionProvider
         if (step > lastCacheStep)
         {
             ellipticalOrbit.Evolve(step, 0, out var position, out var velocity);
-            ellipticalOrbit.Evolve(step, 0.5, out var positionH, out var velocityH);
+            ellipticalOrbit.Evolve(step, 0.5f, out var positionH, out var velocityH);
             positionsCache[step * 2] = position;
             positionsCache[step * 2 + 1] = positionH;
             velocitiesCache[step * 2] = velocity;
@@ -78,7 +78,7 @@ public class EllipticalOrbitMover : FutureBehaviour, IFuturePositionProvider
         }
         var cachePosition = step * 2;
         // ReSharper disable once CompareOfFloatsByEqualityOperator
-        if (dt == 0.5) cachePosition++;
+        if (dt == 0.5f) cachePosition++;
         return (positionsCache[cachePosition], velocitiesCache[cachePosition]);
     }
 

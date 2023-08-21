@@ -9,7 +9,7 @@ using UnityEngine;
 public class ProjectileLauncher : FutureBehaviour
 {
     public Projectile projectile;
-    private ComputeShader aimShader;
+    public ComputeShader aimShader;
     public int maxSteps;
     private ComputeBuffer positions;
     private Vector3[] positionsData;
@@ -39,7 +39,7 @@ public class ProjectileLauncher : FutureBehaviour
     {
         futureTransform = GetComponent<FutureTransform>();
         futureRigidBody2D = GetComponent<FutureRigidBody2D>();
-        aimShader = (ComputeShader)Instantiate(Resources.Load("ShootingAim"));
+        aimShader = Instantiate(aimShader);
         output = new ComputeBuffer(maxSteps, sizeof(float) * 3);
         aimShader.SetBuffer(0, "output", output);
         trajLen = new ComputeBuffer(1, sizeof(int));
@@ -141,8 +141,8 @@ public class ProjectileLauncher : FutureBehaviour
             maxSteps
         );
         targetBuffer.SetData(targetData);
-        aimShader.SetVector("position", futureTransform.GetFuturePosition(step).ToVector3());
-        aimShader.SetVector("initial_velocity", futureRigidBody2D.GetState(step).velocity.ToVector2());
+        aimShader.SetVector("position", futureTransform.GetFuturePosition(step));
+        aimShader.SetVector("initial_velocity", futureRigidBody2D.GetState(step).velocity);
         aimShader.Dispatch(0, 1, 1, 1);
     }
 
