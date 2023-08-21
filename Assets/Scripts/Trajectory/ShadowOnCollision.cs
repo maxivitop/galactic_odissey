@@ -20,7 +20,7 @@ public class ShadowOnCollision : FutureBehaviour, ICollisionEnterHandler
     {
         foreach (var kv in colliderToCollisionInfo)
         {
-            if (step > kv.Value.collisionStep)
+            if (step > kv.Value.collisionStep || kv.Key.gameObject != cause)
                 continue;
             collidersToDestroy.Add(kv.Key);
         }
@@ -37,6 +37,12 @@ public class ShadowOnCollision : FutureBehaviour, ICollisionEnterHandler
     {
         FuturePhysicsRunner.ExecuteOnUpdate(() =>
         {
+            if (collision.other == null ||
+                !collision.other.TryGetComponent<RequiresShadowOnCollision>(out _))
+            {
+                return;
+            }
+
             var collisionInfo = new CollisionInfo(shadowCloneProvider.CreateShadowClone(), step);
             collisionInfo.shadowClone.SetStep(step);
             collisionInfo.shadowClone.meshRenderer.material = collisionMaterial;
@@ -52,7 +58,7 @@ public class ShadowOnCollision : FutureBehaviour, ICollisionEnterHandler
 
     private void OnDestroy()
     {
-        foreach (var collider in colliderToCollisionInfo.Keys.ToArray()) 
+        foreach (var collider in colliderToCollisionInfo.Keys.ToArray())
             // ToArray protects from concurrent modification
         {
             DestroyShadowClone(collider);
@@ -61,6 +67,11 @@ public class ShadowOnCollision : FutureBehaviour, ICollisionEnterHandler
 
     private void DestroyShadowClone(FutureCollider futureCollider)
     {
+        if (!colliderToCollisionInfo.ContainsKey(futureCollider))
+        {
+            return;
+        }
+
         var collisionInfo = colliderToCollisionInfo[futureCollider];
         colliderToCollisionInfo.Remove(futureCollider);
         if (collisionInfo != null && collisionInfo.shadowClone != null)

@@ -21,27 +21,15 @@ public class FuturePhysics
     {
         FuturePhysicsRunner.CheckThread();
         currentStep++;
-        while (true)
-        {
-            var areAllPrerequisiteVirtualStepsComplete = true;
-            foreach (var obj in GetAliveObjects(currentStep))
-            {
-                var isComplete = obj.CatchUpWithVirtualStep(currentStep);
-                if (!isComplete)
-                {
-                    Debug.LogWarning("Did not complete in time " + currentStep + " " + obj);
-                }
-                areAllPrerequisiteVirtualStepsComplete &= isComplete;
-            }
-            if (areAllPrerequisiteVirtualStepsComplete) break;
-        }
-        foreach (var obj in GetAliveObjects(currentStep)) obj.Step(currentStep);
+        CatchUpWithStep(currentStep);
+        foreach (var obj in GetAliveObjects(currentStep).ToArray())
+            obj.Step(currentStep);
     }
 
     public static void MakeVirtualCalculations()
     {
         FuturePhysicsRunner.CheckThread();
-        if (upToDateWithLastStep)
+        if (upToDateWithLastStep && lastVirtualStep - currentStep < MaxSteps)
         {
             lastVirtualStep++;
         }
@@ -50,8 +38,34 @@ public class FuturePhysics
             upToDateWithLastStep &= obj.CatchUpWithVirtualStep(lastVirtualStep);
     }
 
+    public static void CatchUpWithStep(int step, bool isFromBg = false)
+    {
+        var minVirtualStep =
+            futureObjects.Select(obj => obj.RequiredVirtualStepForStep(step)).Max();
+        var logWarning = !isFromBg;
+        while (true)
+        {
+            var areAllPrerequisiteVirtualStepsComplete = true;
+            foreach (var obj in futureObjects)
+            {
+                var isComplete = obj.CatchUpWithVirtualStep(minVirtualStep);
+                if (!isComplete && logWarning)
+                {
+                    Debug.LogWarning(obj + "Did not complete in time step="
+                                         +step+     
+                                         " minVirtualStep=" + minVirtualStep
+                                         + " startStep=" + (obj as FutureBehaviour).StartStep);
+                    logWarning = false;
+                }
+                areAllPrerequisiteVirtualStepsComplete &= isComplete;
+            }
+            if (areAllPrerequisiteVirtualStepsComplete) break;
+        }
+    }
+
     public static void AddObject(Type type, IFutureObject obj)
     {
+        upToDateWithLastStep = false;
         FuturePhysicsRunner.CheckThread();
 
         futureObjects.Add(obj);

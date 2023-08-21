@@ -1,0 +1,111 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel cs_main
+#define PI 3.1415926538
+
+int max_steps;
+float G;
+float my_mass;
+float dt;
+int gravity_sources;
+float initial_speed;
+float radius;
+StructuredBuffer<float3> positions;
+StructuredBuffer<float> masses;
+StructuredBuffer<float> radii;
+StructuredBuffer<float3> target;
+RWStructuredBuffer<float> tmp;
+RWStructuredBuffer<float3> tmp_traj;
+RWStructuredBuffer<float3> output;
+float3 position;
+RWStructuredBuffer<int> traj_lens;
+RWStructuredBuffer<int> traj_len;
+
+groupshared int closest_thread_id;
+static const int num_threads = 64; 
+
+float sqr_magnitude(const float3 vec)
+{
+    return dot(vec, vec);
+}
+
+void simulate_trajectories(const float closest_angle, const float angle_range, uint3 id)
+{
+    const float min_angle = closest_angle - angle_range / 2;
+    const float angle = min_angle + angle_range * id.z / num_threads;
+    float3 velocity = float3(sin(angle), cos(angle), 0) * initial_speed;
+    float3 pos = position;
+    float min_magnitude = 1e10;
+    bool collided = false;
+    traj_lens[id.z] = max_steps;
+    for (int i = 0; i < max_steps; i++)
+    {
+        float3 acc = 0;
+        for (int g = 0; g < gravity_sources; g++)
+        {
+            const float3 dir = positions[max_steps*g + i] - pos;
+            const float sqr_mag = sqr_magnitude(dir);
+            const float inverse_mag = rsqrt(sqr_mag);
+            acc += G * (masses[g] + my_mass) * dir / sqr_mag * inverse_mag;
+            const float rad_sum = radii[g] + radius;
+            if (sqr_mag < rad_sum * rad_sum)
+            {
+                collided = true;
+                break;
+            }
+        }
+        if (collided)
+        {
+            traj_lens[id.z] = i;
+            break;
+        }
+        pos += velocity * dt + acc * dt * dt / 2;
+        velocity += acc;
+        
+        tmp_traj[id.z * max_steps + i] = pos;
+        const float magnitude = sqr_magnitude(pos - target[i]);
+        if (magnitude < min_magnitude)
+        {
+            min_magnitude = magnitude;
+        }
+    }
+    tmp[id.z] = min_magnitude;
+}
+
+int find_closest_thread_id()
+{
+    int min_thread_id = 0;
+    float min_d = 1e10;
+    for (int j = 0; j < num_threads; j++)
+    {
+        if (tmp[j] < min_d)
+        {
+            min_d = tmp[j];
+            min_thread_id = j;
+        }
+    }
+    return min_thread_id;
+}
+
+[numthreads(1,1,64)]
+void cs_main(uint3 id : SV_DispatchThreadID)
+{
+    simulate_trajectories(PI, 2*PI, id);
+    AllMemoryBarrierWithGroupSync();
+    if (id.z == 0)
+    {
+        closest_thread_id = find_closest_thread_id();
+    }
+    AllMemoryBarrierWithGroupSync();
+    const float angle = 2*PI * closest_thread_id / num_threads;
+    simulate_trajectories(angle, 2*PI / (num_threads + 2), id);
+    AllMemoryBarrierWithGroupSync();
+    if (id.z == 0)
+    {
+        const int min_thread_id = find_closest_thread_id();
+        for (int k = 0; k < traj_lens[min_thread_id]; k++)
+        {
+            output[k] = tmp_traj[min_thread_id * max_steps + k];
+        }
+        traj_len[0] = traj_lens[min_thread_id];
+    }
+}

@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using System.Linq;
+﻿using UnityEngine;
 
 
 public abstract class FutureStateBehaviour<TState> : FutureBehaviour where TState : IEvolving<TState>
@@ -23,12 +20,16 @@ public abstract class FutureStateBehaviour<TState> : FutureBehaviour where TStat
 
     public TState GetState(int step)
     {
-        if (step <= 1) SetState(0, GetInitialState());
+        if (step <= startStep + 1 && states.size == 0)
+        {
+            states.size = startStep;
+            SetState(startStep, GetInitialState());
+        }
 #if DEBUG
         FuturePhysicsRunner.CheckThread();
         if (states.size < step)
             Debug.LogError("Getting state for step " + step + " when max step is " +
-                           states.size +". Virtual step is " + FuturePhysics.lastVirtualStep + " " + myName);
+                           states.size +". Virtual step is " + myLastVirtualStep + " " + myName);
 #endif
         if (states.size == step) SetState(step, states[states.size - 1].Next());
         return states[step];

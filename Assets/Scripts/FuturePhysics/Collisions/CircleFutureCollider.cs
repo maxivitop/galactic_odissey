@@ -4,8 +4,12 @@ public class CircleFutureCollider : FutureCollider
 {
    public float radius;
 
-   private void Start()
+   private void Awake()
    {
+      if (radius != 0)
+      {
+         return;
+      }
       var spheres = gameObject.GetComponentsInChildren<SphereCollider>();
       if (spheres.Length > 0)
       {

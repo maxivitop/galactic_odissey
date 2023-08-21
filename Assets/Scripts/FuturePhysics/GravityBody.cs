@@ -4,28 +4,26 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-
 [RequireComponent(typeof(FutureRigidBody2D))]
-public class GravityBody: FutureBehaviour
+public class GravityBody : FutureBehaviour
 {
     private FutureTransform futureTransform;
     private FutureRigidBody2D futureRigidBody2D;
     private GravitySource myGravitySource;
     public float ellipticalOrbitThreshold = 1.5f;
-    [Range(0, 1)]
-    public float ellipticalOrbitDominatingGravityDistanceThreshold = 0.5f;
+    [Range(0, 1)] public float ellipticalOrbitDominatingGravityDistanceThreshold = 0.5f;
 
-    private void Start()
+    private void Awake()
     {
         futureTransform = GetComponent<FutureTransform>();
         futureRigidBody2D = GetComponent<FutureRigidBody2D>();
         TryGetComponent(out myGravitySource);
     }
 
-    public override void VirtualStep(int step)
+    protected override void VirtualStep(int step)
     {
         var stepState = futureRigidBody2D.GetState(step);
-        var position = (Vector2d)futureTransform.GetState(step).position;
+        var position = (Vector2d)futureTransform.GetFuturePosition(step);
         if (stepState.acceleration.sqrMagnitude > Mathd.Epsilon)
         {
             IntegrateStep(step, position, stepState);
@@ -44,20 +42,21 @@ public class GravityBody: FutureBehaviour
             var centerDominatingGravity =
                 closestGravitySource.CalculateDominatingGravityDistance(step);
             var distanceThresh = centerDominatingGravity *
-                              ellipticalOrbitDominatingGravityDistanceThreshold;
-            if (((Vector2d)centerPosition - position).sqrMagnitude > // != r0, r0 is after integration
+                                 ellipticalOrbitDominatingGravityDistanceThreshold;
+            if (((Vector2d)centerPosition - position)
+                .sqrMagnitude > // != r0, r0 is after integration
                 distanceThresh * distanceThresh)
             {
                 IntegrateStep(step, position, stepState);
                 return;
             }
         }
-        
+
         if (stepState.orbit == null || stepState.orbit.center != closestGravitySource)
         {
             IntegrateStep(step, position, stepState);
-            var r0 = futureTransform.GetState(step).position - centerPosition;
-            var v0 = stepState.velocity - 
+            var r0 = futureTransform.GetFuturePosition(step) - centerPosition;
+            var v0 = stepState.velocity -
                      closestGravitySource.futureRigidBody2D.GetState(step).velocity;
             stepState.orbit =
                 new EllipticalOrbit(closestGravitySource, stepState.mass, step, r0, v0);
@@ -76,7 +75,8 @@ public class GravityBody: FutureBehaviour
                 vNew = Vector2d.ClampMagnitude(vNew, 1e3);
                 rNew = position + (Vector2d)vNew * FuturePhysics.DeltaTime;
             }
-            futureTransform.GetState(step).position = rNew;
+
+            futureTransform.SetFuturePosition(step, rNew);
             stepState.velocity = vNew;
         }
         else
@@ -90,7 +90,7 @@ public class GravityBody: FutureBehaviour
         stepState.orbit = null;
         // Runge-Kutta 4th order simulation
         var v1 = stepState.velocity;
-        var a1 = CalculateAcceleration(step, 0f, position);
+        var a1 = CalculateAcceleration(step, 0, position);
         var v2 = v1 + a1 * (0.5 * FuturePhysics.DeltaTime);
         var a2 = CalculateAcceleration(step, 0.5,
             position + v1 * (0.5 * FuturePhysics.DeltaTime));
@@ -103,8 +103,9 @@ public class GravityBody: FutureBehaviour
 
         stepState.velocity += (a1 + 2 * a2 + 2 * a3 + a4) * (FuturePhysics.DeltaTime / 6.0f);
         Vector3d stepDistance = (v1 + 2 * v2 + 2 * v3 + v4) * (FuturePhysics.DeltaTime / 6.0f);
-    
-        futureTransform.GetState(step).position += stepDistance;
+
+        futureTransform.SetFuturePosition(step,
+            futureTransform.GetFuturePosition(step) + stepDistance);
     }
 
     private Vector2d CalculateGravityAcceleration(int step, double dt, Vector3d position)
@@ -117,6 +118,7 @@ public class GravityBody: FutureBehaviour
             gravity += OrbitUtils.CalculateGravityVector(
                 gravitySource, position, futureRigidBody2D.initialMass, step, dt);
         }
+
         return gravity;
     }
 
@@ -127,7 +129,7 @@ public class GravityBody: FutureBehaviour
         return OrbitUtils.CalculateGravityVector(closest, position,
             futureRigidBody2D.initialMass, step, dt);
     }
-    
+
     private Vector2d CalculateAcceleration(int step, double dt, Vector3d position)
     {
         return CalculateGravityAcceleration(step, dt, position) +

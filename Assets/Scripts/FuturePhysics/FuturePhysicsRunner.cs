@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using Random = System.Random;
 using ThreadPriority = System.Threading.ThreadPriority;
@@ -9,7 +10,9 @@ using ThreadPriority = System.Threading.ThreadPriority;
 public class FuturePhysicsRunner : MonoBehaviour
 {
     public delegate void ExecuteOnUpdateDelegate();
-    
+
+    public int waitedMs;
+    public TextMeshProUGUI bgThreadWait;
     public static int timeScale = 0;
     public static readonly SingleEvent<int> onBgThreadIdle = new();
     public const float StepsPerSecond = 50;
@@ -21,8 +24,10 @@ public class FuturePhysicsRunner : MonoBehaviour
     private static readonly AutoResetEvent mainThreadFinished = new(false);
     private static readonly AutoResetEvent bgThreadFinished = new(true);
     private static readonly List<ExecuteOnUpdateDelegate> executeOnUpdateQueue = new();
-    
+    public static int nextFrameStep;
+
     private bool isThreadStarted;
+    private bool caughtUpThisFrame = false;
     private float timePerStep;
     private float unusedDeltaTime;
     private IEnumerator mainThreadFinishedNotifier;
@@ -46,16 +51,21 @@ public class FuturePhysicsRunner : MonoBehaviour
         {
             Debug.LogWarning("Scheduler is slow");
         }
-        bgThreadFinished.WaitOne(100);
+        var start = Time.realtimeSinceStartupAsDouble;
+        bgThreadFinished.WaitOne(1000);
+        var end = Time.realtimeSinceStartupAsDouble;
+        waitedMs = Mathd.RoundToInt((end - start) * 1000);
+        bgThreadWait.text = waitedMs.ToString();
         hasBgThreadWorked = false;
         activeThread = Thread.CurrentThread;
-        
-        foreach (var executeOnUpdate in executeOnUpdateQueue)
+
+        var copy = executeOnUpdateQueue.ToArray();
+        executeOnUpdateQueue.Clear();
+        foreach (var executeOnUpdate in copy)
         {
             executeOnUpdate.Invoke();
         }
-        executeOnUpdateQueue.Clear();
-        
+
         StartThreadIfNeeded();
         var stepsThisFrame = stepsNextFrame;
         unusedDeltaTime += Time.deltaTime;
@@ -63,6 +73,8 @@ public class FuturePhysicsRunner : MonoBehaviour
         unusedDeltaTime -= stepsPerNextFrame * timePerStep;
         stepsNextFrame = stepsPerNextFrame * timeScale;
         for (var i = 0; i < stepsThisFrame; i++) FuturePhysics.Step();
+        nextFrameStep = FuturePhysics.currentStep + stepsNextFrame;
+        caughtUpThisFrame = false;
     }
     
     // IEnumerator is called after all Updates
@@ -96,27 +108,18 @@ public class FuturePhysicsRunner : MonoBehaviour
         hasBgThreadWorked = true;
         while (true)
         {
-            while (FuturePhysics.lastVirtualStep - FuturePhysics.currentStep <
-                   FuturePhysics.MaxSteps || !FuturePhysics.upToDateWithLastStep)
-            {
-                if(isMainThreadWaiting)
-                {
-                    bgThreadFinished.Set();
-                    mainThreadFinished.WaitOne();
-                    hasBgThreadWorked = true;
-                }
-                FuturePhysics.MakeVirtualCalculations();
-            }
             if(isMainThreadWaiting)
             {
                 bgThreadFinished.Set();
                 mainThreadFinished.WaitOne();
                 hasBgThreadWorked = true;
             }
-            onBgThreadIdle.Invoke(FuturePhysics.lastVirtualStep);
-            bgThreadFinished.Set();
-            mainThreadFinished.WaitOne();
-            hasBgThreadWorked = true;
+            if (stepsNextFrame != 0 && !caughtUpThisFrame)
+            {
+                FuturePhysics.CatchUpWithStep(nextFrameStep, isFromBg:true);
+                caughtUpThisFrame = true;
+            } 
+            FuturePhysics.MakeVirtualCalculations();
         }
         // ReSharper disable once FunctionNeverReturns
     }

@@ -7,7 +7,7 @@ public class SingleEvent<T>
     private readonly List<Listener> listeners = new();
     private readonly List<Listener> pendingAdds = new();
     private readonly List<Listener> pendingRemoves = new();
-    private bool isIterating;
+    private volatile bool isIterating;
 
     public void AddListener(Listener listener)
     {
@@ -49,5 +49,4 @@ public class SingleEvent<T>
         pendingRemoves.Clear();
         isIterating = false;
     }
-
 }

@@ -3,17 +3,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(TrajectoryProvider))]
+[RequireComponent(typeof(CircleFutureCollider))]
 [RequireComponent(typeof(FutureTransform))]
 [RequireComponent(typeof(FutureRigidBody2D))]
 public class GravitySource : FutureBehaviour
 {
-    public FutureRigidBody2D futureRigidBody2D;
-    public IFuturePositionProvider futurePositionProvider;
+    [NonSerialized] public FutureRigidBody2D futureRigidBody2D;
+    [NonSerialized] public IFuturePositionProvider futurePositionProvider;
+    [NonSerialized] public TrajectoryProvider trajectoryProvider;
+    [NonSerialized] public CircleFutureCollider futureCollider;
 
     protected void Awake()
     {
+        futureCollider = GetComponent<CircleFutureCollider>();
         futureRigidBody2D = GetComponent<FutureRigidBody2D>();
         futurePositionProvider = IFuturePositionProvider.SelectFuturePositionProvider(gameObject);
+        trajectoryProvider = GetComponent<TrajectoryProvider>();
     }
 
     public double CalculateDominatingGravityDistance(int step)

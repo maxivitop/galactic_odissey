@@ -1,4 +1,4 @@
-﻿#pragma kernel CSMain
+﻿#pragma kernel cs_main
 #pragma kernel Normalize
 #include "../../Includes/SimplexNoise3.cginc"
 
@@ -61,7 +61,7 @@ float tilingNoise(float2 pos, float4 noiseParams[3], float warp) {
 }
 
 [numthreads(8,8,1)]
-void CSMain (uint3 id : SV_DispatchThreadID)
+void cs_main (uint3 id : SV_DispatchThreadID)
 {
     if (id.x >= resolution || id.y >= resolution) {
         return;

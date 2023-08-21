@@ -4,21 +4,30 @@ using UnityEngine;
 
 public class FutureBehaviour : MonoBehaviour, IFutureObject
 {
-    private const int NotDisabled = -1;
-    private int disablingSourceStep;
-    private int disabledFromStep = NotDisabled;
-    [NonSerialized]
-    public string myName;
+    private const int NotDisabled = int.MaxValue;
+    [NonSerialized] public int disabledFromStep = NotDisabled;
+    [NonSerialized] protected int startStep;
+    public int StartStep
+    {
+        get => startStep;
+        set
+        {
+            startStep = value;
+            myLastVirtualStep = value;
+        }
+    }
 
-    protected int myLastVirtualStep = -1;
-    private GameObject myGameObject;
+    [NonSerialized] public string myName;
+    [NonSerialized] public int myLastVirtualStep;
+    [NonSerialized] protected bool isMyLastVirtualStepFinished;
+    [NonSerialized] public GameObject myGameObject;
     
     public virtual void ResetToStep(int step, GameObject cause)
     {
         if (cause != myGameObject) return;
-        myLastVirtualStep = step-1;
-        if (disablingSourceStep < step) return;
-        disablingSourceStep = 0;
+        myLastVirtualStep = Mathf.Max(step, startStep);
+        isMyLastVirtualStepFinished = false;
+        if (disabledFromStep < step) return;
         disabledFromStep = NotDisabled;
     }
 
@@ -28,19 +37,27 @@ public class FutureBehaviour : MonoBehaviour, IFutureObject
 
     public virtual bool CatchUpWithVirtualStep(int virtualStep)
     {
-        if (myLastVirtualStep >= virtualStep) return true;
+        if (myLastVirtualStep > virtualStep) return true;
+        if (startStep > virtualStep) return true;
+        if (myLastVirtualStep == virtualStep && isMyLastVirtualStepFinished) return true;
+        if (isMyLastVirtualStepFinished)
+        {
+            myLastVirtualStep++;
+        }
         if (!IsAlive(myLastVirtualStep)) return true;
-        myLastVirtualStep++;
+        isMyLastVirtualStepFinished = true;
         VirtualStep(myLastVirtualStep);
-        return myLastVirtualStep >= virtualStep;
+        return myLastVirtualStep == virtualStep && isMyLastVirtualStepFinished;
     }
 
-    public virtual void VirtualStep(int step)
+    protected virtual void VirtualStep(int step)
     {
     }
 
     protected virtual void OnEnable()
     {
+        myLastVirtualStep = startStep;
+        isMyLastVirtualStepFinished = false;
         Register();
         myGameObject = gameObject;
         myName = ToString();
@@ -62,15 +79,17 @@ public class FutureBehaviour : MonoBehaviour, IFutureObject
     }
 
     public virtual bool IsAlive(int step)
+    { 
+        return startStep <= step && (disabledFromStep == NotDisabled || disabledFromStep > step);
+    }
+ 
+    public virtual void Disable(int disabledFromStep)
     {
-        return disabledFromStep == NotDisabled || disabledFromStep > step;
+        this.disabledFromStep = disabledFromStep;
     }
 
-    public virtual void Disable(int disablingSourceStep, int disabledFromStep)
+    public virtual int RequiredVirtualStepForStep(int step)
     {
-        if (this.disabledFromStep != NotDisabled && this.disabledFromStep < disabledFromStep)
-            return;
-        this.disablingSourceStep = disablingSourceStep;
-        this.disabledFromStep = disabledFromStep;
+        return step;
     }
 }

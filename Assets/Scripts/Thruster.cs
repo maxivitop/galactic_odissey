@@ -174,7 +174,7 @@ public class Thruster : FutureBehaviour, ITrajectoryUserEventProvider
         marker.SetConfig(stepsConfig[step], this);
     }
 
-    public override void VirtualStep(int step)
+    protected override void VirtualStep(int step)
     {
         if (!stepsConfig.ContainsKey(step)) return;
         var currentConfig = stepsConfig[step];

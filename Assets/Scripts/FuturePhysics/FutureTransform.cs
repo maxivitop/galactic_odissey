@@ -40,6 +40,11 @@ public class FutureTransform : FutureStateBehaviour<TransformState>, IFuturePosi
     {
         return GetState(step).position;
     }
+    
+    public void SetFuturePosition(int step, Vector3d value)
+    {
+        GetState(step).position = value;
+    }
 
     public int GetPriority()
     {

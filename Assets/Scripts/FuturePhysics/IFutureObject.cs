@@ -9,6 +9,8 @@ public interface IFutureObject
      */
     public bool CatchUpWithVirtualStep(int virtualStep);
     
+    public int RequiredVirtualStepForStep(int step);
+
     public void ResetToStep(int step, GameObject cause);
 
     public bool IsAlive(int step);

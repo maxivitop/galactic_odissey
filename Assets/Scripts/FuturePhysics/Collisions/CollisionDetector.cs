@@ -59,25 +59,38 @@ public class FutureCollisions: IEvolving<FutureCollisions>
 }
 public class CollisionDetector : FutureStateBehaviour<FutureCollisions>
 {
-
+    private CollisionLayer myLayer;
+    private HashSet<CollisionLayer> collidesWithLayers;
     private readonly HashSet<FutureCollider> myColliders = new();
-    private void Start()
+    private void Awake()
     {
         myColliders.UnionWith(GetComponents<FutureCollider>());
+        var i = 0;
         foreach (var futureCollider in myColliders)
         {
+            if (i != 0 && futureCollider.layer != myLayer)
+            {
+                Debug.LogError(
+                    "Different collision layers are not supported on the same object." +
+                    " Layers are " + myLayer + " and " + futureCollider.layer
+                );
+            }
+            myLayer = futureCollider.layer;
             futureCollider.isPassive = false;
+            i++;
         }
+
+        collidesWithLayers = FutureCollider.collisionTable[myLayer];
     }
 
     public override bool IsAlive(int step)
     {
-        return true; // Needs to dispatch collision events
+        return step >= startStep; // Needs to dispatch collision events
     }
 
     public override void Step(int step)
     {
-        var prevStepCollisions = step == 0
+        var prevStepCollisions = step == startStep
             ? new HashSet<FutureCollision>()
             : GetState(step - 1).collisions;
         foreach (var collision in GetState(step).collisions)
@@ -90,31 +103,34 @@ public class CollisionDetector : FutureStateBehaviour<FutureCollisions>
         }
     }
 
-    public override void VirtualStep(int step)
+    protected override void VirtualStep(int step)
     {
-        var prevStepCollisions = step == 0
+        var prevStepCollisions = step == startStep
             ? new HashSet<FutureCollision>()
             : GetState(step - 1).collisions;
-        var colliders = FuturePhysics.GetComponents<FutureCollider>(step);
-        foreach(var otherCollider in colliders)
+        foreach (var layer in collidesWithLayers)
         {
-            if (!otherCollider.IsAlive(step)) continue;
-            if (myColliders.Contains(otherCollider)) continue;
-            foreach (var myCollider in myColliders)
+            var colliders = FutureCollider.layerToColliders[layer];
+            foreach(var otherCollider in colliders)
             {
-                if (!myCollider.IsAlive(step)) continue;
-                if (!CheckCollision(step, myCollider, otherCollider)) continue;
-                var collision = new FutureCollision(myCollider, otherCollider);
-                if (!prevStepCollisions.Contains(collision))
+                if (!otherCollider.IsAlive(step)) continue;
+                if (myColliders.Contains(otherCollider)) continue;
+                foreach (var myCollider in myColliders)
                 {
-                    myCollider.VirtualStepCollisionEnter(step, collision);
-                    if (otherCollider.isPassive)
+                    if (!myCollider.IsAlive(step)) continue;
+                    if (!CheckCollision(step, myCollider, otherCollider)) continue;
+                    var collision = new FutureCollision(myCollider, otherCollider);
+                    if (!prevStepCollisions.Contains(collision))
                     {
-                        var otherCollision = new FutureCollision(otherCollider, myCollider);
-                        otherCollider.VirtualStepCollisionEnter(step, otherCollision);
-                    }
-                } // OnCollisionStay goes in else if needed 
-                GetState(step).collisions.Add(collision);
+                        myCollider.VirtualStepCollisionEnter(step, collision);
+                        if (otherCollider.isPassive)
+                        {
+                            var otherCollision = new FutureCollision(otherCollider, myCollider);
+                            otherCollider.VirtualStepCollisionEnter(step, otherCollision);
+                        }
+                    } // OnCollisionStay goes in else if needed 
+                    GetState(step).collisions.Add(collision);
+                }
             }
         }
     }
@@ -124,14 +140,14 @@ public class CollisionDetector : FutureStateBehaviour<FutureCollisions>
         return new FutureCollisions();
     }
     
-    private static bool CheckCollision(int step,  FutureCollider lhs, FutureCollider rhs)
+    public static bool CheckCollision(int step, FutureCollider lhs, FutureCollider rhs)
     {
         var left = lhs as CircleFutureCollider;
         var right = rhs as CircleFutureCollider;
-        var dist = Vector3d.Distance(
-            left!.futureTransform.GetFuturePosition(step),
+        var dist = Vector3d.SqrMagnitude(
+            left!.futureTransform.GetFuturePosition(step)-
             right!.futureTransform.GetFuturePosition(step));
         var collisionDistance = left.radius + right.radius;
-        return dist < collisionDistance;
+        return dist < collisionDistance * collisionDistance;
     }
 }

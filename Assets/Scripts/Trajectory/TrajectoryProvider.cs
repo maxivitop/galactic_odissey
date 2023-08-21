@@ -11,7 +11,7 @@ public class TrajectoryProvider : FutureBehaviour
 
     public static int trajectoryStartStep;
 
-    private CapacityArray<Vector3> absoluteTrajectory = new(FuturePhysics.MaxSteps+1);
+    public CapacityArray<Vector3> absoluteTrajectory = new(FuturePhysics.MaxSteps+1);
     private FutureTransform futureTransform;
     private ReferenceFrameHost referenceFrameHost;
     public float animationDuration = 0.3f;
@@ -41,14 +41,7 @@ public class TrajectoryProvider : FutureBehaviour
         futureTransform = GetComponent<FutureTransform>();
         animator = new TrajectoryAnimator(animationDuration);
 
-        FuturePhysicsRunner.onBgThreadIdle.AddListener(OnBgThreadIdle);
         ReferenceFrameHost.referenceFrameChangeOld.AddListener(OnReferenceFrameChange);
-    }
-
-    private void OnBgThreadIdle(int step)
-    {
-        hasNotFinishedTraj = false;
-        UpdateTrajectoryIfNeeded(myLastVirtualStep);
     }
 
     private void OnReferenceFrameChange(ReferenceFrameHost old)
@@ -64,7 +57,7 @@ public class TrajectoryProvider : FutureBehaviour
              i < step && IsAlive(i);
              i++)
         {
-            futureTransform.GetState(i).position.SetToVector3(
+            futureTransform.GetFuturePosition(i).SetToVector3(
                 ref absoluteTrajectory.array[i - trajectoryStartStep]
             );
             lastStep = i;
@@ -88,7 +81,7 @@ public class TrajectoryProvider : FutureBehaviour
         trajectory.size = Math.Min(absoluteTrajectory.size, frameOfReferenceTrajectory.size);
 
         var referencePos = ReferenceFrameHost.ReferenceFrame.futureTransform
-            .GetState(trajectoryStartStep).position.ToVector3();
+            .GetFuturePosition(trajectoryStartStep).ToVector3();
         var updateStartTrajStep = Math.Max(0, PhysicsStepToTrajectoryStep(lastValidStep));
         for (var i = updateStartTrajStep; i < trajectory.size; i++)
         {
@@ -109,7 +102,6 @@ public class TrajectoryProvider : FutureBehaviour
     private void UpdateTrajectoryIfNeeded(int step)
     {
         if (updatedThisFrame) return;
-
         if (step < minVirtualStepToRecalculateTrajectory && hasNotFinishedTraj) // reduce flickering
         {
             if (movedAbsTrajThisFrame) return;
@@ -149,6 +141,10 @@ public class TrajectoryProvider : FutureBehaviour
 
     public override bool CatchUpWithVirtualStep(int virtualStep)
     {
+        if (virtualStep - FuturePhysics.currentStep >= FuturePhysics.MaxSteps && FuturePhysics.upToDateWithLastStep)
+        {
+            hasNotFinishedTraj = false;
+        }
         UpdateTrajectoryIfNeeded(myLastVirtualStep);
         if (myLastVirtualStep >= virtualStep - 1) return true;
         myLastVirtualStep++;
@@ -164,7 +160,6 @@ public class TrajectoryProvider : FutureBehaviour
 
     private void OnDestroy()
     {
-        FuturePhysicsRunner.onBgThreadIdle.RemoveListener(OnBgThreadIdle);
         ReferenceFrameHost.referenceFrameChangeOld.RemoveListener(OnReferenceFrameChange);
     }
 }

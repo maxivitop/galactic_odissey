@@ -4,7 +4,7 @@ public class DestroyOnCollision : MonoBehaviour, ICollisionEnterHandler
 {
     public GameObject explosion;
     private FutureBehaviour[] futureBehaviours;
-    private void Start()
+    private void Awake()
     {
         futureBehaviours = GetComponents<FutureBehaviour>();
     }
@@ -13,7 +13,7 @@ public class DestroyOnCollision : MonoBehaviour, ICollisionEnterHandler
     {
         foreach (var futureBehaviour in futureBehaviours)
         {
-            futureBehaviour.Disable(disablingSourceStep:step, disabledFromStep:step);
+            futureBehaviour.Disable(disabledFromStep:step);
         }
     }
 
