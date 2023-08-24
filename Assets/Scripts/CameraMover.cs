@@ -19,7 +19,7 @@ public class CameraMover : MonoBehaviour
     [NonSerialized]
     public FutureTransform followee;
     private Vector3Animator targetPositionAnimator;
-    [Range(0, 1)]
+    [Range(0, 2)]
     public float lookRotationBias = 0.7f;
     [Range(0, 85)]
     public float maxAngle = 20f;

@@ -1,53 +1,38 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class TransformState : IEvolving<TransformState>
+public class FutureTransform : FutureBehaviour, IFuturePositionProvider
 {
-    public Vector3 position;
-
-    public TransformState(Vector3 position)
-    {
-        this.position = position;
-    }
-
-    public TransformState Next()
-    {
-        return new TransformState(position);
-    }
-}
-
-public class FutureTransform : FutureStateBehaviour<TransformState>, IFuturePositionProvider
-{
-    private TransformState initial;
+    public readonly FutureArray<Vector3> position = new();
 
     private void Awake()
     {
-        initial = new TransformState(transform.position);
+        position.Initialize(startStep, transform.position, ToString());
     }
 
     public override void Step(int step)
     {
-        transform.position = GetState(step).position;
-    }
-
-    protected override TransformState GetInitialState()
-    {
-        return initial;
+        transform.position = position[step];
     }
 
     public Vector3 GetFuturePosition(int step, float dt=0)
     {
-        return GetState(step).position;
+        return position[step];
     }
     
     public void SetFuturePosition(int step, Vector3 value)
     {
-        GetState(step).position = value;
+        position[step] = value;
     }
 
     public int GetPriority()
     {
         return 0;
+    }
+    
+    public override void ResetToStep(int step, GameObject cause)
+    {
+        base.ResetToStep(step, cause);
+        if (cause != gameObject) return;
+        position.ResetToStep(step);
     }
 }

@@ -1,6 +1,4 @@
-using System;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 [RequireComponent(typeof(FutureRigidBody2D))]
 [RequireComponent(typeof(FutureTransform))]
@@ -36,10 +34,10 @@ public class FuturePhysicalClone : FutureBehaviour
         var step = FuturePhysics.currentStep;
         if (Vector3.SqrMagnitude(futureTransform.GetFuturePosition(step) -
                                   targetTransform.GetFuturePosition(step)) < Precision &&
-            Vector2.SqrMagnitude(futureRigidBody2D.GetState(step).acceleration -
-                                  targetBody.GetState(step).acceleration) < Precision &&
-            Vector2.SqrMagnitude(futureRigidBody2D.GetState(step).velocity -
-                                  targetBody.GetState(step).velocity) < Precision) return;
+            Vector2.SqrMagnitude(futureRigidBody2D.acceleration[step] -
+                                  targetBody.acceleration[step]) < Precision &&
+            Vector2.SqrMagnitude(futureRigidBody2D.velocity[step] -
+                                  targetBody.velocity[step]) < Precision) return;
         FuturePhysics.Reset(step + 1, gameObject);
         CloneParams(step);
         CloneParams(step + 1);
@@ -49,16 +47,16 @@ public class FuturePhysicalClone : FutureBehaviour
     {
         if (step > 0)
         {
-            futureRigidBody2D.GetState(step).acceleration =
-                futureRigidBody2D.GetState(step - 1).acceleration;
+            futureRigidBody2D.acceleration[step] =
+                futureRigidBody2D.acceleration[step];
         }
     }
 
     private void CloneParams(int step)
     {
         futureTransform.SetFuturePosition(step, targetTransform.GetFuturePosition(step));
-        futureRigidBody2D.GetState(step).acceleration = targetBody.GetState(step).acceleration;
-        futureRigidBody2D.GetState(step).velocity = targetBody.GetState(step).velocity;
-        futureRigidBody2D.GetState(step).orbit = targetBody.GetState(step).orbit;
+        futureRigidBody2D.acceleration[step] = targetBody.acceleration[step];
+        futureRigidBody2D.velocity[step] = targetBody.velocity[step];
+        futureRigidBody2D.orbit[step] = targetBody.orbit[step];
     }
 }

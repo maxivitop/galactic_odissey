@@ -24,7 +24,7 @@ public class EllipticalOrbitMover : FutureBehaviour, IFuturePositionProvider
             center = OrbitUtils.FindBiggestGravitySource(transform.position);
         }
         var r0 = transform.position - center.transform.position;
-        var v0 =  rigidBody.initialVelocity;
+        var v0 =  rigidBody.InitialVelocity;
         ellipticalOrbit = new EllipticalOrbit(center, rigidBody.initialMass, 0, r0, v0); 
     }
 
@@ -32,7 +32,7 @@ public class EllipticalOrbitMover : FutureBehaviour, IFuturePositionProvider
     {
         var (position, velocity) = GetPositionAndVelocity(step, 0);
         futureTransform.SetFuturePosition(step, position);
-        rigidBody.GetState(step).velocity = velocity;
+        rigidBody.velocity[step] = velocity;
     }
 
     public Vector3 GetFuturePosition(int step, float dt)

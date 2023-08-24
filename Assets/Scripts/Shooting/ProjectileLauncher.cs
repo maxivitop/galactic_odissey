@@ -57,8 +57,7 @@ public class ProjectileLauncher : FutureBehaviour
         aimShader.SetBuffer(0, "target", targetBuffer);
         targetData = new Vector3[maxSteps];
         outputData = new Vector3[maxSteps];
-        aimShader.SetFloat("my_mass", (float)projectile
-            .GetComponent<FutureRigidBody2D>().initialMass);
+        aimShader.SetFloat("my_mass", projectile.GetComponent<FutureRigidBody2D>().initialMass);
         aimShader.SetFloat("G", (float)FuturePhysics.G);
         aimShader.SetFloat("dt", (float)FuturePhysics.DeltaTime);
         aimShader.SetFloat("initial_speed", initialSpeed);
@@ -111,7 +110,7 @@ public class ProjectileLauncher : FutureBehaviour
             for (var i = 0; i < gravitySources.Length; i++)
             {
                 var gravitySource = gravitySources[i];
-                massesData[i] = (float)gravitySource.futureRigidBody2D.initialMass;
+                massesData[i] = gravitySource.futureRigidBody2D.mass[step];
                 radiiData[i] = gravitySource.futureCollider.radius;
             }
 
@@ -142,7 +141,7 @@ public class ProjectileLauncher : FutureBehaviour
         );
         targetBuffer.SetData(targetData);
         aimShader.SetVector("position", futureTransform.GetFuturePosition(step));
-        aimShader.SetVector("initial_velocity", futureRigidBody2D.GetState(step).velocity);
+        aimShader.SetVector("initial_velocity", futureRigidBody2D.velocity[step]);
         aimShader.Dispatch(0, 1, 1, 1);
     }
 

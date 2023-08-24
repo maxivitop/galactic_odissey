@@ -19,7 +19,7 @@ public class RotateShipToDirection : MonoBehaviour
 
     private void Update()
     {
-        var acceleration = futureRigidBody2D.GetState(FuturePhysics.currentStep).acceleration;
+        var acceleration = futureRigidBody2D.acceleration[FuturePhysics.currentStep];
         var direction = Vector3.up;
         if (acceleration.sqrMagnitude > Mathf.Epsilon)
         {

@@ -20,7 +20,7 @@ public class OrbitUtils
             // F = ma
             // F = G*m1*m2/r^2
             // a = F/m = G*m2/r^2
-            var gravity = FuturePhysics.G * gravitySource.futureRigidBody2D.initialMass
+            var gravity = FuturePhysics.G * gravitySource.futureRigidBody2D.mass[step]
                           / direction.sqrMagnitude;
             if (gravity < maxGravity) continue;
             maxGravity = gravity;
@@ -40,7 +40,7 @@ public class OrbitUtils
     {
         var gsPosition = gravitySource.futurePositionProvider.GetFuturePosition(step, dt);
         var direction = gsPosition - position;
-        return FuturePhysics.G * (gravitySource.futureRigidBody2D.initialMass + myMass) *
+        return FuturePhysics.G * (gravitySource.futureRigidBody2D.mass[step] + myMass) *
              direction.normalized / direction.sqrMagnitude;
     }
     

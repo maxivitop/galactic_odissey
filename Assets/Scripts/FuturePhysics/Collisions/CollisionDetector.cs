@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class FutureCollision
@@ -57,13 +56,15 @@ public class FutureCollisions: IEvolving<FutureCollisions>
         return new FutureCollisions();
     }
 }
-public class CollisionDetector : FutureStateBehaviour<FutureCollisions>
+public class CollisionDetector : FutureBehaviour
 {
     private CollisionLayer myLayer;
     private HashSet<CollisionLayer> collidesWithLayers;
     private readonly HashSet<FutureCollider> myColliders = new();
+    private FutureArray<HashSet<FutureCollision>> collisions = new();
     private void Awake()
     {
+        collisions.Initialize(startStep, new HashSet<FutureCollision>(), ToString());
         myColliders.UnionWith(GetComponents<FutureCollider>());
         var i = 0;
         foreach (var futureCollider in myColliders)
@@ -92,8 +93,8 @@ public class CollisionDetector : FutureStateBehaviour<FutureCollisions>
     {
         var prevStepCollisions = step == startStep
             ? new HashSet<FutureCollision>()
-            : GetState(step - 1).collisions;
-        foreach (var collision in GetState(step).collisions)
+            : collisions[step - 1];
+        foreach (var collision in collisions[step])
         {
             if (prevStepCollisions.Contains(collision)) continue;
             collision.my.StepCollisionEnter(step, collision);
@@ -105,9 +106,8 @@ public class CollisionDetector : FutureStateBehaviour<FutureCollisions>
 
     protected override void VirtualStep(int step)
     {
-        var prevStepCollisions = step == startStep
-            ? new HashSet<FutureCollision>()
-            : GetState(step - 1).collisions;
+        var prevStepCollisions = collisions[step];
+        collisions[step] = new HashSet<FutureCollision>();
         foreach (var layer in collidesWithLayers)
         {
             var colliders = FutureCollider.layerToColliders[layer];
@@ -129,18 +129,12 @@ public class CollisionDetector : FutureStateBehaviour<FutureCollisions>
                             otherCollider.VirtualStepCollisionEnter(step, otherCollision);
                         }
                     } // OnCollisionStay goes in else if needed 
-                    GetState(step).collisions.Add(collision);
+                    collisions[step].Add(collision);
                 }
             }
         }
     }
-
-    protected override FutureCollisions GetInitialState()
-    {
-        return new FutureCollisions();
-    }
-    
-    public static bool CheckCollision(int step, FutureCollider lhs, FutureCollider rhs)
+    private static bool CheckCollision(int step, FutureCollider lhs, FutureCollider rhs)
     {
         var left = lhs as CircleFutureCollider;
         var right = rhs as CircleFutureCollider;
@@ -149,5 +143,12 @@ public class CollisionDetector : FutureStateBehaviour<FutureCollisions>
             right!.futureTransform.GetFuturePosition(step));
         var collisionDistance = left.radius + right.radius;
         return dist < collisionDistance * collisionDistance;
+    }
+    
+    public override void ResetToStep(int step, GameObject cause)
+    {
+        base.ResetToStep(step, cause);
+        if (cause != gameObject) return;
+        collisions.ResetToStep(step);
     }
 }

@@ -35,8 +35,8 @@ public class GravitySource : FutureBehaviour
         // d1 is my dominatingGravityDistance
         // m1 is my mass
         // m2 is other mass
-        var m1 = futureRigidBody2D.initialMass;
-        var m2 = center.futureRigidBody2D.initialMass;
+        var m1 = futureRigidBody2D.mass[step];
+        var m2 = center.futureRigidBody2D.mass[step];
         var d = (center.futurePositionProvider.GetFuturePosition(step) - myPosition).magnitude;
         var a = m1 - m2;
         var b = 2 * m1 * d;

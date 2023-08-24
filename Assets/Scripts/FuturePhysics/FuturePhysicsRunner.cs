@@ -14,7 +14,6 @@ public class FuturePhysicsRunner : MonoBehaviour
     public int waitedMs;
     public TextMeshProUGUI bgThreadWait;
     public static int timeScale = 0;
-    public static readonly SingleEvent<int> onBgThreadIdle = new();
     public const float StepsPerSecond = 50;
     public static int stepsNextFrame;
     
@@ -33,6 +32,7 @@ public class FuturePhysicsRunner : MonoBehaviour
     private IEnumerator mainThreadFinishedNotifier;
     private static volatile bool isMainThreadWaiting = true;
     private static volatile bool hasBgThreadWorked = true;
+    private static volatile bool isBgThreadAlive = true;
 
 
     private void Awake()
@@ -106,7 +106,7 @@ public class FuturePhysicsRunner : MonoBehaviour
     {
         mainThreadFinished.WaitOne();
         hasBgThreadWorked = true;
-        while (true)
+        while (isBgThreadAlive)
         {
             if(isMainThreadWaiting)
             {
@@ -143,6 +143,13 @@ public class FuturePhysicsRunner : MonoBehaviour
 
     private void OnDestroy()
     {
+        isBgThreadAlive = false;
+        bgThread?.Abort();
+    }
+
+    private void OnApplicationQuit()
+    {
+        isBgThreadAlive = false;
         bgThread?.Abort();
     }
 }

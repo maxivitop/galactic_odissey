@@ -44,7 +44,7 @@ public class InitialOrbitalVelocity : FutureBehaviour
                 centerInitialVelocity.SetInitialVelocity();
             }
 
-            centerVelocity = center.initialVelocity;
+            centerVelocity = center.InitialVelocity;
         }
         
         
@@ -57,7 +57,7 @@ public class InitialOrbitalVelocity : FutureBehaviour
             Math.Sqrt(center.initialMass * FuturePhysics.G * (2 / r.magnitude - 1 / a));
         initialVelocity *= (float) actualCoefficient;
 
-        rigidBody.initialVelocity = initialVelocity + centerVelocity;
+        rigidBody.InitialVelocity = initialVelocity + centerVelocity;
     }
 
     private static Vector2 PerpendicularClockwise(Vector2 v2)

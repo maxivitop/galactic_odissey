@@ -22,7 +22,7 @@ public class EllipticalOrbit
         this.step0 = step0;
         this.r0 = new Vector3d(r0);
         this.v0 = new Vector3d(v0);
-        mu = FuturePhysics.G * (myMass + center.futureRigidBody2D.initialMass);
+        mu = FuturePhysics.G * (myMass + center.futureRigidBody2D.mass[step0]);
         InitializeFromRv();
     }
 
@@ -88,7 +88,7 @@ public class EllipticalOrbit
         dtsec = dtseco;
 
         var centerPosLast = center.futurePositionProvider.GetFuturePosition(step, dt);
-        Vector3 centerVelLast = center.futureRigidBody2D.GetState(step).velocity;
+        Vector3 centerVelLast = center.futureRigidBody2D.velocity[step];
         
         // -------------------------  implementation   -----------------
         // set constants and intermediate printouts

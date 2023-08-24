@@ -1,49 +1,54 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class RigidBody2DState : IEvolving<RigidBody2DState>
-{
-    public Vector2 velocity;
-    public float mass;
-    public Vector2 acceleration = Vector2.zero;
-    public EllipticalOrbit orbit;
-
-    public RigidBody2DState(Vector2 velocity, float mass)
-    {
-        this.velocity = velocity;
-        this.mass = mass;
-    }
-
-
-    public void AddAcceleration(Vector2 acceleration)
-    {
-        this.acceleration += acceleration;
-    }
-
-    public void AddForce(Vector2 force)
-    {
-        AddAcceleration(force / mass);
-    }
-
-    public RigidBody2DState Next()
-    {
-        return new RigidBody2DState(velocity, mass)
-        {
-            orbit = orbit
-        };
-    }
-}
 
 
 [RequireComponent(typeof(FutureTransform))]
-public class FutureRigidBody2D : FutureStateBehaviour<RigidBody2DState>
+public class FutureRigidBody2D : FutureBehaviour
 {
-    public Vector2 initialVelocity;
-    public float initialMass;
+    [SerializeField] public float initialMass;
+    [SerializeField] private Vector2 initialVelocity;
 
-    protected override RigidBody2DState GetInitialState()
+    public Vector2 InitialVelocity
     {
-        return new RigidBody2DState(initialVelocity, initialMass);
+        get => initialVelocity;
+        set
+        {
+            initialVelocity = value;
+            velocity.Initialize(startStep, initialVelocity, myName);
+        }
+    }
+
+    public readonly FutureArray<Vector2> velocity = new();
+    public readonly FutureArray<float> mass = new();
+    public readonly FutureArray<Vector2> acceleration = new();
+    public readonly FutureArray<EllipticalOrbit> orbit = new();
+
+    private void Awake()
+    {
+        myName = ToString();
+        velocity.Initialize(startStep, initialVelocity, myName);
+        mass.Initialize(startStep, initialMass, myName);
+        acceleration.Initialize(startStep, Vector2.zero, myName);
+        orbit.Initialize(startStep, null, myName);
+    }
+    
+    protected override void VirtualStep(int step)
+    {
+        acceleration[step] = Vector2.zero;
+    }
+
+    public void AddForce(int step, Vector2 force)
+    {
+        acceleration[step] += force / mass[step];
+    }
+    
+    public override void ResetToStep(int step, GameObject cause)
+    {
+        base.ResetToStep(step, cause);
+        if (cause != gameObject) return;
+        velocity.ResetToStep(step);
+        mass.ResetToStep(step);
+        acceleration.ResetToStep(step);
+        orbit.ResetToStep(step);
     }
 }
