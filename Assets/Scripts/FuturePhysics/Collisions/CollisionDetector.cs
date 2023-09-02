@@ -41,27 +41,30 @@ public class FutureCollision
         return !Equals(left, right);
     }
 }
-
-public class FutureCollisions: IEvolving<FutureCollisions>
-{
-    public readonly HashSet<FutureCollision> collisions;
-
-    public FutureCollisions()
-    {
-        collisions = new HashSet<FutureCollision>();
-    }
-
-    public FutureCollisions Next()
-    {
-        return new FutureCollisions();
-    }
-}
 public class CollisionDetector : FutureBehaviour
 {
+    public enum Mode
+    {
+        Virtual,
+        JustInTime,
+    }
+    public Mode mode;
+
     private CollisionLayer myLayer;
     private HashSet<CollisionLayer> collidesWithLayers;
     private readonly HashSet<FutureCollider> myColliders = new();
     private FutureArray<HashSet<FutureCollision>> collisions = new();
+
+    public override int StartStep
+    {
+        get => base.StartStep;
+        set
+        {
+            base.StartStep = value;
+            collisions.Initialize(value, new HashSet<FutureCollision>(), ToString());
+        }
+    }
+
     private void Awake()
     {
         collisions.Initialize(startStep, new HashSet<FutureCollision>(), ToString());
@@ -91,6 +94,10 @@ public class CollisionDetector : FutureBehaviour
 
     public override void Step(int step)
     {
+        if (mode == Mode.JustInTime)
+        {
+            DetectVirtualStepCollisions(step);
+        }
         var prevStepCollisions = step == startStep
             ? new HashSet<FutureCollision>()
             : collisions[step - 1];
@@ -104,7 +111,20 @@ public class CollisionDetector : FutureBehaviour
         }
     }
 
+    public override bool CatchUpWithVirtualStep(int virtualStep)
+    {
+        return mode == Mode.JustInTime || base.CatchUpWithVirtualStep(virtualStep);
+    }
+
     protected override void VirtualStep(int step)
+    {
+        if (mode == Mode.Virtual)
+        {
+            DetectVirtualStepCollisions(step);
+        }
+    }
+
+    private void DetectVirtualStepCollisions(int step)
     {
         var prevStepCollisions = collisions[step];
         collisions[step] = new HashSet<FutureCollision>();

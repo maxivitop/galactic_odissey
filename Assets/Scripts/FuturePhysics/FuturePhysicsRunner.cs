@@ -13,6 +13,7 @@ public class FuturePhysicsRunner : MonoBehaviour
 
     public int waitedMs;
     public TextMeshProUGUI bgThreadWait;
+    public TextMeshProUGUI fps;
     public static int timeScale = 0;
     public const float StepsPerSecond = 50;
     public static int stepsNextFrame;
@@ -33,6 +34,10 @@ public class FuturePhysicsRunner : MonoBehaviour
     private static volatile bool isMainThreadWaiting = true;
     private static volatile bool hasBgThreadWorked = true;
     private static volatile bool isBgThreadAlive = true;
+    private float maxDeltaTimeThisSecond;
+    private int trackedSecond;
+    private float avgDeltaTimeSum;
+    private int avgDeltaTimeCount;
 
 
     private void Awake()
@@ -55,7 +60,22 @@ public class FuturePhysicsRunner : MonoBehaviour
         bgThreadFinished.WaitOne(1000);
         var end = Time.realtimeSinceStartupAsDouble;
         waitedMs = Mathd.RoundToInt((end - start) * 1000);
-        bgThreadWait.text = waitedMs.ToString();
+        if (Mathf.RoundToInt(Time.unscaledTime) != trackedSecond)
+        {
+            fps.text = Mathf.RoundToInt(avgDeltaTimeCount / avgDeltaTimeSum)
+                       + " / " + String.Format("{0,3:###}",
+                           Mathf.RoundToInt(1f / maxDeltaTimeThisSecond));
+            trackedSecond = Mathf.RoundToInt(Time.unscaledTime);
+            maxDeltaTimeThisSecond = Time.unscaledDeltaTime;
+            avgDeltaTimeCount = 0;
+            avgDeltaTimeSum = 0;
+        }
+
+        avgDeltaTimeSum += Time.unscaledDeltaTime;
+        avgDeltaTimeCount++;
+        maxDeltaTimeThisSecond = Mathf.Max(maxDeltaTimeThisSecond, Time.unscaledDeltaTime);
+        bgThreadWait.text = waitedMs + " ms";
+       
         hasBgThreadWorked = false;
         activeThread = Thread.CurrentThread;
 

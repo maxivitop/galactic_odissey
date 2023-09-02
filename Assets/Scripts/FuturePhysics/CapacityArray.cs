@@ -20,11 +20,8 @@ public class CapacityArray<T>
     public void CopyIntoSelf(CapacityArray<T> value)
     {
         size = value.size;
-        start = value.start;
-        for (var i = 0; i < value.size; i++)
-        {
-            this[i] = value[i];
-        }
+        value.NormalizeInto(array);
+        start = 0;
     }
 
     public T GetOrElse(int index, T value)
@@ -61,25 +58,47 @@ public class CapacityArray<T>
         {
             return;
         }
+        NormalizeInto(tmpArray);
+        (tmpArray, array) = (array, tmpArray);
+        start = 0;
+    }
+
+    /**
+     * Put values into capacity array so that first value is at startIndex and size is size.
+     */
+    public void InitializeFrom(int startIndex, T[] values, int size)
+    {
+        this.size = size + startIndex;
+        Array.Copy(
+            values,
+            0,
+            array, 
+            0, 
+            size
+        );
+        start = (capacity - startIndex) % capacity;
+        
+    }
+
+    private void NormalizeInto(T[] destination)
+    {
         var endSliceSize = Mathf.Min(size, capacity-start);
         Array.Copy(
             array,
             start,
-            tmpArray, 
+            destination, 
             0, 
             endSliceSize
-            );
+        );
         if (endSliceSize < size)
         {
             Array.Copy(
                 array,
                 0,
-                tmpArray,
+                destination,
                 endSliceSize,
                 size - endSliceSize
             );
         }
-        (tmpArray, array) = (array, tmpArray);
-        start = 0;
     }
 }

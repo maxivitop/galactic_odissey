@@ -45,6 +45,14 @@ public class FutureArray<T>
         name = logName;
     }
     
+    public void Initialize(int startStep, T[] values, int trajectoryLength, string logName)
+    {
+        this.startStep = startStep;
+        initialValue = values[0];
+        capacityArray.InitializeFrom(startStep, values, trajectoryLength);
+        name = logName;
+    }
+    
     public void ResetToStep(int step)
     {
         FuturePhysicsRunner.CheckThread();
