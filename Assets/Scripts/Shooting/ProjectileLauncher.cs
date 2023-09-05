@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 [RequireComponent(typeof(FutureTransform))]
 [RequireComponent(typeof(FutureRigidBody2D))]
@@ -73,10 +74,21 @@ public class ProjectileLauncher : FutureBehaviour
 
         if (step % launchEachNSteps == 0)
         {
-            output.GetData(outputData);
-            trajLen.GetData(trajLenData);
-            var projectileInstance = Instantiate(projectile);
-            projectileInstance.Launch(step, outputData, trajLenData[0]);
+            var trajLenRequest = AsyncGPUReadback.Request(trajLen, request =>
+            {
+                var trajLenNativeData = request.GetData<int>();
+                trajLenNativeData.CopyTo(trajLenData);
+            });
+            AsyncGPUReadback.Request(output, request => {
+                var outputNativeData = request.GetData<Vector3>();
+                outputNativeData.CopyTo(outputData);
+                FuturePhysicsRunner.ExecuteOnUpdate(() =>
+                {
+                    trajLenRequest.WaitForCompletion();
+                    var projectileInstance = Instantiate(projectile);
+                    projectileInstance.Launch(step, outputData, trajLenData[0]);
+                });
+            });
         }
     }
 
@@ -142,6 +154,13 @@ public class ProjectileLauncher : FutureBehaviour
         targetBuffer.SetData(targetData);
         aimShader.SetVector("position", futureTransform.GetFuturePosition(step));
         aimShader.SetVector("initial_velocity", futureRigidBody2D.velocity[step]);
+
+        var commandBuffer = new CommandBuffer();
+        commandBuffer.SetExecutionFlags(CommandBufferExecutionFlags.AsyncCompute);
+        commandBuffer.DispatchCompute(
+            aimShader, 0, 1, 1, 1);
+        commandBuffer.name = "aimShaderBuffer";
+        Graphics.ExecuteCommandBufferAsync(commandBuffer, ComputeQueueType.Background);
         aimShader.Dispatch(0, 1, 1, 1);
     }
 

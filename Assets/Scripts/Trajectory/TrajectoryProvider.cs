@@ -152,7 +152,7 @@ public class TrajectoryProvider : FutureBehaviour
 
     private void Update()
     {
-        animator.ForwardTime(Time.deltaTime);
+        animator.ForwardTime(Time.unscaledDeltaTime);
         updatedThisFrame = false;
         movedAbsTrajThisFrame = false;
     }

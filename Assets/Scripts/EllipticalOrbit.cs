@@ -13,6 +13,8 @@ public class EllipticalOrbit
     private Vector3d r0;
     private Vector3d v0;
     private const double Small = 1E-6;
+    private const double ConvergenceThreshold = 1E-3;
+    private const int MaxIter = 20;
     private const double VerySmall = 1E-9; // 1E-13;
     private const double HalfPi = Math.PI * 0.5;
 
@@ -54,7 +56,7 @@ public class EllipticalOrbit
     
     public bool Evolve(int step, float dt, out Vector3 rNew, out Vector3 vNew)
     {
-        int ktr, numiter;
+        int ktr;
         double f, g, fdot, gdot, rval, xold, xoldsqrd, xnewsqrd, znew, pp, dtnew, rdotv, a, dtsec, alpha, sme, s, w, temp, magro, magvo, magr;
         var c2New = 0.0;
         var c3New = 0.0;
@@ -89,123 +91,125 @@ public class EllipticalOrbit
 
         var centerPosLast = center.futurePositionProvider.GetFuturePosition(step, dt);
         Vector3 centerVelLast = center.futureRigidBody2D.velocity[step];
-        
-        // -------------------------  implementation   -----------------
-        // set constants and intermediate printouts
-        numiter = 100;
 
         // --------------------  initialize values   -------------------
         znew = 0.0;
 
-        if (Math.Abs(dtseco) > Small) {
-            var radialInfall = Vector3d.Cross(r0.normalized, v0.normalized).magnitude < 1E-3;
-            if (radialInfall) {
-                if (sme <= 0) {
-                    // Not debugged, but normal Kepler handles this case ok
-                    // EvolveRecilinearBound(dtsec, sme, ref r_new, ref v_new);
-                } else {
-                    EvolveRecilinearUnbound(dtsec, sme, out rNew, out vNew);
-                    // Add centerPos to value we ref back
-                    rNew += centerPosLast;
-                    // update velocity
-                    vNew += centerVelLast;
-                    return true;
-                }
-            }
-
-            // This check breaks the case where SI units are used for the Solar System 
-            // (not the recommended choice of units, but more likely than an exactly parabolic Kepler mode)
-            // Likewise for check of alpha below. 
-            //if (Math.Abs(alpha) < small)   // parabola
-            //    alpha = 0.0;
-
-            // ------------   setup initial guess for x  ---------------
-            // -----------------  circle and ellipse -------------------
-            // if (alpha >= small) {
-            if (alpha >= 0) {
-                if (Math.Abs(alpha - 1.0) > Small)
-                    xold = Math.Sqrt(mu) * dtsec * alpha;
-                else
-                    // - first guess can't be too close. ie a circle, r=a
-                    xold = Math.Sqrt(mu) * dtsec * alpha * 0.97;
-            } else {
-                // --------------------  parabola  ---------------------
-                if (Math.Abs(alpha) < Small) {
-                    var h = Vector3d.Cross(r0, v0);
-                    pp = h.sqrMagnitude / mu;
-                    s = 0.5 * (HalfPi - Math.Atan(3.0 * Math.Sqrt(mu / (pp * pp * pp)) * dtsec));
-                    w = Math.Atan(Math.Pow(Math.Tan(s), (1.0 / 3.0)));
-                    xold = Math.Sqrt(p) * (2.0 * MathUtils.Cot(2.0 * w));
-                    alpha = 0.0;
-                } else {
-                    // ------------------  hyperbola  ------------------
-                    temp = -2.0 * mu * dtsec /
-                        (a * (rdotv + Math.Sign(dtsec) * Math.Sqrt(-mu * a) * (1.0 - magro * alpha)));
-                    xold = Math.Sign(dtsec) * Math.Sqrt(-a) * Math.Log(temp);
-                }
-            } // if alpha
-
-            ktr = 1;
-            dtnew = -10.0;
-            // conv for dtsec to x units
-            var tmp = 1.0 / Math.Sqrt(mu);
-
-            while (Math.Abs(dtnew * tmp - dtsec) >= Small && ktr < numiter) {
-                xoldsqrd = xold * xold;
-                znew = xoldsqrd * alpha;
-
-                // ------------- find c2 and c3 functions --------------
-                OrbitUtils.FindC2C3(znew, out c2New, out c3New);
-
-                // ------- use a newton iteration for new values -------
-                rval = xoldsqrd * c2New + rdotv * tmp * xold * (1.0 - znew * c3New) +
-                    magro * (1.0 - znew * c2New);
-                dtnew = xoldsqrd * xold * c3New + rdotv * tmp * xoldsqrd * c2New +
-                    magro * xold * (1.0 - znew * c3New);
-
-                // ------------- calculate new value for x -------------
-                xnew = xold + (dtsec * Math.Sqrt(mu) - dtnew) / rval;
-
-                // ----- check if the univ param goes negative. if so, use bissection
-                if (xnew < 0.0)
-                    xnew = xold * 0.5;
-
-                ktr++;
-                xold = xnew;
-            }  // while
-
-            if (ktr >= numiter) {
-                // Mitigation: return false, calling side will fix this
-                rNew = Vector3.zero;
-                vNew = Vector3.zero;
-                return false;
-            } 
-            // --- find position and velocity vectors at new time --
-            xnewsqrd = xnew * xnew;
-            f = 1.0 - (xnewsqrd * c2New / magro);
-            g = dtsec - xnewsqrd * xnew * c3New / Math.Sqrt(mu);
-            rNew = (f * r0 + g * v0).ToVector3();
-            magr = Math.Sqrt(rNew[0] * rNew[0] + rNew[1] * rNew[1] + rNew[2] * rNew[2]);
-            gdot = 1.0 - (xnewsqrd * c2New / magr);
-            fdot = (Math.Sqrt(mu) * xnew / (magro * magr)) * (znew * c3New - 1.0);
-            temp = f * gdot - fdot * g;
-            //if (Math.Abs(temp - 1.0) > 0.00001)
-            //    Debug.LogWarning(string.Format("consistency check failed {0}", (temp - 1.0)));
-            vNew = (fdot * r0 + gdot * v0).ToVector3();
-            // Add centerPos to value we ref back
-            rNew += centerPosLast;
-            // update velocity
-            vNew += centerVelLast;
-        
-        } // if fabs
-        else {
+        if (!(Math.Abs(dtseco) > Small))
+        {
             // ----------- set vectors to incoming since 0 time --------
             rNew = r0.ToVector3();
             // Add centerPos to value we ref back
             rNew += centerPosLast;
             vNew = v0.ToVector3() + centerVelLast;
+            return true;
+        }
+        var radialInfall = Vector3d.Cross(r0.normalized, v0.normalized).magnitude < 1E-3;
+        if (radialInfall)
+        {
+            if (sme <= 0)
+            {
+                // Not debugged, but normal Kepler handles this case ok
+                // EvolveRecilinearBound(dtsec, sme, ref r_new, ref v_new);
+            }
+            else
+            {
+                EvolveRecilinearUnbound(dtsec, sme, out rNew, out vNew);
+                // Add centerPos to value we ref back
+                rNew += centerPosLast;
+                // update velocity
+                vNew += centerVelLast;
+                return true;
+            }
+        }
+        // ------------   setup initial guess for x  ---------------
+        // -----------------  circle and ellipse -------------------
+        if (alpha >= 0)
+        {
+            if (Math.Abs(alpha - 1.0) > Small)
+                xold = Math.Sqrt(mu) * dtsec * alpha;
+            else
+                // - first guess can't be too close. ie a circle, r=a
+                xold = Math.Sqrt(mu) * dtsec * alpha * 0.97;
+        }
+        else
+        {
+            // --------------------  parabola  ---------------------
+            if (Math.Abs(alpha) < Small)
+            {
+                var h = Vector3d.Cross(r0, v0);
+                pp = h.sqrMagnitude / mu;
+                s = 0.5 * (HalfPi - Math.Atan(3.0 * Math.Sqrt(mu / (pp * pp * pp)) * dtsec));
+                w = Math.Atan(Math.Pow(Math.Tan(s), (1.0 / 3.0)));
+                xold = Math.Sqrt(p) * (2.0 * MathUtils.Cot(2.0 * w));
+                alpha = 0.0;
+            }
+            else
+            {
+                // ------------------  hyperbola  ------------------
+                temp = -2.0 * mu * dtsec /
+                       (a * (rdotv + Math.Sign(dtsec) * Math.Sqrt(-mu * a) *
+                           (1.0 - magro * alpha)));
+                xold = Math.Sign(dtsec) * Math.Sqrt(-a) * Math.Log(temp);
+            }
+        } // if alpha
+
+        ktr = 1;
+        dtnew = -10.0;
+        // conv for dtsec to x units
+        var tmp = 1.0 / Math.Sqrt(mu);
+
+        while (Math.Abs(dtnew * tmp - dtsec) >= ConvergenceThreshold && ktr < MaxIter)
+        {
+            xoldsqrd = xold * xold;
+            znew = xoldsqrd * alpha;
+
+            // ------------- find c2 and c3 functions --------------
+            OrbitUtils.FindC2C3(znew, out c2New, out c3New);
+
+            // ------- use a newton iteration for new values -------
+            rval = xoldsqrd * c2New + rdotv * tmp * xold * (1.0 - znew * c3New) +
+                   magro * (1.0 - znew * c2New);
+            dtnew = xoldsqrd * xold * c3New + rdotv * tmp * xoldsqrd * c2New +
+                    magro * xold * (1.0 - znew * c3New);
+
+            // ------------- calculate new value for x -------------
+            xnew = xold + (dtsec * Math.Sqrt(mu) - dtnew) / rval;
+
+            // ----- check if the univ param goes negative. if so, use bissection
+            if (xnew < 0.0)
+                xnew = xold * 0.5;
+
+            ktr++;
+            xold = xnew;
+        } // while
+
+        if (ktr >= MaxIter)
+        {
+            // Mitigation: return false, calling side will fix this
+            rNew = Vector3.zero;
+            vNew = Vector3.zero;
+            return false;
         }
 
+        // --- find position and velocity vectors at new time --
+        xnewsqrd = xnew * xnew;
+        f = 1.0 - (xnewsqrd * c2New / magro);
+        g = dtsec - xnewsqrd * xnew * c3New / Math.Sqrt(mu);
+        rNew = (f * r0 + g * v0).ToVector3();
+        magr = Math.Sqrt(rNew[0] * rNew[0] + rNew[1] * rNew[1] + rNew[2] * rNew[2]);
+        gdot = 1.0 - (xnewsqrd * c2New / magr);
+        fdot = (Math.Sqrt(mu) * xnew / (magro * magr)) * (znew * c3New - 1.0);
+        temp = f * gdot - fdot * g;
+        //if (Math.Abs(temp - 1.0) > 0.00001)
+        //    Debug.LogWarning(string.Format("consistency check failed {0}", (temp - 1.0)));
+        vNew = (fdot * r0 + gdot * v0).ToVector3();
+        // Add centerPos to value we ref back
+        rNew += centerPosLast;
+        // update velocity
+        vNew += centerVelLast;
+
+        // if fabs
         return true;
     }
     
@@ -234,14 +238,14 @@ public class EllipticalOrbit
         var i = 0;
         var u = m;
         double uNext = 0;
-        while (i++ < 1000)
+        while (i++ < MaxIter)
         {
             uNext = u + (m - (MathUtils.Sinh(u) - u)) / (MathUtils.Cosh(u)-1);
-            if (Math.Abs(uNext - u) < 1E-6)
+            if (Math.Abs(uNext - u) < ConvergenceThreshold)
                 break;
             u = uNext;
         }
-        if (i >= 100)
+        if (i >= MaxIter)
         {
             Debug.LogWarning("Did not converge");
         }

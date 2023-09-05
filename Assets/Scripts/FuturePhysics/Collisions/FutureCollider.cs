@@ -78,6 +78,11 @@ public class FutureCollider : FutureBehaviour
         base.Unregister();
     }
 
+    public override bool CatchUpWithVirtualStep(int virtualStep)
+    {
+        return true;
+    }
+
     public void StepCollisionEnter(int step, FutureCollision collision)
     {
         foreach (var collisionEnterHandler in collisionEnterHandlers)

@@ -1,64 +1,54 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(CircleFutureCollider))]
 [RequireComponent(typeof(FutureRigidBody2D))]
 [RequireComponent(typeof(FutureTransform))]
-public class Projectile: FutureBehaviour
+public class Projectile: MonoBehaviour
 {
     [NonSerialized] public FutureTransform futureTransform;
-    [NonSerialized] public CollisionDetector collisionDetector;
-    public int trajLen;
-    public int launchStep;
+    private int lastStep;
     
     private void Awake()
     {
         futureTransform = GetComponent<FutureTransform>();
-        collisionDetector = GetComponent<CollisionDetector>();
     }
 
     public void Launch(int step, Vector3[] trajectory, int trajectoryLength)
     {
-        launchStep = step;
-        trajLen = trajectoryLength;
-        futureTransform.position.Initialize(step, trajectory, trajectoryLength, ToString());
-        futureTransform.Disable(step + trajectoryLength);
-        collisionDetector.StartStep = step;
-    }
-
-    public override void Step(int step)
-    {
-        if (step < launchStep) return;
-        var idx = step - launchStep;
-        if (idx >= trajLen)
+        var lostSteps = FuturePhysicsRunner.nextFrameStep - step;
+        if (lostSteps > trajectoryLength)
         {
-            // Instantiate(explosion, transform.position, Quaternion.identity);
-            Destroy(gameObject);
+            Debug.LogWarning("Dispatched Launch too late lostSteps=" + lostSteps 
+                +", trajectoryLength="+trajectoryLength
+                +" step="+step 
+                +" currenntStep="+FuturePhysics.currentStep);
+            DestroySelf();
             return;
         }
-        // transform.position = traj[idx];
-        // foreach (var layer in FutureCollider.collisionTable[futureCollider.layer])
-        // {
-        //     foreach (var otherCollider in FutureCollider.layerToColliders[layer])
-        //     {
-        //         var other = otherCollider as CircleFutureCollider;
-        //         var my = futureCollider;
-        //         var dist = Vector3.SqrMagnitude(
-        //             other!.futureTransform.GetFuturePosition(step)
-        //             - traj[idx]);
-        //         var collisionDistance = other.radius + my.radius;
-        //         if (dist < collisionDistance * collisionDistance)
-        //         {
-        //             Instantiate(explosion, transform.position, Quaternion.identity);
-        //             Destroy(gameObject);
-        //             return;
-        //         }
-        //     }
-        // }
+        lastStep = step + trajectoryLength;
+        futureTransform.position.Initialize(step, trajectory, trajectoryLength, ToString());    
+        foreach (var futureBehaviour in GetComponents<MonoBehaviour>())
+        {
+            futureBehaviour.enabled = true;
+        }
+        foreach (var futureBehaviour in GetComponents<FutureBehaviour>())
+        {
+            futureBehaviour.Disable(lastStep);
+        }
     }
 
-    public override bool CatchUpWithVirtualStep(int virtualStep)
+    private void Update()
     {
-        return true;
+        if (FuturePhysics.currentStep > lastStep)
+        {
+            DestroySelf();
+        }
+    }
+
+    private void DestroySelf()
+    {
+        Destroy(gameObject);
     }
 }

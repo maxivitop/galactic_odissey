@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using Random = System.Random;
 using ThreadPriority = System.Threading.ThreadPriority;
 
 public class FuturePhysicsRunner : MonoBehaviour
@@ -14,7 +13,6 @@ public class FuturePhysicsRunner : MonoBehaviour
     public int waitedMs;
     public TextMeshProUGUI bgThreadWait;
     public TextMeshProUGUI fps;
-    public static int timeScale = 0;
     public const float StepsPerSecond = 50;
     public static int stepsNextFrame;
     
@@ -91,7 +89,7 @@ public class FuturePhysicsRunner : MonoBehaviour
         unusedDeltaTime += Time.deltaTime;
         var stepsPerNextFrame = Mathf.FloorToInt(StepsPerSecond * unusedDeltaTime);
         unusedDeltaTime -= stepsPerNextFrame * timePerStep;
-        stepsNextFrame = stepsPerNextFrame * timeScale;
+        stepsNextFrame = stepsPerNextFrame;
         for (var i = 0; i < stepsThisFrame; i++) FuturePhysics.Step();
         nextFrameStep = FuturePhysics.currentStep + stepsNextFrame;
         caughtUpThisFrame = false;

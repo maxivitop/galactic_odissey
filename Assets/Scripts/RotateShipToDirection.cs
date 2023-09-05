@@ -38,7 +38,7 @@ public class RotateShipToDirection : MonoBehaviour
         transformToRotate.rotation = Quaternion.RotateTowards(
             transformToRotate.rotation,
             Quaternion.LookRotation(Vector3.forward, direction),
-            Time.deltaTime * speed * FuturePhysicsRunner.timeScale
+            Time.deltaTime * speed
         );
     }
 }

@@ -8,7 +8,7 @@ public class PlanetRotator: MonoBehaviour
 
     private void Update()
     {
-        rotation += speed * Time.deltaTime * FuturePhysicsRunner.timeScale;
+        rotation += speed * Time.deltaTime;
         transform.rotation = Quaternion.AngleAxis(rotation, up);
     }
 }

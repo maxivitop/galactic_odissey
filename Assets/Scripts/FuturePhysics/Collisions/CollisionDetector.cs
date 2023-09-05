@@ -41,6 +41,7 @@ public class FutureCollision
         return !Equals(left, right);
     }
 }
+
 public class CollisionDetector : FutureBehaviour
 {
     public enum Mode
@@ -48,26 +49,22 @@ public class CollisionDetector : FutureBehaviour
         Virtual,
         JustInTime,
     }
+
     public Mode mode;
 
     private CollisionLayer myLayer;
     private HashSet<CollisionLayer> collidesWithLayers;
     private readonly HashSet<FutureCollider> myColliders = new();
-    private FutureArray<HashSet<FutureCollision>> collisions = new();
-
-    public override int StartStep
-    {
-        get => base.StartStep;
-        set
-        {
-            base.StartStep = value;
-            collisions.Initialize(value, new HashSet<FutureCollision>(), ToString());
-        }
-    }
+    public readonly FutureArray<HashSet<FutureCollision>> collisions = new();
+    private bool hasSteppedBefore = false;
 
     private void Awake()
     {
-        collisions.Initialize(startStep, new HashSet<FutureCollision>(), ToString());
+        if (mode == Mode.Virtual)
+        {
+            collisions.Initialize(startStep, new HashSet<FutureCollision>(), ToString());
+        }
+
         myColliders.UnionWith(GetComponents<FutureCollider>());
         var i = 0;
         foreach (var futureCollider in myColliders)
@@ -79,6 +76,7 @@ public class CollisionDetector : FutureBehaviour
                     " Layers are " + myLayer + " and " + futureCollider.layer
                 );
             }
+
             myLayer = futureCollider.layer;
             futureCollider.isPassive = false;
             i++;
@@ -96,11 +94,20 @@ public class CollisionDetector : FutureBehaviour
     {
         if (mode == Mode.JustInTime)
         {
+            if (step >= disabledFromStep)
+            {
+                return; // in just in time mode disabling from step should work as expected.
+            }
+            if (collisions.capacityArray.size < step)
+            {
+                collisions.Initialize(step, new HashSet<FutureCollision>(), ToString());
+            }
+
             DetectVirtualStepCollisions(step);
         }
-        var prevStepCollisions = step == startStep
-            ? new HashSet<FutureCollision>()
-            : collisions[step - 1];
+
+        var prevStepCollisions = collisions[step - 1]
+                                 ?? new HashSet<FutureCollision>();
         foreach (var collision in collisions[step])
         {
             if (prevStepCollisions.Contains(collision)) continue;
@@ -109,6 +116,8 @@ public class CollisionDetector : FutureBehaviour
             var otherCollision = new FutureCollision(collision.other, collision.my);
             collision.other.StepCollisionEnter(step, otherCollision);
         }
+
+        hasSteppedBefore = true;
     }
 
     public override bool CatchUpWithVirtualStep(int virtualStep)
@@ -131,7 +140,7 @@ public class CollisionDetector : FutureBehaviour
         foreach (var layer in collidesWithLayers)
         {
             var colliders = FutureCollider.layerToColliders[layer];
-            foreach(var otherCollider in colliders)
+            foreach (var otherCollider in colliders)
             {
                 if (!otherCollider.IsAlive(step)) continue;
                 if (myColliders.Contains(otherCollider)) continue;
@@ -149,22 +158,24 @@ public class CollisionDetector : FutureBehaviour
                             otherCollider.VirtualStepCollisionEnter(step, otherCollision);
                         }
                     } // OnCollisionStay goes in else if needed 
+
                     collisions[step].Add(collision);
                 }
             }
         }
     }
+
     private static bool CheckCollision(int step, FutureCollider lhs, FutureCollider rhs)
     {
         var left = lhs as CircleFutureCollider;
         var right = rhs as CircleFutureCollider;
-        var dist = Vector3.SqrMagnitude(
-            left!.futureTransform.GetFuturePosition(step)-
-            right!.futureTransform.GetFuturePosition(step));
+        var lhsPos = left!.futureTransform.GetFuturePosition(step);
+        var rhsPos = right!.futureTransform.GetFuturePosition(step);
+        var dist = (lhsPos - rhsPos).sqrMagnitude;
         var collisionDistance = left.radius + right.radius;
         return dist < collisionDistance * collisionDistance;
     }
-    
+
     public override void ResetToStep(int step, GameObject cause)
     {
         base.ResetToStep(step, cause);

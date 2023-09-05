@@ -6,12 +6,18 @@ public class FutureTransform : FutureBehaviour, IFuturePositionProvider
 
     private void Awake()
     {
-        position.Initialize(startStep, transform.position, ToString());
+        var pos = transform.position;
+        position.Initialize(startStep, pos, ToString());
     }
 
     public override void Step(int step)
     {
         transform.position = position[step];
+    }
+
+    public override bool CatchUpWithVirtualStep(int virtualStep)
+    {
+        return true;
     }
 
     public Vector3 GetFuturePosition(int step, float dt=0)

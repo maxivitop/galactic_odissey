@@ -20,7 +20,11 @@ public class FutureRigidBody2D : FutureBehaviour
 
     public readonly FutureArray<Vector2> velocity = new();
     public readonly FutureArray<float> mass = new();
-    public readonly FutureArray<Vector2> acceleration = new();
+    public readonly FutureArray<Vector2> acceleration = new()
+    {
+        useDefaultValue = true,
+        defaultValue = Vector2.zero
+    };
     public readonly FutureArray<EllipticalOrbit> orbit = new();
 
     private void Awake()
@@ -31,10 +35,10 @@ public class FutureRigidBody2D : FutureBehaviour
         acceleration.Initialize(startStep, Vector2.zero, myName);
         orbit.Initialize(startStep, null, myName);
     }
-    
-    protected override void VirtualStep(int step)
+
+    public override bool CatchUpWithVirtualStep(int virtualStep)
     {
-        acceleration[step] = Vector2.zero;
+        return true;
     }
 
     public void AddForce(int step, Vector2 force)

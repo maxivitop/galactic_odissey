@@ -24,11 +24,11 @@ public class CameraMover : MonoBehaviour
     [Range(0, 85)]
     public float maxAngle = 20f;
 
-    private Camera myCamera;
+    private float horizontalAxis;
+    private float verticalAxis;
 
     private void Start()
     {
-        myCamera = GetComponent<Camera>();
         var position = transform.position;
         relativePosition = position;
         startPosZ = position.z;
@@ -44,9 +44,11 @@ public class CameraMover : MonoBehaviour
         MouseHandler.UpdateWorldMousePosition();
         var mousePosition = MouseHandler.WorldMousePosition;
         var movementSpeed = speedOfMovement * z / startPosZ;
+        GetSmoothRawAxis("Horizontal", ref horizontalAxis);
+        GetSmoothRawAxis("Vertical", ref verticalAxis);
         var input = new Vector3(
-            Input.GetAxis("Horizontal") * movementSpeed,
-            Input.GetAxis("Vertical") * movementSpeed,
+            horizontalAxis * movementSpeed,
+            verticalAxis * movementSpeed,
             Input.mouseScrollDelta.y * speedOfZoom
         );
         if (targetPositionAnimator.HasFinished())
@@ -59,7 +61,7 @@ public class CameraMover : MonoBehaviour
         }
         if (targetRelativePosition.HasValue)
         {
-            targetPositionAnimator.ForwardTime(Time.deltaTime);
+            targetPositionAnimator.ForwardTime(Time.unscaledTime);
             relativePosition = targetPositionAnimator.AnimateTowards(targetRelativePosition.Value);
         }
         
@@ -98,7 +100,7 @@ public class CameraMover : MonoBehaviour
             Quaternion.RotateTowards(Quaternion.identity, transform.rotation, maxAngle);
         transform.rotation = // animate for smooth rotation channges
             Quaternion.RotateTowards(initialRotation, targetRotation, 
-               maxAngle / targetPositionAnimationDuration * Time.deltaTime);
+               maxAngle / targetPositionAnimationDuration * Time.unscaledTime);
 
         if (Input.GetMouseButton(1))
         {
@@ -127,5 +129,22 @@ public class CameraMover : MonoBehaviour
         }
 
         return futureTransform.GetFuturePosition(TrajectoryProvider.TrajectoryStepToPhysicsStep(0));
+    }
+    
+    private static void GetSmoothRawAxis(string name, ref float axis, float sensitivity=3f, float gravity=3f)
+    {
+        var r = Input.GetAxisRaw(name);
+        var s = sensitivity;
+        var g = gravity;
+        var t = Time.unscaledDeltaTime;
+
+        if (r != 0)
+        {
+            axis = Mathf.Clamp(axis + r * s * t, -1f, 1f);
+        }
+        else
+        {
+            axis = Mathf.Clamp01(Mathf.Abs(axis) - g * t) * Mathf.Sign(axis);
+        }
     }
 }

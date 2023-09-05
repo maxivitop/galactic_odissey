@@ -1,12 +1,13 @@
-using System;
 using UnityEngine;
 
 public class FutureArray<T>
 {
-    private CapacityArray<T> capacityArray = new(FuturePhysics.MaxSteps + 1);
+    public readonly CapacityArray<T> capacityArray = new(FuturePhysics.MaxSteps + 1);
     private string name;
     private int startStep;
     private T initialValue;
+    public T defaultValue;
+    public bool useDefaultValue;
 
     public T this[int step]
     {
@@ -21,9 +22,12 @@ public class FutureArray<T>
             FuturePhysicsRunner.CheckThread();
             if (capacityArray.size < step)
                 Debug.LogError(name + ": Getting state for step " + step + " when max step is " +
-                               capacityArray.size +". Virtual step is " + FuturePhysics.lastVirtualStep);
+                               capacityArray.size + ". Virtual step is " +
+                               FuturePhysics.lastVirtualStep +
+                    ", start step = " +startStep);
 #endif
-            if (capacityArray.size == step) this[step] = this[capacityArray.size - 1];
+            if (capacityArray.size == step)
+                this[step] = useDefaultValue ? defaultValue : this[capacityArray.size - 1];
             return capacityArray[step];
         }
         set
@@ -44,7 +48,7 @@ public class FutureArray<T>
         initialValue = value;
         name = logName;
     }
-    
+
     public void Initialize(int startStep, T[] values, int trajectoryLength, string logName)
     {
         this.startStep = startStep;
@@ -52,7 +56,7 @@ public class FutureArray<T>
         capacityArray.InitializeFrom(startStep, values, trajectoryLength);
         name = logName;
     }
-    
+
     public void ResetToStep(int step)
     {
         FuturePhysicsRunner.CheckThread();
