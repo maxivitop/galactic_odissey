@@ -50,7 +50,7 @@ public class ThrusterMarker : MonoBehaviour
         lineRenderer.positionCount = end - start;
         for (var i = start; i < end; i++)
         {
-            lineRenderer.SetPosition(i-start, thruster.trajectoryProvider.trajectory.array[i]);
+            lineRenderer.SetPosition(i-start, thruster.trajectoryProvider.trajectory[i]);
         } 
     }
 }

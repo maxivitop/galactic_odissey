@@ -36,11 +36,6 @@ public class FutureRigidBody2D : FutureBehaviour
         orbit.Initialize(startStep, null, myName);
     }
 
-    public override bool CatchUpWithVirtualStep(int virtualStep)
-    {
-        return true;
-    }
-
     public void AddForce(int step, Vector2 force)
     {
         acceleration[step] += force / mass[step];

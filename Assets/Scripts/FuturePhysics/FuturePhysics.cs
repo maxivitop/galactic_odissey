@@ -11,61 +11,44 @@ public class FuturePhysics
 
     public static int currentStep;
     public static int lastVirtualStep;
-    public static bool upToDateWithLastStep;
 
     private static readonly HashSet<IFutureObject> futureObjects = new();
     private static readonly Dictionary<IFutureObject, ISet<Type>> objToTypes = new();
     private static readonly Dictionary<Type, ISet<IFutureObject>> typeToObjs = new();
+    private static readonly List<IFutureObject> catchingUp = new();
 
     public static void Step()
     {
         FuturePhysicsRunner.CheckThread();
         currentStep++;
-        CatchUpWithStep(currentStep);
         foreach (var obj in GetAliveObjects(currentStep).ToArray())
             obj.Step(currentStep);
     }
 
-    public static void MakeVirtualCalculations()
+    public static void CatchUpWithStep(int step)
     {
-        FuturePhysicsRunner.CheckThread();
-        if (upToDateWithLastStep && lastVirtualStep - currentStep < MaxSteps)
+        var areAllCaughtUp = true;
+        foreach (var obj in futureObjects) // first lightweight loop to check if all caught up
         {
-            lastVirtualStep++;
+            areAllCaughtUp &= obj.CatchUpWithVirtualStep(step);
         }
-        upToDateWithLastStep = true;
-        foreach (var obj in futureObjects)
-            upToDateWithLastStep &= obj.CatchUpWithVirtualStep(lastVirtualStep);
-    }
-
-    public static void CatchUpWithStep(int step, bool isFromBg = false)
-    {
-        var minVirtualStep =
-            futureObjects.Select(obj => obj.RequiredVirtualStepForStep(step)).Max();
-        var logWarning = !isFromBg;
-        while (true)
+        if (areAllCaughtUp) return;
+        catchingUp.Clear();
+        catchingUp.AddRange(futureObjects.Reverse());
+        while (catchingUp.Count > 0)
         {
-            var areAllPrerequisiteVirtualStepsComplete = true;
-            foreach (var obj in futureObjects)
+            for (var i = catchingUp.Count - 1; i >= 0; i--) // backwards loop allows to remove without breaking indexing
             {
-                var isComplete = obj.CatchUpWithVirtualStep(minVirtualStep);
-                if (!isComplete && logWarning)
-                {
-                    Debug.LogWarning(obj + "Did not complete in time step="
-                                         +step+     
-                                         " minVirtualStep=" + minVirtualStep
-                                         + " startStep=" + (obj as FutureBehaviour).StartStep);
-                    logWarning = false;
-                }
-                areAllPrerequisiteVirtualStepsComplete &= isComplete;
+                if (catchingUp[i].CatchUpWithVirtualStep(step))
+                    catchingUp.RemoveAt(i);
             }
-            if (areAllPrerequisiteVirtualStepsComplete) break;
         }
+        
+        lastVirtualStep = Mathf.Max(step, lastVirtualStep);
     }
 
     public static void AddObject(Type type, IFutureObject obj)
     {
-        upToDateWithLastStep = false;
         FuturePhysicsRunner.CheckThread();
 
         futureObjects.Add(obj);
@@ -103,8 +86,6 @@ public class FuturePhysics
             Debug.LogError("reset on " + step + " with current step " + currentStep);
             return;
         }
-        if (step == lastVirtualStep) return;
-        upToDateWithLastStep = false;
         foreach (var state in futureObjects) state.ResetToStep(step, whom);
     }
 

@@ -1,29 +1,17 @@
 using System;
-using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 [RequireComponent(typeof(FutureTransform))]
 public class TrajectoryProvider : FutureBehaviour
 {
     [NonSerialized] public CapacityArray<Vector3> trajectory = new(FuturePhysics.MaxSteps+1);
-
-    public readonly SingleEvent<CapacityArray<Vector3>> onTrajectoryUpdated = new();
-
-    public static int trajectoryStartStep;
-
-    public CapacityArray<Vector3> absoluteTrajectory = new(FuturePhysics.MaxSteps+1);
+    private static int trajectoryStartStep;
     private FutureTransform futureTransform;
-    private ReferenceFrameHost referenceFrameHost;
     public float animationDuration = 0.3f;
-    public int minStepsAfterReset = 1000;
 
-    private int minVirtualStepToRecalculateTrajectory;
-    private bool updatedThisFrame;
     private TrajectoryAnimator animator;
-    private int lastValidAbsoluteStep = -1;
-    private int lastValidStep = -1;
-    private bool movedAbsTrajThisFrame;
-    private bool hasNotFinishedTraj = true;
+    private int validAtStep;
 
     public static int TrajectoryStepToPhysicsStep(int trajectoryStep)
     {
@@ -37,7 +25,6 @@ public class TrajectoryProvider : FutureBehaviour
 
     private void Start()
     {
-        referenceFrameHost = GetComponent<ReferenceFrameHost>();
         futureTransform = GetComponent<FutureTransform>();
         animator = new TrajectoryAnimator(animationDuration);
 
@@ -47,118 +34,54 @@ public class TrajectoryProvider : FutureBehaviour
     private void OnReferenceFrameChange(ReferenceFrameHost old)
     {
         animator.Capture(trajectory);
-        lastValidStep = -1;
-    }
-
-    private void UpdateAbsoluteTrajectory(int step)
-    {
-        var lastStep = trajectoryStartStep - 1;
-        for (var i = Math.Max(trajectoryStartStep, lastValidAbsoluteStep);
-             i < step && IsAlive(i);
-             i++)
-        {
-            absoluteTrajectory.array[i - trajectoryStartStep] =
-                futureTransform.GetFuturePosition(i);
-            lastStep = i;
-        }
-
-        absoluteTrajectory.size = lastStep - trajectoryStartStep + 1;
-        lastValidAbsoluteStep = lastStep;
+        validAtStep = 0;
     }
 
     private void UpdateTrajectory(int step)
     {
-        trajectoryStartStep = FuturePhysics.currentStep + FuturePhysicsRunner.stepsNextFrame;
-        UpdateAbsoluteTrajectory(step);
-        if (referenceFrameHost != ReferenceFrameHost.ReferenceFrame)
+        trajectoryStartStep = FuturePhysics.currentStep;
+        var frameOfReferenceTransform 
+            = ReferenceFrameHost.ReferenceFrame.trajectoryProvider.futureTransform;
+        trajectory.size = Mathf.Min(
+            step - trajectoryStartStep,
+            futureTransform.position.capacityArray.size - trajectoryStartStep,
+            frameOfReferenceTransform.position.capacityArray.size - trajectoryStartStep,
+            futureTransform.disabledFromStep
+        );
+        var referencePos = frameOfReferenceTransform.GetFuturePosition(trajectoryStartStep);
+        Parallel.For(fromInclusive: 0, toExclusive: trajectory.size, i =>
         {
-            ReferenceFrameHost.ReferenceFrame.trajectoryProvider.UpdateTrajectoryIfNeeded(step);
-        }
+            var s = trajectoryStartStep + i;
+            trajectory[i] = 
+                futureTransform.position[s] - frameOfReferenceTransform.position[s] + referencePos;
+        });
 
-        var frameOfReferenceTrajectory =
-            ReferenceFrameHost.ReferenceFrame.trajectoryProvider.absoluteTrajectory;
-        trajectory.size = Math.Min(absoluteTrajectory.size, frameOfReferenceTrajectory.size);
-
-        var referencePos = ReferenceFrameHost.ReferenceFrame.futureTransform
-            .GetFuturePosition(trajectoryStartStep);
-        var updateStartTrajStep = Math.Max(0, PhysicsStepToTrajectoryStep(lastValidStep));
-        for (var i = updateStartTrajStep; i < trajectory.size; i++)
-        {
-            trajectory.array[i] = absoluteTrajectory.array[i] -
-                frameOfReferenceTrajectory.array[i] + referencePos;
-        }
-
-        if (animator.Animate(trajectory))
-        {
-            lastValidStep = -1;
-        }
-        else
-        {
-            lastValidStep = trajectoryStartStep + trajectory.size;
-        }
-    }
-
-    private void UpdateTrajectoryIfNeeded(int step)
-    {
-        if (updatedThisFrame) return;
-        if (step < minVirtualStepToRecalculateTrajectory && hasNotFinishedTraj) // reduce flickering
-        {
-            if (movedAbsTrajThisFrame) return;
-            trajectory.MoveStart(FuturePhysicsRunner.stepsNextFrame);
-            trajectory.Normalize();
-            absoluteTrajectory.MoveStart(FuturePhysicsRunner.stepsNextFrame);
-            absoluteTrajectory.Normalize();
-            movedAbsTrajThisFrame = true;
-            return;
-        }
-
-        updatedThisFrame = true;
-        if (FuturePhysicsRunner.stepsNextFrame > 0 && !movedAbsTrajThisFrame)
-        {
-            lastValidStep = -1; // reference frame probably moved
-            absoluteTrajectory.MoveStart(FuturePhysicsRunner.stepsNextFrame);
-            absoluteTrajectory.Normalize();
-            movedAbsTrajThisFrame = true;
-        }
-
-        UpdateTrajectory(step);
-        onTrajectoryUpdated.Invoke(trajectory);
-    }
-
-    public override void ResetToStep(int step, GameObject cause)
-    {
-        base.ResetToStep(step, cause);
-        if (cause == gameObject)
-        {
-            lastValidStep = -1;
-            lastValidAbsoluteStep = -1;
-            hasNotFinishedTraj = true;
-        }
-
-        minVirtualStepToRecalculateTrajectory = minStepsAfterReset + step;
-    }
-
-    public override bool CatchUpWithVirtualStep(int virtualStep)
-    {
-        if (virtualStep - FuturePhysics.currentStep >= FuturePhysics.MaxSteps && FuturePhysics.upToDateWithLastStep)
-        {
-            hasNotFinishedTraj = false;
-        }
-        UpdateTrajectoryIfNeeded(myLastVirtualStep);
-        if (myLastVirtualStep >= virtualStep - 1) return true;
-        myLastVirtualStep++;
-        return true;
+        animator.Animate(trajectory);
+        validAtStep = FuturePhysics.currentStep;
     }
 
     private void Update()
     {
+        if (animator.IsRunning()) validAtStep = 0;
         animator.ForwardTime(Time.unscaledDeltaTime);
-        updatedThisFrame = false;
-        movedAbsTrajThisFrame = false;
+        if (animator.IsRunning()) validAtStep = 0;
+
+        if (validAtStep != FuturePhysics.lastVirtualStep)
+        {
+            UpdateTrajectory(FuturePhysics.lastVirtualStep);
+        }
     }
 
     private void OnDestroy()
     {
         ReferenceFrameHost.referenceFrameChangeOld.RemoveListener(OnReferenceFrameChange);
+    }
+
+    public override void ResetToStep(int step, GameObject cause)
+    {
+        if (cause == myGameObject)
+        {
+            validAtStep = 0;
+        }
     }
 }

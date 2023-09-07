@@ -31,8 +31,8 @@ public class RotateShipToDirection : MonoBehaviour
                 TrajectoryProvider.PhysicsStepToTrajectoryStep(FuturePhysics.currentStep);
             if (trajectoryProvider.trajectory.size > trajStep + 1)
             {
-                direction = trajectoryProvider.trajectory.array[trajStep + 1]
-                            - trajectoryProvider.trajectory.array[trajStep];
+                direction = trajectoryProvider.trajectory[trajStep + 1]
+                            - trajectoryProvider.trajectory[trajStep];
             }
         }
         transformToRotate.rotation = Quaternion.RotateTowards(

@@ -15,11 +15,6 @@ public class FutureTransform : FutureBehaviour, IFuturePositionProvider
         transform.position = position[step];
     }
 
-    public override bool CatchUpWithVirtualStep(int virtualStep)
-    {
-        return true;
-    }
-
     public Vector3 GetFuturePosition(int step, float dt=0)
     {
         return position[step];

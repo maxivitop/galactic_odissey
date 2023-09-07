@@ -38,6 +38,7 @@ public class Thruster : FutureBehaviour, ITrajectoryUserEventProvider
     {
         futureRigidBody2D = GetComponent<FutureRigidBody2D>();
         trajectoryProvider = GetComponent<TrajectoryProvider>();
+        hasVirtualStep = true;
     }
 
     public GameObject CreateUI(int step, TrajectoryMarker marker)

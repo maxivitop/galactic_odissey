@@ -54,6 +54,6 @@ public class ShadowClone: MonoBehaviour
             transform.position = new Vector3(1e10f, 1e10f);
             return;
         }
-        transform.position = trajectoryProvider.trajectory.array[trajStep];
+        transform.position = trajectoryProvider.trajectory[trajStep];
     }
 }

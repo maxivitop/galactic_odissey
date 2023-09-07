@@ -20,13 +20,17 @@ public class TrajectoryUserEventReceiver : MonoBehaviour
     {
         futureTransform = GetComponent<FutureTransform>();
         trajectoryProvider = GetComponent<TrajectoryProvider>();
-        trajectoryProvider.onTrajectoryUpdated.AddListener(UpdateWithTrajectory);
         all.Add(this);
     }
 
     private void OnDisable()
     {
         all.Remove(this);
+    }
+
+    private void Update()
+    {
+        UpdateWithTrajectory(trajectoryProvider.trajectory);
     }
 
     private void UpdateWithTrajectory(CapacityArray<Vector3> trajectory)
@@ -40,7 +44,7 @@ public class TrajectoryUserEventReceiver : MonoBehaviour
         var closestSegmentPos = Vector3.zero;
         for (var i = 0; i < trajectory.size; i++)
         {
-            var position = trajectory.array[i];
+            var position = trajectory[i];
             var distance = (position - worldMousePosition).sqrMagnitude;
             if (!(distance + Mathf.Epsilon < minDistance)) continue;
             if (closestToMouseTrajectoryStep.HasValue)

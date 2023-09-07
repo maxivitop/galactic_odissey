@@ -15,6 +15,7 @@ public class GravityBody : FutureBehaviour
         futureTransform = GetComponent<FutureTransform>();
         futureRB = GetComponent<FutureRigidBody2D>();
         TryGetComponent(out myGravitySource);
+        hasVirtualStep = true;
     }
 
     protected override void VirtualStep(int step)

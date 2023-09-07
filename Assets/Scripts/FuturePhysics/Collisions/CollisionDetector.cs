@@ -60,6 +60,7 @@ public class CollisionDetector : FutureBehaviour
 
     private void Awake()
     {
+        hasVirtualStep = mode == Mode.Virtual;
         if (mode == Mode.Virtual)
         {
             collisions.Initialize(startStep, new HashSet<FutureCollision>(), ToString());
@@ -118,11 +119,6 @@ public class CollisionDetector : FutureBehaviour
         }
 
         hasSteppedBefore = true;
-    }
-
-    public override bool CatchUpWithVirtualStep(int virtualStep)
-    {
-        return mode == Mode.JustInTime || base.CatchUpWithVirtualStep(virtualStep);
     }
 
     protected override void VirtualStep(int step)

@@ -109,7 +109,7 @@ public class TrajectoryMarker : MonoBehaviour
                 transform.position = new Vector3(1e10f, 1e10f);
                 return;
             }
-            transform.position = targetTrajectoryProvider.trajectory.array[trajStep];
+            transform.position = targetTrajectoryProvider.trajectory[trajStep];
         }
 
         if (fixedRotation != null) return;

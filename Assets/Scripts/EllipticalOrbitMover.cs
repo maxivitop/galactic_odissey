@@ -25,7 +25,8 @@ public class EllipticalOrbitMover : FutureBehaviour, IFuturePositionProvider
         }
         var r0 = transform.position - center.transform.position;
         var v0 =  rigidBody.InitialVelocity;
-        ellipticalOrbit = new EllipticalOrbit(center, rigidBody.initialMass, 0, r0, v0); 
+        ellipticalOrbit = new EllipticalOrbit(center, rigidBody.initialMass, 0, r0, v0);
+        hasVirtualStep = true;
     }
 
     protected override void VirtualStep(int step)
@@ -72,8 +73,10 @@ public class EllipticalOrbitMover : FutureBehaviour, IFuturePositionProvider
             ellipticalOrbit.Evolve(step, 0.5f, out var positionH, out var velocityH);
             positionsCache[step * 2] = position;
             positionsCache[step * 2 + 1] = positionH;
+            positionsCache.size += 2;
             velocitiesCache[step * 2] = velocity;
             velocitiesCache[step * 2 + 1] = velocityH;
+            velocitiesCache.size += 2;
             lastCacheStep++;
         }
         var cachePosition = step * 2;

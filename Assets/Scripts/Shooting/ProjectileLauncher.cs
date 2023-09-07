@@ -22,7 +22,7 @@ public class ProjectileLauncher : FutureBehaviour
     private int[] trajLenData = new int[1];
     private ComputeBuffer trajLens;
     private const int NumThreads = 64;
-    public TrajectoryProvider target;
+    public FutureTransform target;
     private ComputeBuffer targetBuffer;
     private Vector3[] targetData;
     private float[] massesData;
@@ -99,7 +99,6 @@ public class ProjectileLauncher : FutureBehaviour
         {
             Debug.LogWarning("ShootStep with step="+step+": trajStep="+trajStep);
             step -= trajStep; // it is negative, so we are adding value
-            trajStep = 0;
         }
         var gravitySources =
             FuturePhysics.GetComponents<GravitySource>(step).ToArray();
@@ -133,23 +132,21 @@ public class ProjectileLauncher : FutureBehaviour
         for (var i = 0; i < gravitySources.Length; i++)
         {
             var gravitySource = gravitySources[i];
-            var absTraj = gravitySource.trajectoryProvider.absoluteTrajectory;
-            Array.Copy(
-                absTraj.array,
-                trajStep,
+            var absTraj = gravitySource.futureTransform.position;
+            absTraj.capacityArray.CopyInto(
                 positionsData,
-                maxSteps * i,
-                maxSteps
+                step,
+                maxSteps,
+                maxSteps * i
             );
         }
 
         positions.SetData(positionsData);
-        Array.Copy(
-            target.absoluteTrajectory.array,
-            trajStep,
+        target.position.capacityArray.CopyInto(
             targetData,
-            0,
-            maxSteps
+            step,
+            maxSteps,
+            0
         );
         targetBuffer.SetData(targetData);
         aimShader.SetVector("position", futureTransform.GetFuturePosition(step));

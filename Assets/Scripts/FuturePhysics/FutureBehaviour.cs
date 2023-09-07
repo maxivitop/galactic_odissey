@@ -7,20 +7,12 @@ public class FutureBehaviour : MonoBehaviour, IFutureObject
     private const int NotDisabled = int.MaxValue;
     [NonSerialized] public int disabledFromStep = NotDisabled;
     [NonSerialized] protected int startStep;
-    public virtual int StartStep
-    {
-        get => startStep;
-        set
-        {
-            startStep = value;
-            myLastVirtualStep = value;
-        }
-    }
 
     [NonSerialized] public string myName;
     [NonSerialized] public int myLastVirtualStep;
     [NonSerialized] protected bool isMyLastVirtualStepFinished;
     [NonSerialized] public GameObject myGameObject;
+    [NonSerialized] protected bool hasVirtualStep;
     
     public virtual void ResetToStep(int step, GameObject cause)
     {
@@ -35,8 +27,9 @@ public class FutureBehaviour : MonoBehaviour, IFutureObject
     {
     }
 
-    public virtual bool CatchUpWithVirtualStep(int virtualStep)
+    public bool CatchUpWithVirtualStep(int virtualStep)
     {
+        if (!hasVirtualStep) return true;
         if (myLastVirtualStep > virtualStep) return true;
         if (startStep > virtualStep) return true;
         if (myLastVirtualStep == virtualStep && isMyLastVirtualStepFinished) return true;
@@ -83,13 +76,8 @@ public class FutureBehaviour : MonoBehaviour, IFutureObject
         return startStep <= step && (disabledFromStep == NotDisabled || disabledFromStep > step);
     }
  
-    public virtual void Disable(int disabledFromStep)
+    public void Disable(int disabledFromStep)
     {
         this.disabledFromStep = disabledFromStep;
-    }
-
-    public virtual int RequiredVirtualStepForStep(int step)
-    {
-        return step;
     }
 }

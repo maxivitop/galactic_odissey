@@ -11,7 +11,7 @@ public class GravitySource : FutureBehaviour
 {
     [NonSerialized] public FutureRigidBody2D futureRigidBody2D;
     [NonSerialized] public IFuturePositionProvider futurePositionProvider;
-    [NonSerialized] public TrajectoryProvider trajectoryProvider;
+    [NonSerialized] public FutureTransform futureTransform;
     [NonSerialized] public CircleFutureCollider futureCollider;
 
     protected void Awake()
@@ -19,7 +19,7 @@ public class GravitySource : FutureBehaviour
         futureCollider = GetComponent<CircleFutureCollider>();
         futureRigidBody2D = GetComponent<FutureRigidBody2D>();
         futurePositionProvider = IFuturePositionProvider.SelectFuturePositionProvider(gameObject);
-        trajectoryProvider = GetComponent<TrajectoryProvider>();
+        futureTransform = GetComponent<FutureTransform>();
     }
 
     public double CalculateDominatingGravityDistance(int step)

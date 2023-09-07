@@ -11,13 +11,13 @@ public class FuturePhysicalClone : FutureBehaviour
     private const double Precision = 0.1f;
     private FutureBehaviour[] myFutureComponents;
 
-
     private void Start()
     {
         futureRigidBody2D = GetComponent<FutureRigidBody2D>();
         futureTransform = GetComponent<FutureTransform>();
         targetTransform = targetBody.GetComponent<FutureTransform>();
         myFutureComponents = GetComponents<FutureBehaviour>();
+        hasVirtualStep = true;
     }
 
     private void Update()

@@ -19,7 +19,6 @@ public class FutureArray<T>
                 this[startStep] = initialValue;
             }
 #if DEBUG
-            FuturePhysicsRunner.CheckThread();
             if (capacityArray.size < step)
                 Debug.LogError(name + ": Getting state for step " + step + " when max step is " +
                                capacityArray.size + ". Virtual step is " +

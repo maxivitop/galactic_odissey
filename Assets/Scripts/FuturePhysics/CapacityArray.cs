@@ -80,25 +80,31 @@ public class CapacityArray<T>
         
     }
 
-    private void NormalizeInto(T[] destination)
+    public void CopyInto(T[] destination, int startIndex, int length, int destinationIndex)
     {
-        var endSliceSize = Mathf.Min(size, capacity-start);
+        var si = (start + startIndex) % capacity;
+        var endSliceSize = Mathf.Min(length, capacity-si) % capacity;
         Array.Copy(
             array,
-            start,
+            si,
             destination, 
-            0, 
+            destinationIndex, 
             endSliceSize
         );
-        if (endSliceSize < size)
+        if (endSliceSize < length)
         {
             Array.Copy(
                 array,
                 0,
                 destination,
-                endSliceSize,
-                size - endSliceSize
+                destinationIndex + endSliceSize,
+                length - endSliceSize
             );
         }
+    }
+
+    private void NormalizeInto(T[] destination)
+    {
+        CopyInto(destination, 0, size, 0);
     }
 }
