@@ -100,9 +100,8 @@ public class ProjectileLauncher : FutureBehaviour
             Debug.LogWarning("ShootStep with step="+step+": trajStep="+trajStep);
             step -= trajStep; // it is negative, so we are adding value
         }
-        var gravitySources =
-            FuturePhysics.GetComponents<GravitySource>(step).ToArray();
-        var positionsCount = maxSteps * gravitySources.Length;
+        var gravitySources = GravitySource.All;
+        var positionsCount = maxSteps * gravitySources.Count;
         if (positions == null || positionsCount != positions.count)
         {
             positions?.Release();
@@ -110,15 +109,15 @@ public class ProjectileLauncher : FutureBehaviour
             positionsData = new Vector3[positionsCount];
             aimShader.SetBuffer(0, "positions", positions);
             masses?.Release();
-            masses = new ComputeBuffer(gravitySources.Length, sizeof(float));
-            massesData = new float[gravitySources.Length];
+            masses = new ComputeBuffer(gravitySources.Count, sizeof(float));
+            massesData = new float[gravitySources.Count];
             aimShader.SetBuffer(0, "masses", masses);
-            aimShader.SetInt("gravity_sources", gravitySources.Length);
+            aimShader.SetInt("gravity_sources", gravitySources.Count);
             radii?.Release();
-            radii = new ComputeBuffer(gravitySources.Length, sizeof(float));
-            radiiData = new float[gravitySources.Length];
+            radii = new ComputeBuffer(gravitySources.Count, sizeof(float));
+            radiiData = new float[gravitySources.Count];
             aimShader.SetBuffer(0, "radii", radii);
-            for (var i = 0; i < gravitySources.Length; i++)
+            for (var i = 0; i < gravitySources.Count; i++)
             {
                 var gravitySource = gravitySources[i];
                 massesData[i] = gravitySource.futureRigidBody2D.mass[step];
@@ -129,7 +128,7 @@ public class ProjectileLauncher : FutureBehaviour
             radii.SetData(radiiData);
         }
 
-        for (var i = 0; i < gravitySources.Length; i++)
+        for (var i = 0; i < gravitySources.Count; i++)
         {
             var gravitySource = gravitySources[i];
             var absTraj = gravitySource.futureTransform.position;

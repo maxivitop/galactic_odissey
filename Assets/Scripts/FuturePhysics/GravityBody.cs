@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 
@@ -20,7 +22,7 @@ public class GravityBody : FutureBehaviour
 
     protected override void VirtualStep(int step)
     {
-        var position = futureTransform.GetFuturePosition(step);
+        var position = futureTransform.position[step];
         if (futureRB.acceleration[step].sqrMagnitude > Mathd.Epsilon)
         {
             IntegrateStep(step, position);
@@ -65,11 +67,7 @@ public class GravityBody : FutureBehaviour
         {
             if (vNew.sqrMagnitude > 1e6)
             {
-                if (!double.IsNormal(vNew.sqrMagnitude))
-                {
-                    vNew = futureRB.velocity[step];
-                }
-                vNew = Vector2.ClampMagnitude(vNew, 1e3f);
+                vNew = futureRB.velocity[step];
                 rNew = position + vNew * FuturePhysics.DeltaTime;
             }
 
@@ -101,15 +99,13 @@ public class GravityBody : FutureBehaviour
         futureRB.velocity[step] += (a1 + 2 * a2 + 2 * a3 + a4) * (FuturePhysics.DeltaTime / 6.0f);
         Vector3 stepDistance = (v1 + 2 * v2 + 2 * v3 + v4) * (FuturePhysics.DeltaTime / 6.0f);
 
-        futureTransform.SetFuturePosition(step,
-            futureTransform.GetFuturePosition(step) + stepDistance);
+        futureTransform.position[step] += stepDistance;
     }
 
     private Vector2 CalculateGravityAcceleration(int step, float dt, Vector3 position)
     {
         var gravity = Vector2.zero;
-        var gravitySources = FuturePhysics.GetComponents<GravitySource>(step);
-        foreach (var gravitySource in gravitySources)
+        foreach (var gravitySource in GravitySource.All)
         {
             if (gravitySource == myGravitySource) continue;
             gravity += OrbitUtils.CalculateGravityVector(

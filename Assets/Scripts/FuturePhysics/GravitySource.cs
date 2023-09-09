@@ -9,6 +9,7 @@ using UnityEngine;
 [RequireComponent(typeof(FutureRigidBody2D))]
 public class GravitySource : FutureBehaviour
 {
+    public static List<GravitySource> All = new();
     [NonSerialized] public FutureRigidBody2D futureRigidBody2D;
     [NonSerialized] public IFuturePositionProvider futurePositionProvider;
     [NonSerialized] public FutureTransform futureTransform;
@@ -16,6 +17,7 @@ public class GravitySource : FutureBehaviour
 
     protected void Awake()
     {
+        All.Add(this);
         futureCollider = GetComponent<CircleFutureCollider>();
         futureRigidBody2D = GetComponent<FutureRigidBody2D>();
         futurePositionProvider = IFuturePositionProvider.SelectFuturePositionProvider(gameObject);

@@ -12,7 +12,7 @@ public class OrbitUtils
     {
         var maxGravity = 0.0f;
         GravitySource closestSource = null;
-        foreach (var gravitySource in FuturePhysics.GetComponents<GravitySource>(step))
+        foreach (var gravitySource in GravitySource.All)
         {
             var sourcePosition = gravitySource.futurePositionProvider.GetFuturePosition(step, dt);
             Vector2 direction = sourcePosition - position;
@@ -40,8 +40,8 @@ public class OrbitUtils
     {
         var gsPosition = gravitySource.futurePositionProvider.GetFuturePosition(step, dt);
         var direction = gsPosition - position;
-        return FuturePhysics.G * (gravitySource.futureRigidBody2D.mass[step] + myMass) *
-             direction.normalized / direction.sqrMagnitude;
+        return (FuturePhysics.G * (gravitySource.futureRigidBody2D.mass[step] + myMass)
+                / direction.sqrMagnitude) * direction.normalized;
     }
     
     // Taken from Vallado source code site. (Also used in LambertUniversal)

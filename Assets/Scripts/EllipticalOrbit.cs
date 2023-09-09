@@ -31,19 +31,17 @@ public class EllipticalOrbit
     //RVtoCOE
     private void InitializeFromRv()
     {
-        double  magr, magv, rdotv, temp, c1, magh;
-
         // -------------------------  implementation   -----------------
-        magr = r0.magnitude;
-        magv = v0.magnitude;
+        var magr = r0.magnitude;
+        var magv = v0.magnitude;
 
         // ------------------  find h n and e vectors   ----------------
         var hbar = Vector3d.Cross(r0, v0);
-        magh = hbar.magnitude;
+        var magh = hbar.magnitude;
         if (!(magh > VerySmall)) return;
-        c1 = magv * magv - mu / magr;
-        rdotv = Vector3d.Dot(r0, v0);
-        temp = 1.0 / mu;
+        var c1 = magv * magv - mu / magr;
+        var rdotv = Vector3d.Dot(r0, v0);
+        var temp = 1.0 / mu;
         var ebar = new Vector3d( ((c1 * r0.x - rdotv * v0.x) * temp),
             ((c1 * r0.y - rdotv * v0.y) * temp),
             ((c1 * r0.z - rdotv * v0.z) * temp));
@@ -56,20 +54,19 @@ public class EllipticalOrbit
     
     public bool Evolve(int step, float dt, out Vector3 rNew, out Vector3 vNew)
     {
-        int ktr;
-        double f, g, fdot, gdot, rval, xold, xoldsqrd, xnewsqrd, znew, pp, dtnew, rdotv, a, dtsec, alpha, sme, s, w, temp, magro, magvo, magr;
+        double xold, a, temp;
         var c2New = 0.0;
         var c3New = 0.0;
         var xnew = 0.0;
         double dtseco = (step - step0 + dt) * FuturePhysics.DeltaTime;
 
-        magro = r0.magnitude;
-        magvo = v0.magnitude;
-        rdotv = Vector3d.Dot(r0, v0);
+        var magro = r0.magnitude;
+        var magvo = v0.magnitude;
+        var rdotv = Vector3d.Dot(r0, v0);
 
         // -------------  find sme, alpha, and a  ------------------
-        sme = ((magvo * magvo) * 0.5) - (mu / magro);
-        alpha = -sme * 2.0 / mu;
+        var sme = ((magvo * magvo) * 0.5) - (mu / magro);
+        var alpha = -sme * 2.0 / mu;
             
         if (Math.Abs(sme) > Small)
             a = -mu / (2.0 * sme);
@@ -87,13 +84,13 @@ public class EllipticalOrbit
             dtseco %= orbitPeriod;
         }
         
-        dtsec = dtseco;
+        var dtsec = dtseco;
 
         var centerPosLast = center.futurePositionProvider.GetFuturePosition(step, dt);
         Vector3 centerVelLast = center.futureRigidBody2D.velocity[step];
 
         // --------------------  initialize values   -------------------
-        znew = 0.0;
+        var znew = 0.0;
 
         if (!(Math.Abs(dtseco) > Small))
         {
@@ -138,9 +135,9 @@ public class EllipticalOrbit
             if (Math.Abs(alpha) < Small)
             {
                 var h = Vector3d.Cross(r0, v0);
-                pp = h.sqrMagnitude / mu;
-                s = 0.5 * (HalfPi - Math.Atan(3.0 * Math.Sqrt(mu / (pp * pp * pp)) * dtsec));
-                w = Math.Atan(Math.Pow(Math.Tan(s), (1.0 / 3.0)));
+                var pp = h.sqrMagnitude / mu;
+                var s = 0.5 * (HalfPi - Math.Atan(3.0 * Math.Sqrt(mu / (pp * pp * pp)) * dtsec));
+                var w = Math.Atan(Math.Pow(Math.Tan(s), (1.0 / 3.0)));
                 xold = Math.Sqrt(p) * (2.0 * MathUtils.Cot(2.0 * w));
                 alpha = 0.0;
             }
@@ -154,22 +151,22 @@ public class EllipticalOrbit
             }
         } // if alpha
 
-        ktr = 1;
-        dtnew = -10.0;
+        var ktr = 1;
+        var dtnew = -10.0;
         // conv for dtsec to x units
         var tmp = 1.0 / Math.Sqrt(mu);
 
         while (Math.Abs(dtnew * tmp - dtsec) >= ConvergenceThreshold && ktr < MaxIter)
         {
-            xoldsqrd = xold * xold;
+            var xoldsqrd = xold * xold;
             znew = xoldsqrd * alpha;
 
             // ------------- find c2 and c3 functions --------------
             OrbitUtils.FindC2C3(znew, out c2New, out c3New);
 
             // ------- use a newton iteration for new values -------
-            rval = xoldsqrd * c2New + rdotv * tmp * xold * (1.0 - znew * c3New) +
-                   magro * (1.0 - znew * c2New);
+            var rval = xoldsqrd * c2New + rdotv * tmp * xold * (1.0 - znew * c3New) +
+                       magro * (1.0 - znew * c2New);
             dtnew = xoldsqrd * xold * c3New + rdotv * tmp * xoldsqrd * c2New +
                     magro * xold * (1.0 - znew * c3New);
 
@@ -193,13 +190,13 @@ public class EllipticalOrbit
         }
 
         // --- find position and velocity vectors at new time --
-        xnewsqrd = xnew * xnew;
-        f = 1.0 - (xnewsqrd * c2New / magro);
-        g = dtsec - xnewsqrd * xnew * c3New / Math.Sqrt(mu);
+        var xnewsqrd = xnew * xnew;
+        var f = 1.0 - (xnewsqrd * c2New / magro);
+        var g = dtsec - xnewsqrd * xnew * c3New / Math.Sqrt(mu);
         rNew = (f * r0 + g * v0).ToVector3();
-        magr = Math.Sqrt(rNew[0] * rNew[0] + rNew[1] * rNew[1] + rNew[2] * rNew[2]);
-        gdot = 1.0 - (xnewsqrd * c2New / magr);
-        fdot = (Math.Sqrt(mu) * xnew / (magro * magr)) * (znew * c3New - 1.0);
+        var magr = Math.Sqrt(rNew[0] * rNew[0] + rNew[1] * rNew[1] + rNew[2] * rNew[2]);
+        var gdot = 1.0 - (xnewsqrd * c2New / magr);
+        var fdot = (Math.Sqrt(mu) * xnew / (magro * magr)) * (znew * c3New - 1.0);
         temp = f * gdot - fdot * g;
         //if (Math.Abs(temp - 1.0) > 0.00001)
         //    Debug.LogWarning(string.Format("consistency check failed {0}", (temp - 1.0)));

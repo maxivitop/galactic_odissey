@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Diagnostics;
 using System.Linq;
+using Debug = UnityEngine.Debug;
 
 public class FuturePhysics
 {
@@ -12,9 +14,7 @@ public class FuturePhysics
     public static int currentStep;
     public static int lastVirtualStep;
 
-    private static readonly HashSet<IFutureObject> futureObjects = new();
-    private static readonly Dictionary<IFutureObject, ISet<Type>> objToTypes = new();
-    private static readonly Dictionary<Type, ISet<IFutureObject>> typeToObjs = new();
+    private static readonly List<IFutureObject> futureObjects = new();
     private static readonly List<IFutureObject> catchingUp = new();
 
     public static void Step()
@@ -34,15 +34,32 @@ public class FuturePhysics
         }
         if (areAllCaughtUp) return;
         catchingUp.Clear();
-        catchingUp.AddRange(futureObjects.Reverse());
+        for (var i = futureObjects.Count - 1; i >= 0; i--)
+        {
+            catchingUp.Add(futureObjects[i]);
+        }
+        var times = new Dictionary<string, long>();
+        foreach (var obj in futureObjects)
+        {
+            times[(obj as FutureBehaviour).myName] = 0;
+        }
         while (catchingUp.Count > 0)
         {
             for (var i = catchingUp.Count - 1; i >= 0; i--) // backwards loop allows to remove without breaking indexing
             {
+                var name = (catchingUp[i] as FutureBehaviour).myName;
+                var timer = Stopwatch.StartNew(); 
                 if (catchingUp[i].CatchUpWithVirtualStep(step))
                     catchingUp.RemoveAt(i);
+                timer.Stop();
+                times[name] += timer.ElapsedTicks;
             }
         }
+
+        Debug.Log(string.Join(
+            "\n",
+            times.OrderBy(kv => -kv.Value)
+                .Select(kv => kv.Key + ": " + kv.Value)));
         
         lastVirtualStep = Mathf.Max(step, lastVirtualStep);
     }
@@ -50,32 +67,13 @@ public class FuturePhysics
     public static void AddObject(Type type, IFutureObject obj)
     {
         FuturePhysicsRunner.CheckThread();
-
         futureObjects.Add(obj);
-        if (!typeToObjs.ContainsKey(type))
-            typeToObjs[type] = new HashSet<IFutureObject>();
-        if (!objToTypes.ContainsKey(obj))
-            objToTypes[obj] = new HashSet<Type>();
-
-        typeToObjs[type].Add(obj);
-        objToTypes[obj].Add(type);
     }
 
     public static void RemoveObject(IFutureObject obj)
     {
         FuturePhysicsRunner.CheckThread();
-        if (!futureObjects.Remove(obj)) return;
-        
-        foreach (var type in objToTypes[obj])
-        {
-            if (typeToObjs.TryGetValue(type, out var objs)) objs.Remove(obj);
-        }
-        objToTypes.Remove(obj);
-    }
-
-    public static IEnumerable<T> GetComponents<T>(int step) where T : class
-    {
-        return typeToObjs[typeof(T)].Cast<T>();
+        futureObjects.Remove(obj);
     }
 
     public static void Reset(int step, GameObject whom)
