@@ -39,7 +39,7 @@ public class TrajectoryProvider : FutureBehaviour
 
     private void UpdateTrajectory(int step)
     {
-        trajectoryStartStep = FuturePhysics.currentStep;
+        trajectoryStartStep = FuturePhysicsRunner.renderFramePrevStep;
         var frameOfReferenceTransform 
             = ReferenceFrameHost.ReferenceFrame.trajectoryProvider.futureTransform;
         trajectory.size = Mathf.Min(
@@ -48,7 +48,8 @@ public class TrajectoryProvider : FutureBehaviour
             frameOfReferenceTransform.position.capacityArray.size - trajectoryStartStep,
             futureTransform.disabledFromStep
         );
-        var referencePos = frameOfReferenceTransform.GetFuturePosition(trajectoryStartStep);
+        var referencePos = frameOfReferenceTransform.GetFuturePosition(
+            FuturePhysicsRunner.renderFramePrevStep, FuturePhysicsRunner.renderFrameStepPart);
         Parallel.For(fromInclusive: 0, toExclusive: trajectory.size, i =>
         {
             var s = trajectoryStartStep + i;

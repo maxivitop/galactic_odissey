@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class FutureArray<T>
 {
-    public readonly CapacityArray<T> capacityArray = new(FuturePhysics.MaxSteps + 1);
+    public readonly CapacityArray<T> capacityArray = new(FuturePhysics.MaxSteps * 2);
     private string name;
     private int startStep;
     private T initialValue;

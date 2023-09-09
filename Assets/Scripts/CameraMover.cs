@@ -128,7 +128,7 @@ public class CameraMover : MonoBehaviour
             return transform.position - relativePosition;
         }
 
-        return futureTransform.GetFuturePosition(TrajectoryProvider.TrajectoryStepToPhysicsStep(0));
+        return futureTransform.transform.position;
     }
     
     private static void GetSmoothRawAxis(string name, ref float axis, float sensitivity=3f, float gravity=3f)

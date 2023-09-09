@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class FutureTransform : FutureBehaviour, IFuturePositionProvider
@@ -10,14 +11,26 @@ public class FutureTransform : FutureBehaviour, IFuturePositionProvider
         position.Initialize(startStep, pos, ToString());
     }
 
-    public override void Step(int step)
+    private void Update()
     {
-        transform.position = position[step];
+        if (disabledFromStep <= FuturePhysicsRunner.renderFrameNextStep)
+        {
+            return;
+        }
+        transform.position = GetFuturePosition(
+            FuturePhysicsRunner.renderFramePrevStep,
+            FuturePhysicsRunner.renderFrameStepPart);
     }
-
+    
     public Vector3 GetFuturePosition(int step, float dt=0)
     {
-        return position[step];
+        if (dt == 0)
+        {
+            return position[step];
+        }
+        var posPrevStep = position[step];
+        var posNextStep = position[step+1];
+        return posPrevStep + (posNextStep - posPrevStep) * dt;
     }
     
     public void SetFuturePosition(int step, Vector3 value)

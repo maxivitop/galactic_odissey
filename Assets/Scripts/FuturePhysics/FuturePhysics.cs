@@ -5,8 +5,8 @@ using System.Linq;
 
 public class FuturePhysics
 {
-    public const int MaxSteps = 10000;
-    public const float DeltaTime = 0.04f;
+    public const int MaxSteps = 8000;
+    public const float DeltaTime = 0.05f;
     public const float G = 1f;
 
     public static int currentStep;

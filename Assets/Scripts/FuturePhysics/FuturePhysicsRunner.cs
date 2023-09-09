@@ -10,7 +10,7 @@ public class FuturePhysicsRunner : MonoBehaviour
 {
     public delegate void ExecuteOnUpdateDelegate();
 
-    public float stepsPerSecond = 50;
+    private const float StepsPerSecond = 40f;
 
     public int waitedMs;
     public TextMeshProUGUI bgThreadWait;
@@ -32,6 +32,10 @@ public class FuturePhysicsRunner : MonoBehaviour
     private int trackedSecond;
     private float avgDeltaTimeSum;
     private int avgDeltaTimeCount;
+    public static float renderFrame;
+    public static int renderFrameNextStep;
+    public static int renderFramePrevStep;
+    public static float renderFrameStepPart;
 
 
     private void Awake()
@@ -67,6 +71,11 @@ public class FuturePhysicsRunner : MonoBehaviour
         avgDeltaTimeCount++;
         maxDeltaTimeThisSecond = Mathf.Max(maxDeltaTimeThisSecond, Time.unscaledDeltaTime);
         bgThreadWait.text = waitedMs + " ms";
+
+        renderFrame = Time.time * StepsPerSecond;
+        renderFrameNextStep = Mathf.CeilToInt(renderFrame);
+        renderFramePrevStep = Mathf.FloorToInt(renderFrame);
+        renderFrameStepPart = renderFrame - renderFramePrevStep;
        
         hasBgThreadWorked = false;
         activeThread = Thread.CurrentThread;
@@ -79,7 +88,7 @@ public class FuturePhysicsRunner : MonoBehaviour
         }
 
         StartThreadIfNeeded();
-        while (FuturePhysics.currentStep < Time.time * stepsPerSecond)
+        while (FuturePhysics.currentStep < renderFrameNextStep)
         {
             FuturePhysics.Step();
         }
