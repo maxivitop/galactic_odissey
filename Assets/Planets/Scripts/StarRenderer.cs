@@ -10,6 +10,7 @@ public class StarRenderer : MonoBehaviour
     public int numVertsPerStar = 5;
     public Vector2 sizeMinMax;
     [Range(1.01f, 20f)] public float sizeDropOff;
+    [Range(-1, 1)] public float minZ;
     public float minBrightness;
     public float maxBrightness = 1;
     public Vector2 dstMinMax;
@@ -66,7 +67,7 @@ public class StarRenderer : MonoBehaviour
         for (var starIndex = 0; starIndex < numStars; starIndex++)
         {
             var dir = Random.onUnitSphere;
-            if (dir.z < 0) continue; // I don't need stars on the other side
+            if (dir.z < minZ) continue; // I don't need stars on the other side
             var (circleVerts, circleTris, circleUvs) = GenerateCircle(dir, verts.Count);
             verts.AddRange(circleVerts);
             tris.AddRange(circleTris);

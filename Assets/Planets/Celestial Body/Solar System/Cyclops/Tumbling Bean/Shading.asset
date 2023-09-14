@@ -21,11 +21,11 @@ MonoBehaviour:
   oceanLevel: 0
   oceanSettings: {fileID: 11400000, guid: 2dda04ece1bc5461c9c060d959433048, type: 2}
   shadingDataCompute: {fileID: 7200000, guid: 8f6c3d86008df43ca88b9d64cf8e0514, type: 3}
-  primaryColA: {r: 0.15864186, g: 0.18783918, b: 0.21698111, a: 0}
-  secondaryColA: {r: 0.38274297, g: 0.4439998, b: 0.5754717, a: 0}
-  primaryColB: {r: 0.039215688, g: 0.40392157, b: 0.3080389, a: 1}
-  secondaryColB: {r: 0.43867922, g: 1, b: 0.9953623, a: 0}
-  steepCol: {r: 0, g: 0, b: 0, a: 1}
+  primaryColA: {r: 0.38937342, g: 0.43327993, b: 0.4716981, a: 1}
+  secondaryColA: {r: 0.4734781, g: 0.5595716, b: 0.754717, a: 1}
+  primaryColB: {r: 0.6314525, g: 0.8113208, b: 0.7649032, a: 1}
+  secondaryColB: {r: 0.43867922, g: 1, b: 0.9953623, a: 1}
+  steepCol: {r: 0.5754717, g: 0.51303846, b: 0.51303846, a: 1}
   numBiomePoints: 32
   radiusMinMax: {x: 0.001, y: 0.03}
   biomeWarpNoise:

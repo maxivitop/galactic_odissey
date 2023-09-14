@@ -2,20 +2,24 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Tumbling Bean
   m_Shader: {fileID: 4800000, guid: ebd63f199114146ddacca96d32c18d9e, type: 3}
-  m_ShaderKeywords: 
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -83,6 +87,7 @@ Material:
         m_Texture: {fileID: 2800000, guid: 56494c7daf00a41ecb4992bfa29b18be, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _BiomeBlendStrength: 10.48
     - _BiomeDistortStrength: 0.33
@@ -95,7 +100,7 @@ Material:
     - _FresnelPow: 10
     - _FresnelStrength: 6
     - _FresnelStrengthFar: 3
-    - _FresnelStrengthNear: 0.5
+    - _FresnelStrengthNear: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.6
     - _GlossyReflections: 1
@@ -130,16 +135,17 @@ Material:
     - _Color4: {r: 1, g: 1, b: 1, a: 1}
     - _EjectaCol: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _FresnelCol: {r: 0, g: 0.51349497, b: 1, a: 1}
+    - _FresnelCol: {r: 0.5582948, g: 0.7658242, b: 0.9622642, a: 1}
     - _NormalMapScales: {r: 10, g: 10, b: 0, a: 0}
     - _Params: {r: 0.23, g: -1.27, b: 0.26, a: 0.52}
-    - _PrimaryColA: {r: 0.15864186, g: 0.18783918, b: 0.21698111, a: 0}
-    - _PrimaryColB: {r: 0.039215688, g: 0.40392157, b: 0.3080389, a: 1}
+    - _PrimaryColA: {r: 0.38937342, g: 0.43327993, b: 0.4716981, a: 1}
+    - _PrimaryColB: {r: 0.6314525, g: 0.8113208, b: 0.7649032, a: 1}
     - _RandomBiomeValues: {r: 0.85, g: -0.48, b: 2, a: -7.82}
     - _RandomPoleValues: {r: -0.14810935, g: -0.00710578, b: 0.08569491, a: 2.2706196}
     - _RandomValues: {r: -1, g: 0.19, b: 0.4, a: -0.28}
-    - _SecondaryColA: {r: 0.38274297, g: 0.4439998, b: 0.5754717, a: 0}
-    - _SecondaryColB: {r: 0.43867922, g: 1, b: 0.9953623, a: 0}
+    - _SecondaryColA: {r: 0.4734781, g: 0.5595716, b: 0.754717, a: 1}
+    - _SecondaryColB: {r: 0.43867922, g: 1, b: 0.9953623, a: 1}
     - _TestParams: {r: 0, g: 1.15, b: 1.5, a: 13.36}
     - _TextureMask: {r: 0, g: 0, b: 1, a: 0}
     - _TextureWeights: {r: 0, g: 0, b: 0, a: 1}
+  m_BuildTextureStacks: []
