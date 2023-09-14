@@ -56,7 +56,6 @@ public class CollisionDetector : FutureBehaviour
     private HashSet<CollisionLayer> collidesWithLayers;
     private readonly HashSet<FutureCollider> myColliders = new();
     public readonly FutureArray<HashSet<FutureCollision>> collisions = new();
-    private bool hasSteppedBefore = false;
 
     private void Awake()
     {
@@ -117,8 +116,6 @@ public class CollisionDetector : FutureBehaviour
             var otherCollision = new FutureCollision(collision.other, collision.my);
             collision.other.StepCollisionEnter(step, otherCollision);
         }
-
-        hasSteppedBefore = true;
     }
 
     protected override void VirtualStep(int step)

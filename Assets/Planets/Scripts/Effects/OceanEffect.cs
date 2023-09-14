@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class OceanEffect {
 
-	Light light;
+	Transform light;
 	protected Material material;
 
 	public void UpdateSettings (CelestialBodyGenerator generator, Shader shader) {
@@ -12,8 +12,9 @@ public class OceanEffect {
 			material = new Material (shader);
 		}
 
-		if (light == null) {
-			light = GameObject.FindObjectOfType<SunShadowCaster> ()?.GetComponent<Light> ();
+		if (light == null)
+		{
+			light = GameObject.FindWithTag("SunShadowCaster")?.transform;
 		}
 
 		Vector3 centre = generator.transform.position;
@@ -23,7 +24,9 @@ public class OceanEffect {
 
 		material.SetFloat ("planetScale", generator.BodyScale);
 		if (light) {
-			material.SetVector ("dirToSun", -light.transform.forward);
+			Vector3 dirFromPlanetToSun = (light.transform.position - generator.transform.position).normalized;
+
+			material.SetVector ("dirToSun", dirFromPlanetToSun);
 		} else {
 			material.SetVector ("dirToSun", Vector3.up);
 			Debug.Log ("No SunShadowCaster found");

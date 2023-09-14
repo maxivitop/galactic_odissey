@@ -7,8 +7,6 @@ public class ConstantSizePx : MonoBehaviour
     public float sizePx = 100;
     public bool scaleTransform;
     public bool scaleLineRenderer;
-    private Canvas canvas;
-    private Camera mainCamera;
     private Vector3 initialScale;
 
     private LineRenderer lineRenderer;
@@ -17,8 +15,6 @@ public class ConstantSizePx : MonoBehaviour
 
     private void Start()
     {
-        canvas = FindObjectOfType<Canvas>();
-        mainCamera = Camera.main!;
         var parentScale = transform.parent != null ? transform.parent.lossyScale : Vector3.one;
         var localScale = transform.localScale;
         initialScale = new Vector3(
@@ -41,17 +37,7 @@ public class ConstantSizePx : MonoBehaviour
 
     private void UpdateScale()
     {
-        var scale = canvas.scaleFactor;
-        var scaledSizePx = sizePx * scale;
-        var screenUp =  Vector3.up * scaledSizePx;
-        var zero = Vector3.zero;
-        var cameraPos = mainCamera.transform.position;
-        zero.z = -cameraPos.z;
-        screenUp.z = -cameraPos.z;
-        var size = Vector3.Distance(
-            mainCamera.ScreenToWorldPoint(zero), 
-            mainCamera.ScreenToWorldPoint(screenUp)
-        );
+        var size = sizePx * CameraMover.Instance.zoom / 2000;
         if (scaleTransform)
         {
             transform.localScale = initialScale * size;

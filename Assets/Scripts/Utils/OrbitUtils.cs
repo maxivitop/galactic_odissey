@@ -20,8 +20,8 @@ public class OrbitUtils
             // F = ma
             // F = G*m1*m2/r^2
             // a = F/m = G*m2/r^2
-            var gravity = FuturePhysics.G * gravitySource.futureRigidBody2D.mass[step]
-                          / direction.sqrMagnitude;
+            // G can be omitted
+            var gravity = gravitySource.futureRigidBody2D.mass[step] / direction.sqrMagnitude;
             if (gravity < maxGravity) continue;
             maxGravity = gravity;
             closestSource = gravitySource;

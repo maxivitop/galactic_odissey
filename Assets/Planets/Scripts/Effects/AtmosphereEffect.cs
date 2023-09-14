@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class AtmosphereEffect {
 
-	Light light;
+	Transform light;
 	protected Material material;
 
 	public void UpdateSettings (CelestialBodyGenerator generator) {
@@ -16,7 +16,7 @@ public class AtmosphereEffect {
 		}
 
 		if (light == null) {
-			light = GameObject.FindObjectOfType<SunShadowCaster> ()?.GetComponent<Light> ();
+			light = GameObject.FindWithTag("SunShadowCaster")?.transform;
 		}
 
 		//generator.shading.SetAtmosphereProperties (material);

@@ -18,7 +18,7 @@ public class ClickHelper: MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     private void Update()
     {
-        transform.LookAt(mainCamera);
+        transform.rotation = mainCamera.rotation;
     }
 
     public void OnPointerEnter(PointerEventData eventData)

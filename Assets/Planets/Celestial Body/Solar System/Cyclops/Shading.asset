@@ -22,21 +22,21 @@ MonoBehaviour:
   oceanSettings: {fileID: 11400000, guid: 5285c9a18911c40b5a8b66a39671b25e, type: 2}
   shadingDataCompute: {fileID: 7200000, guid: f3a2904f78271471481822700022a157, type: 3}
   customizedCols:
-    shoreCol: {r: 0.246707, g: 0.52281547, b: 0.8301887, a: 0}
-    flatColA1: {r: 0.6037736, g: 0.26556534, b: 0.21929511, a: 0}
-    flatColA2: {r: 0.17069086, g: 0, b: 0.5754717, a: 0}
-    flatColB1: {r: 0.69101536, g: 0.36765754, b: 0.9622642, a: 0}
-    flatColB2: {r: 0.09564084, g: 0, b: 0.1981132, a: 1}
-    steepColA: {r: 0.33295283, g: 0.2503115, b: 0.4245283, a: 0}
-    steepColB: {r: 0.3584906, g: 0.18431827, b: 0.18431827, a: 0}
+    shoreCol: {r: 0.4672481, g: 0.6970173, b: 0.9433962, a: 0}
+    flatColA1: {r: 0.7075472, g: 0.32973006, b: 0.2770114, a: 0}
+    flatColA2: {r: 0.42995453, g: 0.22241008, b: 0.9245283, a: 0}
+    flatColB1: {r: 0.6499356, g: 0.34603062, b: 0.9056604, a: 0}
+    flatColB2: {r: 0.37284306, g: 0.19272874, b: 0.5754717, a: 1}
+    steepColA: {r: 0.6385623, g: 0.3794055, b: 0.9245283, a: 0}
+    steepColB: {r: 0.6698113, g: 0.1484959, b: 0.4302881, a: 0}
   randomizedCols:
-    shoreCol: {r: 0, g: 0, b: 0, a: 0}
-    flatColA1: {r: 0, g: 0, b: 0, a: 0}
-    flatColA2: {r: 0, g: 0, b: 0, a: 0}
-    flatColB1: {r: 0, g: 0, b: 0, a: 0}
-    flatColB2: {r: 0, g: 0, b: 0, a: 0}
-    steepColA: {r: 0, g: 0, b: 0, a: 0}
-    steepColB: {r: 0, g: 0, b: 0, a: 0}
+    shoreCol: {r: 0.7645401, g: 0.4591008, b: 0.49197677, a: 1}
+    flatColA1: {r: 0.8, g: 0.64, b: 0.65195835, a: 1}
+    flatColA2: {r: 0.45693812, g: 0.38718024, b: 0.3655505, a: 1}
+    flatColB1: {r: 0.53237313, g: 0.57401633, b: 0.28140393, a: 1}
+    flatColB2: {r: 0.74817467, g: 0.41035014, b: 0.6414053, a: 1}
+    steepColA: {r: 0.34604758, g: 0.4342036, b: 0.55394626, a: 1}
+    steepColB: {r: 0.16, g: 0.2, b: 0.17274146, a: 1}
   detailWarpNoise:
     numLayers: 4
     lacunarity: 2

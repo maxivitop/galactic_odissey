@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using System.Diagnostics;
+// using System.Diagnostics;
 using System.Linq;
 using Debug = UnityEngine.Debug;
 
@@ -38,28 +38,28 @@ public class FuturePhysics
         {
             catchingUp.Add(futureObjects[i]);
         }
-        var times = new Dictionary<string, long>();
-        foreach (var obj in futureObjects)
-        {
-            times[(obj as FutureBehaviour).myName] = 0;
-        }
+        // var times = new Dictionary<string, long>();
+        // foreach (var obj in futureObjects)
+        // {
+        //     times[(obj as FutureBehaviour).myName] = 0;
+        // }
         while (catchingUp.Count > 0)
         {
             for (var i = catchingUp.Count - 1; i >= 0; i--) // backwards loop allows to remove without breaking indexing
             {
-                var name = (catchingUp[i] as FutureBehaviour).myName;
-                var timer = Stopwatch.StartNew(); 
+                // var name = (catchingUp[i] as FutureBehaviour).myName;
+                // var timer = Stopwatch.StartNew(); 
                 if (catchingUp[i].CatchUpWithVirtualStep(step))
                     catchingUp.RemoveAt(i);
-                timer.Stop();
-                times[name] += timer.ElapsedTicks;
+                // timer.Stop();
+                // times[name] += timer.ElapsedTicks;
             }
         }
-
-        Debug.Log(string.Join(
-            "\n",
-            times.OrderBy(kv => -kv.Value)
-                .Select(kv => kv.Key + ": " + kv.Value)));
+        //
+        // Debug.Log(string.Join(
+        //     "\n",
+        //     times.OrderBy(kv => -kv.Value)
+        //         .Select(kv => kv.Key + ": " + kv.Value)));
         
         lastVirtualStep = Mathf.Max(step, lastVirtualStep);
     }

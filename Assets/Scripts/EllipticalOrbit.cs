@@ -79,8 +79,7 @@ public class EllipticalOrbit
         }
         
         // Very large times can cause precision issues, normalize if possible
-        if (eccentricity < 1 && dtseco > 1E6) {
-            
+        if (eccentricity < 1) {
             dtseco %= orbitPeriod;
         }
         
@@ -95,9 +94,7 @@ public class EllipticalOrbit
         if (!(Math.Abs(dtseco) > Small))
         {
             // ----------- set vectors to incoming since 0 time --------
-            rNew = r0.ToVector3();
-            // Add centerPos to value we ref back
-            rNew += centerPosLast;
+            rNew = r0.ToVector3() + centerPosLast;
             vNew = v0.ToVector3() + centerVelLast;
             return true;
         }
@@ -197,7 +194,7 @@ public class EllipticalOrbit
         var magr = Math.Sqrt(rNew[0] * rNew[0] + rNew[1] * rNew[1] + rNew[2] * rNew[2]);
         var gdot = 1.0 - (xnewsqrd * c2New / magr);
         var fdot = (Math.Sqrt(mu) * xnew / (magro * magr)) * (znew * c3New - 1.0);
-        temp = f * gdot - fdot * g;
+        // temp = f * gdot - fdot * g;
         //if (Math.Abs(temp - 1.0) > 0.00001)
         //    Debug.LogWarning(string.Format("consistency check failed {0}", (temp - 1.0)));
         vNew = (fdot * r0 + gdot * v0).ToVector3();

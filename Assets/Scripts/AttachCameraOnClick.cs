@@ -7,19 +7,15 @@ public class AttachCameraOnClick : MonoBehaviour, IPointerClickHandler
 {
 
     private FutureTransform futureTransform;
-    private CameraMover cameraMover;
 
     private void Start()
     {
         futureTransform = GetComponent<FutureTransform>();
-        cameraMover = Camera.main!.GetComponent<CameraMover>();
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        cameraMover.Follow(futureTransform);
-        var targetPos = transform.position;
-        targetPos.z = cameraMover.transform.position.z;
-        cameraMover.MoveToPosition(targetPos);
+        if (eventData.button != PointerEventData.InputButton.Left) return;
+        CameraMover.Instance.Follow(futureTransform);
     }
 }

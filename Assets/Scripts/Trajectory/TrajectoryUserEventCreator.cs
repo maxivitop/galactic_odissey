@@ -18,7 +18,7 @@ public class TrajectoryUserEventCreator : MonoBehaviour
     public Animator trajectoryEventsOpenClose;
 
     private float MaxSnappingDistance =>
-        maxDistanceOfRenderingMarker * Camera.main!.transform.position.z;
+        maxDistanceOfRenderingMarker * CameraMover.Instance.zoom;
 
     private IEnumerable<ShadowClone> shadowClones;
 

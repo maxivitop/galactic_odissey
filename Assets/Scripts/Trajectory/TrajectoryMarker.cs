@@ -52,7 +52,7 @@ public class TrajectoryMarker : MonoBehaviour
                 var eventProviders = targetTransform.GetComponents<ITrajectoryUserEventProvider>();
                 foreach (var provider in eventProviders)
                     if (provider.IsEnabled(step))
-                        provider.CreateUI(step, this).transform.SetParent(parent.transform);
+                        provider.CreateUI(step, this).transform.SetParent(parent.transform, false);
                 TrajectoryUserEventCreator.Instance.markerUiDelete.onClick.AddListener(onDeleteClicked);
             }
 
