@@ -8,8 +8,7 @@ using TMPro;
 public class TimeScaleController : MonoBehaviour
 {
     private readonly float[] timeScales = { 0, 0.1f, 1, 10, 100 };
-    public int lastNonZeroSliderValue = 1;
-    public float timeScaleBase = 10f;
+    private const float DefaultPlayTimescale = 1f;
     public TextMeshProUGUI timeScaleText;
     public Slider timeScaleSlider;
     
@@ -28,14 +27,13 @@ public class TimeScaleController : MonoBehaviour
         Time.timeScale = timeScales[Mathf.RoundToInt(sliderValue)];
         Time.fixedDeltaTime = fixedDeltaTime * Time.timeScale;
         timeScaleText.text = Time.timeScale + "x";
-        if (sliderValue != 0) lastNonZeroSliderValue = Mathf.RoundToInt(sliderValue);
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            timeScaleSlider.value = Time.timeScale == 0 ? lastNonZeroSliderValue : 0;
+            timeScaleSlider.value = Time.timeScale == 0 ? Array.IndexOf(timeScales, DefaultPlayTimescale) : 0;
         }
     }
 }

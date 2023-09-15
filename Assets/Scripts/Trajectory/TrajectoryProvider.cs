@@ -5,13 +5,13 @@ using UnityEngine;
 [RequireComponent(typeof(FutureTransform))]
 public class TrajectoryProvider : FutureBehaviour
 {
-    [NonSerialized] public CapacityArray<Vector3> trajectory = new(FuturePhysics.MaxSteps+1);
+    [NonSerialized] public readonly CapacityArray<Vector3> trajectory = new(FuturePhysics.MaxSteps+1);
     private static int trajectoryStartStep;
     private FutureTransform futureTransform;
     public float animationDuration = 0.3f;
 
     private TrajectoryAnimator animator;
-    private int validAtStep;
+    private int validAtStep=-1;
 
     public static int TrajectoryStepToPhysicsStep(int trajectoryStep)
     {
@@ -34,7 +34,7 @@ public class TrajectoryProvider : FutureBehaviour
     private void OnReferenceFrameChange(ReferenceFrameHost old)
     {
         animator.Capture(trajectory);
-        validAtStep = 0;
+        validAtStep = -1;
     }
 
     private void UpdateTrajectory(int step)
@@ -58,14 +58,14 @@ public class TrajectoryProvider : FutureBehaviour
         });
 
         animator.Animate(trajectory);
-        validAtStep = FuturePhysics.currentStep;
+        validAtStep = FuturePhysics.lastVirtualStep;
     }
 
     private void Update()
     {
-        if (animator.IsRunning()) validAtStep = 0;
+        if (animator.IsRunning()) validAtStep = -1;
         animator.ForwardTime(Time.unscaledDeltaTime);
-        if (animator.IsRunning()) validAtStep = 0;
+        if (animator.IsRunning()) validAtStep = -1;
 
         if (validAtStep != FuturePhysics.lastVirtualStep)
         {
@@ -82,7 +82,7 @@ public class TrajectoryProvider : FutureBehaviour
     {
         if (cause == myGameObject)
         {
-            validAtStep = 0;
+            validAtStep = -1;
         }
     }
 }

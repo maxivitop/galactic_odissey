@@ -19,10 +19,10 @@ MonoBehaviour:
   inScatteringPoints: 10
   opticalDepthPoints: 10
   densityFalloff: 6
-  wavelengths: {x: 678, y: 815.8, z: 479.9}
+  wavelengths: {x: 638, y: 814.3, z: 610.1}
   testParams: {x: 4, y: 5, z: 6.4, w: 1.5}
-  scatteringStrength: 26.51
-  intensity: 0.19
+  scatteringStrength: 26.3
+  intensity: 0.3
   ditherStrength: 0.3
   ditherScale: 0
   blueNoise: {fileID: 2800000, guid: 8886a14b14a1b44089f789c0b8c05643, type: 3}

@@ -1,8 +1,8 @@
 import re
 import os, shutil
 
-scene_name = "/Users/evgeek/Code/unity/galactic_odissey/Assets/Scenes/SampleScene.unity"
-bac_name = "/Users/evgeek/Code/unity/galactic_odissey/Assets/Scenes/SampleScene.unity.bac"
+scene_name = "./SampleScene.unity"
+bac_name = "./SampleScene.unity.bac"
 
 tmp_name = "tmp.unity"
 
@@ -23,7 +23,7 @@ for line in input_file:
     if match:
         line = '    m_DataSize: 0'
     output_file.write(line)
-
+input_file.close()
 output_file.close()
 
 shutil.copy(scene_name, bac_name)

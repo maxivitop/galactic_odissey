@@ -123,9 +123,8 @@ public class TrajectoryMarker : MonoBehaviour
     {
         foreach (var provider in targetTransform.GetComponents<ITrajectoryUserEventProvider>())
         {
-            provider.Destroy(this);
+            provider.DestroyMarker(this);
         }
-        Destroy(gameObject);
     }
 
     protected void OnDestroy()

@@ -8,6 +8,7 @@ public class CameraMover : MonoBehaviour
     public float rotationXSpeed = 1;
     public float rotationYSpeed = 1;
     public float speedOfZoom = 10;
+    public float zoomPerUnit = 10;
     public float maxPos;
     public float minZoom;
     public float maxZoom;
@@ -36,6 +37,7 @@ public class CameraMover : MonoBehaviour
     private float mouseXAxis;
     private float mouseYAxis;
     private float mouseZAxis;
+    private float unusedScroll;
 
     private void Awake()
     {
@@ -55,11 +57,12 @@ public class CameraMover : MonoBehaviour
 
     private void Update()
     {
-        mouseXAxis = Input.GetAxisRaw("Mouse X") * Time.unscaledDeltaTime;
-        mouseYAxis = Input.GetAxisRaw("Mouse Y") * Time.unscaledDeltaTime;
+        mouseXAxis = Input.GetAxisRaw("Mouse X");
+        mouseYAxis = Input.GetAxisRaw("Mouse Y");
+        mouseZAxis = Input.GetAxisRaw("Mouse ScrollWheel");
+        unusedScroll += mouseZAxis;
         GetSmoothRawAxis("Horizontal", ref horizontalAxis);
         GetSmoothRawAxis("Vertical", ref verticalAxis);
-        GetSmoothRawAxis("Mouse ScrollWheel", ref mouseZAxis);
 
         referencePos = GetReferencePosition(followee);
         transform.position += referencePos - lastReferencePos;
@@ -90,6 +93,7 @@ public class CameraMover : MonoBehaviour
         centerPosition += GetReferencePosition(this.followee) - GetReferencePosition(followee);
         targetPositionAnimator.Capture(centerPosition);
         animating = true;
+        unusedScroll = 0f;
         lastReferencePos = GetReferencePosition(followee);
         this.followee = followee;
     }
@@ -135,7 +139,7 @@ public class CameraMover : MonoBehaviour
         var input =
             (horizontalAxis * transform.right
              - verticalAxis * groundRelativePosition.normalized
-            ) * movementSpeed;
+            ) * (movementSpeed * Time.unscaledDeltaTime);
         centerPosition += input;
 
 
@@ -149,7 +153,13 @@ public class CameraMover : MonoBehaviour
 
     private bool ZoomFromMouseWheel()
     {
-        var zoomAmount = speedOfZoom * mouseZAxis;
+        var zoomThisFrame = Time.unscaledDeltaTime * Mathf.Sign(unusedScroll) * speedOfZoom;
+        if (Mathf.Abs(zoomThisFrame) > Mathf.Abs(unusedScroll))
+        {
+            zoomThisFrame = unusedScroll;
+        }
+        unusedScroll -= zoomThisFrame;
+        var zoomAmount = zoomThisFrame * zoomPerUnit;
         if (zoomAmount >= relativePosition.magnitude)
         {
             relativePosition = relativePosition.normalized * minZoom;

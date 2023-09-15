@@ -108,12 +108,14 @@ public class EllipticalOrbit
             }
             else
             {
-                EvolveRecilinearUnbound(dtsec, sme, out rNew, out vNew);
+                if (!EvolveRecilinearUnbound(dtsec, sme, out rNew, out vNew))
+                    return false;
                 // Add centerPos to value we ref back
                 rNew += centerPosLast;
                 // update velocity
                 vNew += centerVelLast;
                 return true;
+
             }
         }
         // ------------   setup initial guess for x  ---------------
@@ -208,7 +210,7 @@ public class EllipticalOrbit
     }
     
     
-    private void EvolveRecilinearUnbound(double t, double sme, out Vector3 rNew, out Vector3 vNew)
+    private bool EvolveRecilinearUnbound(double t, double sme, out Vector3 rNew, out Vector3 vNew)
     {
         var a = -0.5 * mu / sme;
         var v =  Math.Sqrt(mu / (a * a));
@@ -240,8 +242,11 @@ public class EllipticalOrbit
             u = uNext;
         }
         if (i >= MaxIter)
-        {
+        { 
             Debug.LogWarning("Did not converge");
+            rNew = Vector3.zero;
+            vNew = Vector3.zero;
+            return false;
         }
         // E is from center of hyperbola, not focus
         var r = aPos * (MathUtils.Cosh(u)-1);
@@ -249,5 +254,6 @@ public class EllipticalOrbit
         // velocity (Roy eqn (4.106): r rdot = a^(1/2) mu^(1/2) sin(E)
         var rdot = Math.Sqrt(a * mu) * MathUtils.Sinh(u) / r;
         vNew = (r0.normalized * rdot).ToVector3();
+        return true;
     }
 }

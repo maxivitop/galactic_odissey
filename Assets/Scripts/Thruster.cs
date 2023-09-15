@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,7 +12,6 @@ public class Thruster : FutureBehaviour, ITrajectoryUserEventProvider
     {
         public readonly int initialStep;
         public int steps = 1;
-        public int maxSteps = -1;
         public Vector2 direction = Vector2.up;
         public float thrust;
         public readonly TrajectoryMarker marker;
@@ -47,7 +47,6 @@ public class Thruster : FutureBehaviour, ITrajectoryUserEventProvider
         var stepConfig = GetOrCreateStepConfig(step, marker);
         
         var maxSteps = GetMaxSteps(step, stepConfig);
-        stepConfig.maxSteps = maxSteps;
         
         if (isNewConfig)
         {
@@ -83,6 +82,7 @@ public class Thruster : FutureBehaviour, ITrajectoryUserEventProvider
         {
             OnDurationSliderChanged(step, thrusterMarker, (int)value);
         });
+        stepsConfig[step] = stepConfig;
         return ui;
     }
 
@@ -104,7 +104,6 @@ public class Thruster : FutureBehaviour, ITrajectoryUserEventProvider
             direction = stepConfig.direction
         };
         for (var i = 0; i < newConfig.steps; i++) stepsConfig[step + i] = newConfig;
-        stepConfig.maxSteps = step - stepConfig.initialStep;
         GetOrCreateMarkerCustomizer(stepConfig.marker).SetConfig(stepConfig, this);
         stepConfig = newConfig;
 
@@ -150,7 +149,10 @@ public class Thruster : FutureBehaviour, ITrajectoryUserEventProvider
     private void OnDurationSliderChanged(int step, ThrusterMarker marker, int value)
     {
         ChangeDuration(step, marker, value);
-        FuturePhysics.Reset(step - 1, gameObject);
+        if (stepsConfig[step].thrust != 0)
+        {
+            FuturePhysics.Reset(step - 1, gameObject);
+        }
     }
 
     private void ChangeDuration(int step, ThrusterMarker marker, int value)
@@ -166,7 +168,10 @@ public class Thruster : FutureBehaviour, ITrajectoryUserEventProvider
     private void OnDirectionChanged(int step, ThrusterMarker marker, Vector2 direction)
     {
         ChangeDirection(step, marker, direction);
-        FuturePhysics.Reset(step - 1, gameObject);
+        if (stepsConfig[step].thrust != 0)
+        {
+            FuturePhysics.Reset(step - 1, gameObject);
+        }
     }
     
     private void ChangeDirection(int step, ThrusterMarker marker, Vector2 direction)
@@ -194,7 +199,7 @@ public class Thruster : FutureBehaviour, ITrajectoryUserEventProvider
         engineEffect.transform.localScale = Vector3.one * config.thrust / maxAcceleration;
     }
 
-    public void Destroy(TrajectoryMarker marker)
+    public void DestroyMarker(TrajectoryMarker marker)
     {
         var step = marker.step;
         if (!stepsConfig.ContainsKey(step))
@@ -203,12 +208,22 @@ public class Thruster : FutureBehaviour, ITrajectoryUserEventProvider
         }
         var maxStep = stepsConfig[step].steps + step;
         for (var i = step; i < maxStep; i++) stepsConfig.Remove(i);
-        FuturePhysicsRunner.ExecuteOnUpdate(() =>
+        
+        if (FuturePhysics.currentStep < step)
         {
-            if (FuturePhysics.currentStep < step)
-            {
-                FuturePhysics.Reset(step - 1, gameObject);
-            }
-        });
+            FuturePhysics.Reset(step - 1, gameObject);
+        }
+        Destroy(marker.gameObject);
+    }
+
+    public override void ResetToStep(int step, GameObject cause)
+    {
+        base.ResetToStep(step, cause);
+        if (cause != myGameObject)
+            return;
+        foreach (var config in stepsConfig.Values.Where(config => config.initialStep > step+1).Distinct().ToArray())
+        {
+            DestroyMarker(config.marker);
+        }
     }
 }

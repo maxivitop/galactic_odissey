@@ -27,6 +27,7 @@ public class FuturePhysics
 
     public static void CatchUpWithStep(int step)
     {
+        lastVirtualStep = Mathf.Max(step, lastVirtualStep);
         var areAllCaughtUp = true;
         foreach (var obj in futureObjects) // first lightweight loop to check if all caught up
         {
@@ -61,7 +62,6 @@ public class FuturePhysics
         //     times.OrderBy(kv => -kv.Value)
         //         .Select(kv => kv.Key + ": " + kv.Value)));
         
-        lastVirtualStep = Mathf.Max(step, lastVirtualStep);
     }
 
     public static void AddObject(Type type, IFutureObject obj)
