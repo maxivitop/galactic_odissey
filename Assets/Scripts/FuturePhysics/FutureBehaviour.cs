@@ -7,6 +7,13 @@ public class FutureBehaviour : MonoBehaviour, IFutureObject
     private const int NotDisabled = int.MaxValue;
     [NonSerialized] public int disabledFromStep = NotDisabled;
     [NonSerialized] protected int startStep;
+    public int StartStep {
+        get => startStep;
+        set {
+            startStep = value;
+            myLastVirtualStep = value;
+        }
+    }
 
     [NonSerialized] public string myName;
     [NonSerialized] public int myLastVirtualStep;

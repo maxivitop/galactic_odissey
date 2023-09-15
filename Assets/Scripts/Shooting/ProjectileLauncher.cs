@@ -18,8 +18,8 @@ public class ProjectileLauncher : FutureBehaviour
     private Vector3[] outputData;
     private ComputeBuffer tmp;
     private ComputeBuffer tmpTraj;
-    private ComputeBuffer trajLen;
-    private int[] trajLenData = new int[1];
+    private ComputeBuffer trajLenAndDistance;
+    private int[] trajLenData = new int[2];
     private ComputeBuffer trajLens;
     private const int NumThreads = 64;
     public FutureTransform target;
@@ -30,6 +30,7 @@ public class ProjectileLauncher : FutureBehaviour
     public float[] radiiData;
     private ComputeBuffer radii;
     public float initialSpeed;
+    public float collisionOffset;
     public int launchEachNSteps = 100;
     public int prelaunchSteps = 10;
 
@@ -43,8 +44,8 @@ public class ProjectileLauncher : FutureBehaviour
         aimShader = Instantiate(aimShader);
         output = new ComputeBuffer(maxSteps, sizeof(float) * 3);
         aimShader.SetBuffer(0, "output", output);
-        trajLen = new ComputeBuffer(1, sizeof(int));
-        aimShader.SetBuffer(0, "traj_len", trajLen);
+        trajLenAndDistance = new ComputeBuffer(2, sizeof(int));
+        aimShader.SetBuffer(0, "traj_len", trajLenAndDistance);
 
 
         tmp = new ComputeBuffer(NumThreads, sizeof(float));
@@ -74,7 +75,7 @@ public class ProjectileLauncher : FutureBehaviour
 
         if (step % launchEachNSteps == 0)
         {
-            var trajLenRequest = AsyncGPUReadback.Request(trajLen, request =>
+            var trajLenRequest = AsyncGPUReadback.Request(trajLenAndDistance, request =>
             {
                 var trajLenNativeData = request.GetData<int>();
                 trajLenNativeData.CopyTo(trajLenData);
@@ -85,7 +86,11 @@ public class ProjectileLauncher : FutureBehaviour
                 FuturePhysicsRunner.ExecuteOnUpdate(() =>
                 {
                     trajLenRequest.WaitForCompletion();
-                    var projectileInstance = Instantiate(projectile);
+                    if (trajLenData[1] != 0) // not close
+                    {
+                        return;
+                    }
+                    var projectileInstance = Instantiate(projectile, outputData[0], Quaternion.identity);
                     projectileInstance.Launch(step, outputData, trajLenData[0]);
                 });
             });
@@ -121,7 +126,7 @@ public class ProjectileLauncher : FutureBehaviour
             {
                 var gravitySource = gravitySources[i];
                 massesData[i] = gravitySource.futureRigidBody2D.mass[step];
-                radiiData[i] = gravitySource.futureCollider.radius;
+                radiiData[i] = gravitySource.futureCollider.radius + collisionOffset;
             }
 
             masses.SetData(massesData);
@@ -166,7 +171,7 @@ public class ProjectileLauncher : FutureBehaviour
         output.Dispose();
         tmp.Dispose();
         tmpTraj.Dispose();
-        trajLen.Dispose();
+        trajLenAndDistance.Dispose();
         trajLens.Dispose();
         targetBuffer.Dispose();
         masses?.Dispose();

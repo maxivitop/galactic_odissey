@@ -46,7 +46,7 @@ public class TrajectoryProvider : FutureBehaviour
             step - trajectoryStartStep,
             futureTransform.position.capacityArray.size - trajectoryStartStep,
             frameOfReferenceTransform.position.capacityArray.size - trajectoryStartStep,
-            futureTransform.disabledFromStep-1
+            futureTransform.disabledFromStep
         );
         var referencePos = frameOfReferenceTransform.GetFuturePosition(
             FuturePhysicsRunner.renderFramePrevStep, FuturePhysicsRunner.renderFrameStepPart);

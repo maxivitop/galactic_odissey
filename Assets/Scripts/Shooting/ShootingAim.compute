@@ -107,5 +107,6 @@ void cs_main(uint3 id : SV_DispatchThreadID)
             output[k] = tmp_traj[min_thread_id * max_steps + k];
         }
         traj_len[0] = traj_lens[min_thread_id];
+        traj_len[1] = tmp[min_thread_id];
     }
 }

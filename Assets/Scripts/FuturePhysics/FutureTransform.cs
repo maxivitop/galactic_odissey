@@ -13,7 +13,7 @@ public class FutureTransform : FutureBehaviour, IFuturePositionProvider
 
     private void Update()
     {
-        if (disabledFromStep <= FuturePhysicsRunner.renderFrameNextStep)
+        if (disabledFromStep <= FuturePhysicsRunner.renderFrameNextStep || FuturePhysicsRunner.renderFramePrevStep < startStep)
         {
             return;
         }
@@ -28,7 +28,15 @@ public class FutureTransform : FutureBehaviour, IFuturePositionProvider
         {
             return position[step];
         }
-        var posPrevStep = position[step];
+        if (step < startStep)
+        {
+            return position[startStep];
+        }     
+        var posPrevStep= position[step];
+        if (step >= disabledFromStep)
+        {
+            return position[disabledFromStep - 1];
+        }
         var posNextStep = position[step+1];
         return posPrevStep + (posNextStep - posPrevStep) * dt;
     }

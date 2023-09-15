@@ -49,8 +49,15 @@ public class CollisionDetector : FutureBehaviour
         Virtual,
         JustInTime,
     }
+    
+    public enum Type
+    {
+        Discrete,
+        Continuous,
+    }
 
     public Mode mode;
+    public Type type;
 
     private CollisionLayer myLayer;
     private HashSet<CollisionLayer> collidesWithLayers;
@@ -158,15 +165,32 @@ public class CollisionDetector : FutureBehaviour
         }
     }
 
-    private static bool CheckCollision(int step, FutureCollider lhs, FutureCollider rhs)
+    private bool CheckCollision(int step, FutureCollider lhs, FutureCollider rhs)
     {
         var left = lhs as CircleFutureCollider;
         var right = rhs as CircleFutureCollider;
         var lhsPos = left!.futureTransform.GetFuturePosition(step);
         var rhsPos = right!.futureTransform.GetFuturePosition(step);
-        var dist = (lhsPos - rhsPos).sqrMagnitude;
-        var collisionDistance = left.radius + right.radius;
-        return dist < collisionDistance * collisionDistance;
+        
+        var r = left.radius + right.radius;
+
+        if (type == Type.Discrete)
+        {
+            var dist = (lhsPos - rhsPos).sqrMagnitude;
+            return dist < r*r;
+        }
+        var lhsNextPos = left!.futureTransform.GetFuturePosition(step, 1f);
+        var rhsNextPos = right!.futureTransform.GetFuturePosition(step, 1f);
+        
+        var direction = lhsNextPos - lhsPos - (rhsNextPos - rhsPos);
+        var centerOrigin = rhsPos - lhsPos;
+        
+        var magnitudeMax = direction.magnitude;
+        direction /= magnitudeMax; // normalize
+        //Do projection from the point but clamp it
+        var dotP = Vector3.Dot(centerOrigin, direction);
+        dotP = Mathf.Clamp(dotP, 0f, magnitudeMax);
+        return (direction * dotP - centerOrigin).sqrMagnitude < r*r;
     }
 
     public override void ResetToStep(int step, GameObject cause)

@@ -20,7 +20,12 @@ public class DestroyOnCollision : MonoBehaviour, ICollisionEnterHandler
     public void StepCollisionEnter(int step, FutureCollision collision)
     {
         if (this == null) return;
-        Instantiate(explosion, transform.position, Quaternion.identity);
+        var instantiated = Instantiate(explosion, transform.position, Quaternion.identity);
+        if (instantiated.TryGetComponent<Rigidbody2D>(out var rb2d))
+        {
+            rb2d.velocity = (collision.my.futureTransform.GetFuturePosition(step + 1) -
+                             collision.my.futureTransform.GetFuturePosition(step)) / FuturePhysics.DeltaTime;
+        }
         Destroy(gameObject);
     }
 }

@@ -35,6 +35,7 @@ public class Projectile: MonoBehaviour
         }
         foreach (var futureBehaviour in GetComponents<FutureBehaviour>())
         {
+            futureBehaviour.StartStep = step;
             futureBehaviour.Disable(lastStep);
         }
     }
