@@ -243,7 +243,6 @@ public class EllipticalOrbit
         }
         if (i >= MaxIter)
         { 
-            Debug.LogWarning("Did not converge");
             rNew = Vector3.zero;
             vNew = Vector3.zero;
             return false;

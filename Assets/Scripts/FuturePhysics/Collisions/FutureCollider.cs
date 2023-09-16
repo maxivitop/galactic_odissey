@@ -61,6 +61,7 @@ public class FutureCollider : FutureBehaviour
     public CollisionLayer layer;
     [NonSerialized] public FutureTransform futureTransform;
     [NonSerialized] public bool isPassive = true;
+    public bool registerSelf = true;
 
     private ICollisionEnterHandler[] collisionEnterHandlers;
 
@@ -69,12 +70,18 @@ public class FutureCollider : FutureBehaviour
         base.Register();
         collisionEnterHandlers = GetComponents<ICollisionEnterHandler>();
         futureTransform = GetComponent<FutureTransform>();
-        layerToColliders[layer].Add(this);
+        if (registerSelf)
+        { 
+            layerToColliders[layer].Add(this);
+        }
     }
 
     protected override void Unregister()
     {
-        layerToColliders[layer].Remove(this);
+        if (registerSelf)
+        {
+            layerToColliders[layer].Remove(this);
+        }
         base.Unregister();
     }
 

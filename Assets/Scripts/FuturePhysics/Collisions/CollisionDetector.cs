@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class FutureCollision
 {
@@ -63,13 +64,16 @@ public class CollisionDetector : FutureBehaviour
     private HashSet<CollisionLayer> collidesWithLayers;
     private readonly HashSet<FutureCollider> myColliders = new();
     public readonly FutureArray<HashSet<FutureCollision>> collisions = new();
+    private CircleFutureCollider worldBoundary;
+    private readonly HashSet<FutureCollision> emptyHashset = new();
 
     private void Awake()
     {
+        worldBoundary = GameObject.FindWithTag("WorldBoundary").GetComponent<CircleFutureCollider>();
         hasVirtualStep = mode == Mode.Virtual;
         if (mode == Mode.Virtual)
         {
-            collisions.Initialize(startStep, new HashSet<FutureCollision>(), ToString());
+            collisions.Initialize(startStep, emptyHashset, ToString());
         }
 
         myColliders.UnionWith(GetComponents<FutureCollider>());
@@ -137,6 +141,15 @@ public class CollisionDetector : FutureBehaviour
     {
         var prevStepCollisions = collisions[step];
         collisions[step] = new HashSet<FutureCollision>();
+        foreach (var myCollider in myColliders)
+        {
+            if (!myCollider.IsAlive(step)) continue;
+            var position = myCollider.futureTransform.position[step];
+            if (!float.IsNormal(position.x) || position.sqrMagnitude > worldBoundary.radius*worldBoundary.radius)
+            {
+                AddCollision(new FutureCollision(myCollider, worldBoundary), step-1, prevStepCollisions);
+            }
+        }
         foreach (var layer in collidesWithLayers)
         {
             var colliders = FutureCollider.layerToColliders[layer];
@@ -148,22 +161,25 @@ public class CollisionDetector : FutureBehaviour
                 {
                     if (!myCollider.IsAlive(step)) continue;
                     if (!CheckCollision(step, myCollider, otherCollider)) continue;
-                    var collision = new FutureCollision(myCollider, otherCollider);
-                    if (!prevStepCollisions.Contains(collision))
-                    {
-                        myCollider.VirtualStepCollisionEnter(step, collision);
-                        if (otherCollider.isPassive)
-                        {
-                            var otherCollision = new FutureCollision(otherCollider, myCollider);
-                            otherCollider.VirtualStepCollisionEnter(step, otherCollision);
-                        }
-                    } // OnCollisionStay goes in else if needed 
-
-                    collisions[step].Add(collision);
+                    AddCollision(new FutureCollision(myCollider, otherCollider), step, prevStepCollisions);
                 }
             }
         }
     }
+
+    private void AddCollision(FutureCollision collision, int step, ISet<FutureCollision> prevStepCollisions)
+    {
+        if (!prevStepCollisions.Contains(collision))
+        {
+            collision.my.VirtualStepCollisionEnter(step, collision);
+            if (collision.other.isPassive)
+            {
+                var otherCollision = new FutureCollision(collision.other, collision.my);
+                collision.other.VirtualStepCollisionEnter(step, otherCollision);
+            }
+            collisions[step].Add(collision);
+        } // OnCollisionStay goes in else if needed 
+    } 
 
     private bool CheckCollision(int step, FutureCollider lhs, FutureCollider rhs)
     {
@@ -198,5 +214,6 @@ public class CollisionDetector : FutureBehaviour
         base.ResetToStep(step, cause);
         if (cause != gameObject) return;
         collisions.ResetToStep(step);
+        emptyHashset.Clear();
     }
 }

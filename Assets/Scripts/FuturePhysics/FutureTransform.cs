@@ -17,6 +17,8 @@ public class FutureTransform : FutureBehaviour, IFuturePositionProvider
         {
             return;
         }
+        for(int i = position.capacityArray.size; i< FuturePhysicsRunner.renderFrameNextStep; i++)
+            GetFuturePosition(i);
         transform.position = GetFuturePosition(
             FuturePhysicsRunner.renderFramePrevStep,
             FuturePhysicsRunner.renderFrameStepPart);

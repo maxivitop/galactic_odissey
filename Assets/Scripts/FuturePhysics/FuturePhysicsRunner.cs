@@ -10,7 +10,7 @@ public class FuturePhysicsRunner : MonoBehaviour
 {
     public delegate void ExecuteOnUpdateDelegate();
 
-    private const float StepsPerSecond = 40f;
+    public const float StepsPerSecond = 40f;
 
     public int waitedMs;
     public TextMeshProUGUI bgThreadWait;

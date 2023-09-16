@@ -40,8 +40,8 @@ public class MouseHandler : MonoBehaviour
 
     private bool IsMouseOverUiOrGameObject()
     {
-        if (EventSystem.current.IsPointerOverGameObject()) return true;
         raycastResults.Clear();
+        pointerEventData.position = Input.mousePosition;
         physicsRaycaster.Raycast(pointerEventData, raycastResults);
         return raycastResults.Count > 0;
     }

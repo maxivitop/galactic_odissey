@@ -113,9 +113,9 @@ public class TrajectoryMarker : MonoBehaviour
         }
 
         if (fixedRotation != null) return;
-        if (trajStep + 1 >= targetTrajectoryProvider.trajectory.size) return;
-        var direction = targetTrajectoryProvider.trajectory.array[trajStep + 1] -
-                            targetTrajectoryProvider.trajectory.array[trajStep];
+        if (trajStep == 0) return;
+        var direction = targetTrajectoryProvider.trajectory.array[trajStep] -
+                            targetTrajectoryProvider.trajectory.array[trajStep-1];
         transform.rotation = Quaternion.LookRotation(Vector3.forward, direction);
     }
 

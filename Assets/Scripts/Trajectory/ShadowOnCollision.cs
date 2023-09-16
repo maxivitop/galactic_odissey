@@ -9,11 +9,26 @@ public class ShadowOnCollision : FutureBehaviour, ICollisionEnterHandler
     private ShadowCloneProvider shadowCloneProvider;
     private readonly Dictionary<FutureCollider, CollisionInfo> colliderToCollisionInfo = new();
     public Material collisionMaterial;
-    private readonly List<FutureCollider> collidersToDestroy = new();
+    private readonly HashSet<FutureCollider> pendingDestroys = new();
+    private float destroyTimer = float.PositiveInfinity;
 
     private void Start()
     {
         shadowCloneProvider = GetComponent<ShadowCloneProvider>();
+    }
+
+    private void Update()
+    {
+        destroyTimer -= Time.unscaledDeltaTime;
+        if (destroyTimer <= 0f)
+        {
+            destroyTimer = float.PositiveInfinity;
+            foreach (var coll in pendingDestroys)
+            {
+                DestroyShadowClone(coll);
+            }
+            pendingDestroys.Clear();
+        }
     }
 
     public override void ResetToStep(int step, GameObject cause)
@@ -22,15 +37,8 @@ public class ShadowOnCollision : FutureBehaviour, ICollisionEnterHandler
         {
             if (step > kv.Value.collisionStep || kv.Key.gameObject != cause)
                 continue;
-            collidersToDestroy.Add(kv.Key);
+            ReleaseShadowClone(kv.Key);
         }
-
-        foreach (var futureCollider in collidersToDestroy)
-        {
-            DestroyShadowClone(futureCollider);
-        }
-
-        collidersToDestroy.Clear();
     }
 
     public void VirtualStepCollisionEnter(int step, FutureCollision collision)
@@ -43,7 +51,7 @@ public class ShadowOnCollision : FutureBehaviour, ICollisionEnterHandler
                 return;
             }
 
-            var collisionInfo = new CollisionInfo(shadowCloneProvider.CreateShadowClone(), step);
+            var collisionInfo = new CollisionInfo(ObtainShadowClone(collision.other), step);
             collisionInfo.shadowClone.SetStep(step);
             collisionInfo.shadowClone.meshRenderer.material = collisionMaterial;
             collisionInfo.shadowClone.Activate();
@@ -64,7 +72,25 @@ public class ShadowOnCollision : FutureBehaviour, ICollisionEnterHandler
             DestroyShadowClone(collider);
         }
     }
+    
+    private ShadowClone ObtainShadowClone(FutureCollider futureCollider)
+    {
+        if (pendingDestroys.Contains(futureCollider))
+        {
+            var result = colliderToCollisionInfo[futureCollider].shadowClone;
+            pendingDestroys.Remove(futureCollider);
+            colliderToCollisionInfo.Remove(futureCollider);
+            return result;
+        }
+        return shadowCloneProvider.CreateShadowClone();
+    }
 
+    private void ReleaseShadowClone(FutureCollider futureCollider)
+    {
+        destroyTimer = 0.1f;
+        pendingDestroys.Add(futureCollider);
+    }
+    
     private void DestroyShadowClone(FutureCollider futureCollider)
     {
         if (!colliderToCollisionInfo.ContainsKey(futureCollider))

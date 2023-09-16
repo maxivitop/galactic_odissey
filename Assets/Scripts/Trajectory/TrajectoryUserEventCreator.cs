@@ -147,40 +147,24 @@ public class TrajectoryUserEventCreator : MonoBehaviour
 
     private void UpdateShadowClones()
     {
-        var position = -1;
-        if (highlightedForEditingMarker != null)
-        {
-            position = highlightedForEditingMarker.step;
-        }
-        else if (selectedMarker != null)
-        {
-            position = selectedMarker.step;
-        }
-        else if (currentMarker != null)
-        {
-            position = currentMarker.step;
-        }
-
-        if (position == -1)
+        if (currentMarker == null)
         {
             foreach (var shadowClone in shadowClones)
             {
                 shadowClone.Deactivate();
             }
+            return;
         }
-        else
+        foreach (var shadowClone in shadowClones)
         {
-            foreach (var shadowClone in shadowClones)
+            if (shadowClone.targetGameObject == ReferenceFrameHost.ReferenceFrame.gameObject)
             {
-                if (shadowClone.targetGameObject == ReferenceFrameHost.ReferenceFrame.gameObject)
-                {
-                    shadowClone.Deactivate();
-                }
-                else
-                { 
-                    shadowClone.Activate();
-                    shadowClone.SetStep(position);
-                }
+                shadowClone.Deactivate();
+            }
+            else
+            { 
+                shadowClone.Activate();
+                shadowClone.SetStep(currentMarker.step);
             }
         }
     }

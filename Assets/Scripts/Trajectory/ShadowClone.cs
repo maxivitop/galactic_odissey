@@ -4,6 +4,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
+[RequireComponent(typeof(PlanetRotator))]
 public class ShadowClone: MonoBehaviour
 {
     [NonSerialized]
@@ -16,6 +17,14 @@ public class ShadowClone: MonoBehaviour
     [NonSerialized]
     public TrajectoryProvider trajectoryProvider;
     private int step = -1;
+    [NonSerialized]
+    public PlanetRotator myPlanetRotator;
+    private float destroyCountDown;
+
+    private void Awake()
+    {
+        myPlanetRotator = GetComponent<PlanetRotator>();
+    }
 
     public void Activate()
     {
@@ -39,12 +48,19 @@ public class ShadowClone: MonoBehaviour
     public void SetStep(int step)
     {
         this.step = step;
+        myPlanetRotator.SetStep(step);
     }
 
     public void Update()
     {
         if (!isActiveAndEnabled)
         {
+            return;
+        }
+        if (ReferenceFrameHost.ReferenceFrame.gameObject == targetGameObject)
+        {
+            transform.position = targetMesh.transform.position;
+            transform.rotation = targetMesh.transform.rotation;
             return;
         }
         var trajStep = TrajectoryProvider.PhysicsStepToTrajectoryStep(step);

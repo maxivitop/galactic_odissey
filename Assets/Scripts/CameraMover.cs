@@ -4,6 +4,7 @@ using UnityEngine;
 public class CameraMover : MonoBehaviour
 {
     public static CameraMover Instance;
+    public float mouseMovementSmoothingSpeed = 1f;
     public float speedOfMovement = 1;
     public float rotationXSpeed = 1;
     public float rotationYSpeed = 1;
@@ -38,6 +39,8 @@ public class CameraMover : MonoBehaviour
     private float mouseYAxis;
     private float mouseZAxis;
     private float unusedScroll;
+    private float unusedXMouseMovement;
+    private float unusedYMouseMovement;
 
     private void Awake()
     {
@@ -60,16 +63,13 @@ public class CameraMover : MonoBehaviour
         mouseXAxis = Input.GetAxisRaw("Mouse X");
         mouseYAxis = Input.GetAxisRaw("Mouse Y");
         mouseZAxis = Input.GetAxisRaw("Mouse ScrollWheel");
-        unusedScroll += mouseZAxis;
         GetSmoothRawAxis("Horizontal", ref horizontalAxis);
         GetSmoothRawAxis("Vertical", ref verticalAxis);
 
         referencePos = GetReferencePosition(followee);
         transform.position += referencePos - lastReferencePos;
-        if (Input.GetMouseButton(1))
-        {
-            RotateAroundByMouse();
-        }
+        
+        RotateAroundByMouse();
 
         var moved = MoveCenterByInput();
         var zoomed = ZoomFromMouseWheel();
@@ -110,7 +110,14 @@ public class CameraMover : MonoBehaviour
 
     private void RotateAroundByMouse()
     {
-        var yRot = mouseYAxis * rotationYSpeed;
+        if(Input.GetMouseButton(1))
+        {
+            unusedXMouseMovement += mouseXAxis;
+            unusedYMouseMovement += mouseYAxis;
+        }
+        var xMovement = GetSmoothedValue(ref unusedXMouseMovement, mouseMovementSmoothingSpeed);
+        var yMovement = GetSmoothedValue(ref unusedYMouseMovement, mouseMovementSmoothingSpeed);
+        var yRot = yMovement * rotationYSpeed;
         var groundPos = relativePosition;
         groundPos.z = 0;
         var angleY = Vector3.Angle(groundPos, relativePosition);
@@ -123,9 +130,8 @@ public class CameraMover : MonoBehaviour
         {
             yRot = angleY - maxAngle;
         }
-
         transform.RotateAround(referencePos + centerPosition, -Vector3.forward,
-            mouseXAxis * rotationXSpeed);
+            xMovement * rotationXSpeed);
         transform.RotateAround(referencePos + centerPosition, -transform.right, yRot);
         relativePosition = transform.position - centerPosition - referencePos;
     }
@@ -151,14 +157,21 @@ public class CameraMover : MonoBehaviour
         return input.sqrMagnitude > Mathf.Epsilon;
     }
 
+    private float GetSmoothedValue(ref float accumulator, float speed)
+    {
+        var valueThisFrame = Time.unscaledDeltaTime * Mathf.Sign(accumulator) * speed;
+        if (Mathf.Abs(valueThisFrame) > Mathf.Abs(accumulator))
+        {
+            valueThisFrame = accumulator;
+        }
+        accumulator -= valueThisFrame;
+        return valueThisFrame;
+    }
+
     private bool ZoomFromMouseWheel()
     {
-        var zoomThisFrame = Time.unscaledDeltaTime * Mathf.Sign(unusedScroll) * speedOfZoom;
-        if (Mathf.Abs(zoomThisFrame) > Mathf.Abs(unusedScroll))
-        {
-            zoomThisFrame = unusedScroll;
-        }
-        unusedScroll -= zoomThisFrame;
+        unusedScroll += mouseZAxis;
+        var zoomThisFrame = GetSmoothedValue(ref unusedScroll, speedOfZoom);
         var zoomAmount = zoomThisFrame * zoomPerUnit;
         if (zoomAmount >= relativePosition.magnitude)
         {
