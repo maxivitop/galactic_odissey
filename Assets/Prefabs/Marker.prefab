@@ -175,6 +175,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6056714279634880276}
+  - component: {fileID: 7322517379329924312}
   m_Layer: 0
   m_Name: Model
   m_TagString: Untagged
@@ -199,6 +200,23 @@ Transform:
   m_Father: {fileID: 3494295523413354148}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7322517379329924312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3976127182913730189}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32f142f0376ee4e0d9443c0811b76b28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sizePx: 40
+  scaleTransform: 1
+  scaleLineRenderer: 0
+  minScale: 0
+  minScaleByAxis: {x: 0, y: 0, z: 0}
 --- !u!1 &7679639554877760685
 GameObject:
   m_ObjectHideFlags: 0
@@ -209,7 +227,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3494295523413354148}
   - component: {fileID: -200392649391974216}
-  - component: {fileID: -2040859055259023540}
   m_Layer: 0
   m_Name: Marker
   m_TagString: Untagged
@@ -252,18 +269,3 @@ MonoBehaviour:
   targetTrajectoryProvider: {fileID: 0}
   step: 0
   isSpawned: 0
---- !u!114 &-2040859055259023540
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7679639554877760685}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 32f142f0376ee4e0d9443c0811b76b28, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sizePx: 50
-  scaleTransform: 1
-  scaleLineRenderer: 0

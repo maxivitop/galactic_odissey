@@ -6,7 +6,6 @@ public class DebugSwitcher: MonoBehaviour
 {
     public Singularity starSingularity;
     public Light pointLight;
-    public GameObject blackHoleClickHelper;
     public GameObject projectileLauncher;
     public GameObject projectileLauncherPlanet;
     public float blackHoleSwitchSpeed = 1;

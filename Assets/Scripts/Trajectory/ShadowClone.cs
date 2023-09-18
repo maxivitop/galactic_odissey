@@ -20,10 +20,16 @@ public class ShadowClone: MonoBehaviour
     [NonSerialized]
     public PlanetRotator myPlanetRotator;
     private float destroyCountDown;
+    private Vector3 initialScale;
+    public float scaleMult = 1f;
 
     private void Awake()
     {
         myPlanetRotator = GetComponent<PlanetRotator>();
+        if (initialScale == Vector3.zero)
+        {
+            initialScale = transform.lossyScale;
+        }
     }
 
     public void Activate()
@@ -39,10 +45,23 @@ public class ShadowClone: MonoBehaviour
     private void OnEnable()
     {
         meshRenderer = GetComponent<MeshRenderer>();
-        meshFilter = GetComponent<MeshFilter>();
-        if (targetMesh == null) return;
-        meshFilter.mesh = targetMesh.mesh;
-        transform.localScale = targetMesh.transform.lossyScale;
+        if (targetGameObject == null) return;
+        Transform scaleReference;
+        if (targetMesh == null)
+        {
+            scaleReference = targetGameObject.transform;
+        }
+        else
+        {
+            var meshFilter = GetComponent<MeshFilter>();
+            meshFilter.mesh = targetMesh.mesh;
+            scaleReference = targetMesh.transform;
+        }
+        transform.localScale = new Vector3(
+            initialScale.x * scaleReference.lossyScale.x,
+            initialScale.y * scaleReference.lossyScale.y,
+            initialScale.z * scaleReference.lossyScale.z
+        ) * scaleMult;
     }
 
     public void SetStep(int step)
@@ -59,10 +78,11 @@ public class ShadowClone: MonoBehaviour
         }
         if (ReferenceFrameHost.ReferenceFrame.gameObject == targetGameObject)
         {
-            transform.position = targetMesh.transform.position;
-            transform.rotation = targetMesh.transform.rotation;
+            var targetTransform = targetMesh != null ? targetMesh.transform : targetGameObject.transform;
+            transform.position = targetTransform.position;
+            transform.rotation = targetTransform.rotation;
             return;
-        }
+        } 
         var trajStep = TrajectoryProvider.PhysicsStepToTrajectoryStep(step);
         
         if (trajStep < 0 || trajectoryProvider.trajectory.size <= trajStep)

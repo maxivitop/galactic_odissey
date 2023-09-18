@@ -7,6 +7,8 @@ public class ConstantSizePx : MonoBehaviour
     public float sizePx = 100;
     public bool scaleTransform;
     public bool scaleLineRenderer;
+    public float minScale;
+    public Vector3 minScaleByAxis;
     private Vector3 initialScale;
 
     private LineRenderer lineRenderer;
@@ -37,10 +39,14 @@ public class ConstantSizePx : MonoBehaviour
 
     private void UpdateScale()
     {
-        var size = sizePx * CameraMover.Instance.zoom / 2000;
+        var size = Mathf.Max(minScale, sizePx * CameraMover.Instance.zoom / 2000);
         if (scaleTransform)
         {
-            transform.localScale = initialScale * size;
+            transform.localScale = new Vector3(
+                    Mathf.Max(minScaleByAxis.x, size) * initialScale.x,
+                    Mathf.Max(minScaleByAxis.y, size) * initialScale.y,
+                    Mathf.Max(minScaleByAxis.z, size) * initialScale.z
+                );
         }
         if (hasLineRenderer && scaleLineRenderer)
         {

@@ -17,6 +17,9 @@ public class TrajectoryUserEventCreator : MonoBehaviour
     private TrajectoryMarker selectedMarker;
     public Animator trajectoryEventsOpenClose;
 
+    public TrajectoryMarker forceHighlightMarker;
+
+
     private float MaxSnappingDistance =>
         maxDistanceOfRenderingMarker * CameraMover.Instance.zoom;
 
@@ -88,7 +91,7 @@ public class TrajectoryUserEventCreator : MonoBehaviour
         }
     }
 
-    private void SelectMarker(TrajectoryMarker marker)
+    public void SelectMarker(TrajectoryMarker marker)
     {
         if (selectedMarker != null)
         {
@@ -102,6 +105,11 @@ public class TrajectoryUserEventCreator : MonoBehaviour
 
     private bool HighlightEditMarkers()
     {
+        if (forceHighlightMarker != null)
+        {
+            HighlightMarker(forceHighlightMarker);
+            return true;
+        }
         HighlightMarker(currentMarker);
         if (!MouseHandler.IsMouseOverEmptySpace) return false;
         if (spawnedMarkers.Count == 0) return false;
@@ -120,7 +128,7 @@ public class TrajectoryUserEventCreator : MonoBehaviour
         HighlightMarker(closestMarker);
         return true;
     }
-
+    
     private void HighlightMarker(TrajectoryMarker marker)
     {
         if (highlightedForEditingMarker != null)

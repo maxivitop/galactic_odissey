@@ -147,12 +147,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   projectile: {fileID: 3556120324136697669, guid: fc339827c75bb4fc8953b5ef51b30df4, type: 3}
-  maxSteps: 300
+  aimShader: {fileID: 7200000, guid: 106cc1f34894e48c4aea66052091cc4d, type: 3}
+  maxSteps: 500
   target: {fileID: 0}
   radiiData: []
-  initialSpeed: 30
-  launchEachNSteps: 500
-  prelaunchSteps: 48
+  initialSpeed: 25
+  collisionOffset: 0.1
+  launchEachNSteps: 2
+  prelaunchSteps: 1
 --- !u!114 &3284005473060762746
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -177,8 +179,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29e4c320fc9656d438aa68e21ba8cf9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialVelocity: {x: 0, y: 0}
   initialMass: 0
+  initialVelocity: {x: 0, y: 0}
 --- !u!114 &3284005473060762748
 MonoBehaviour:
   m_ObjectHideFlags: 0

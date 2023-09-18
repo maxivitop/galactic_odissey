@@ -54,6 +54,7 @@ public class ShadowOnCollision : FutureBehaviour, ICollisionEnterHandler
             var collisionInfo = new CollisionInfo(ObtainShadowClone(collision.other), step);
             collisionInfo.shadowClone.SetStep(step);
             collisionInfo.shadowClone.meshRenderer.material = collisionMaterial;
+            collisionInfo.shadowClone.scaleMult = 1.02f;
             collisionInfo.shadowClone.Activate();
             colliderToCollisionInfo[collision.other] = collisionInfo;
         });

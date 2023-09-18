@@ -5,40 +5,69 @@ using UnityEngine;
 [RequireComponent(typeof(TrajectoryProvider))]
 public class RotateShipToDirection : MonoBehaviour
 {
-    public float speed = 300;
+    public float rotationTimeSeconds = 1;
     public Transform transformToRotate;
+    private FutureTransform futureTransform;
     private FutureRigidBody2D futureRigidBody2D;
     private TrajectoryProvider trajectoryProvider;
 
 
     private void Start()
     {
+        futureTransform = GetComponent<FutureTransform>();
         trajectoryProvider = GetComponent<TrajectoryProvider>();
         futureRigidBody2D = GetComponent<FutureRigidBody2D>();
     }
 
     private void Update()
     {
-        var acceleration = futureRigidBody2D.acceleration[FuturePhysics.currentStep];
-        var direction = Vector3.up;
-        if (acceleration.sqrMagnitude > Mathf.Epsilon)
+        var acceleration = Vector2.zero;
+        var lookaheadSteps = Mathf.Min(
+            futureRigidBody2D.acceleration.capacityArray.size -  FuturePhysics.currentStep,
+            Mathf.CeilToInt(FuturePhysicsRunner.StepsPerSecond / rotationTimeSeconds)
+        );
+        for (var i = FuturePhysics.currentStep; i < FuturePhysics.currentStep + lookaheadSteps; i++)
         {
-            direction = acceleration;
+            if (futureRigidBody2D.acceleration[i] != Vector2.zero)
+            {
+                acceleration = futureRigidBody2D.acceleration[i];
+                lookaheadSteps = i - FuturePhysics.currentStep;
+                break;
+            }
+        }
+        Quaternion targetRotation;
+        float anglePerSecond;
+        if (acceleration != Vector2.zero)
+        {
+            var direction = acceleration;
+            targetRotation = Quaternion.LookRotation(Vector3.forward, direction);
+            if (lookaheadSteps == 0)
+            {
+                transformToRotate.rotation = targetRotation;
+                return;
+            }
+            anglePerSecond = Quaternion.Angle(transformToRotate.rotation, targetRotation) 
+                * FuturePhysicsRunner.StepsPerSecond
+                / lookaheadSteps;
         }
         else
         {
-            var trajStep =
-                TrajectoryProvider.PhysicsStepToTrajectoryStep(FuturePhysics.currentStep);
-            if (trajectoryProvider.trajectory.size > trajStep + 1)
-            {
-                direction = trajectoryProvider.trajectory[trajStep + 1]
-                            - trajectoryProvider.trajectory[trajStep];
-            }
+            var closestGravity = OrbitUtils.FindBiggestGravitySource(transform.position, FuturePhysics.currentStep);
+            var relativePosNext = futureTransform.position[FuturePhysics.currentStep + 1]
+                              - closestGravity.futureTransform.position[FuturePhysics.currentStep + 1];
+            var relativePos = futureTransform.position[FuturePhysics.currentStep]
+                                  - closestGravity.futureTransform.position[FuturePhysics.currentStep];
+            
+            var direction = relativePosNext - relativePos;
+            targetRotation = Quaternion.LookRotation(Vector3.forward, direction);
+
+            anglePerSecond = 360 / rotationTimeSeconds;
         }
+        
         transformToRotate.rotation = Quaternion.RotateTowards(
             transformToRotate.rotation,
-            Quaternion.LookRotation(Vector3.forward, direction),
-            Time.deltaTime * speed
+            targetRotation,
+            Time.deltaTime * anglePerSecond
         );
     }
 }

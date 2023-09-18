@@ -6,7 +6,7 @@ public class OrbitUtils
     
     public static GravitySource FindBiggestGravitySource(
         Vector3 position,
-        int step=0,
+        int step,
         float dt=0.0f
         )
     {

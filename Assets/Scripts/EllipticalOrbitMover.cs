@@ -21,7 +21,7 @@ public class EllipticalOrbitMover : FutureBehaviour, IFuturePositionProvider
         rigidBody = GetComponent<FutureRigidBody2D>();
         if (center == null)
         {
-            center = OrbitUtils.FindBiggestGravitySource(transform.position);
+            center = OrbitUtils.FindBiggestGravitySource(transform.position, FuturePhysics.currentStep);
         }
         var r0 = transform.position - center.transform.position;
         var v0 =  rigidBody.InitialVelocity;

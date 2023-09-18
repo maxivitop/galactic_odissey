@@ -45,9 +45,6 @@ public class Thruster : FutureBehaviour, ITrajectoryUserEventProvider
     {
         var isNewConfig = !stepsConfig.ContainsKey(step);
         var stepConfig = GetOrCreateStepConfig(step, marker);
-        
-        var maxSteps = GetMaxSteps(step, stepConfig);
-        
         if (isNewConfig)
         {
             stepConfig.direction = marker.transform.rotation * Vector3.up;
@@ -56,32 +53,6 @@ public class Thruster : FutureBehaviour, ITrajectoryUserEventProvider
         var ui = Instantiate(UIPrefab);
         var thrusterMarker = GetOrCreateMarkerCustomizer(marker);
         thrusterMarker.SetConfig(stepsConfig[step], this);
-
-        var thrustSlider = ui.transform.Find("Thrust slider").GetComponent<Slider>();
-        thrustSlider.maxValue = maxAcceleration;
-        thrustSlider.value = stepConfig.thrust;
-        thrustSlider.onValueChanged.AddListener(value =>
-        {
-            OnThrustSliderChanged(step, thrusterMarker, value);
-        });
-
-        var directionSelector =
-            ui.transform.Find("Direction Selector").GetComponent<DirectionSelector>();
-        directionSelector.Value = stepConfig.direction;
-        ChangeDirection(step, thrusterMarker, directionSelector.Value);
-        directionSelector.OnValueChanged.AddListener(value =>
-        {
-            OnDirectionChanged(step, thrusterMarker, value);
-        });
-
-        var durationSlider = ui.transform.Find("Duration slider").GetComponent<Slider>();
-        durationSlider.maxValue = maxSteps;
-        durationSlider.value = isNewConfig ? Mathf.RoundToInt(maxSteps/2f) : stepConfig.steps;
-        ChangeDuration(step, thrusterMarker, (int)durationSlider.value);
-        durationSlider.onValueChanged.AddListener(value =>
-        {
-            OnDurationSliderChanged(step, thrusterMarker, (int)value);
-        });
         stepsConfig[step] = stepConfig;
         return ui;
     }
@@ -104,49 +75,36 @@ public class Thruster : FutureBehaviour, ITrajectoryUserEventProvider
             direction = stepConfig.direction
         };
         for (var i = 0; i < newConfig.steps; i++) stepsConfig[step + i] = newConfig;
-        GetOrCreateMarkerCustomizer(stepConfig.marker).SetConfig(stepConfig, this);
+        if (stepConfig.marker != null)
+        {
+            GetOrCreateMarkerCustomizer(stepConfig.marker).SetConfig(stepConfig, this);
+        }
         stepConfig = newConfig;
 
         return stepConfig;
     }
 
-    private int GetMaxSteps(int step, Config stepConfig)
-    {
-        var maxSteps = maxDuration;
-        for (var i = 0; i < maxDuration; i++)
-        {
-            stepsConfig.TryGetValue(step + i, out var config);
-            if (config == null || config == stepConfig) continue;
-            maxSteps = i - 1;
-            break;
-        }
-
-        return maxSteps;
-    }
-
     private ThrusterMarker GetOrCreateMarkerCustomizer(TrajectoryMarker marker)
     {
-        var thrusterMarker = marker.GetComponentInChildren<ThrusterMarker>();
-        if (thrusterMarker != null) return thrusterMarker;
-        
+        var tm = marker.GetComponentInChildren<ThrusterMarker>();
+        if (tm != null) return tm;
         var instantiated = Instantiate(markerCustomizer.gameObject, marker.transform);
         
         instantiated.transform.localPosition = Vector3.zero;
         instantiated.transform.localRotation = Quaternion.identity;
         instantiated.transform.localScale = Vector3.one;
-        thrusterMarker = instantiated.GetComponent<ThrusterMarker>();
+        var thrusterMarker = instantiated.GetComponent<ThrusterMarker>();
 
         return thrusterMarker;
     }
 
-    private void OnThrustSliderChanged(int step, ThrusterMarker marker, float value)
+    public void OnThrustChanged(int step, ThrusterMarker marker, float value)
     {
         stepsConfig[step].thrust = value;
-        marker.SetConfig(stepsConfig[step], this);
         FuturePhysics.Reset(step - 1, gameObject);
     }
 
-    private void OnDurationSliderChanged(int step, ThrusterMarker marker, int value)
+    public void OnDurationChanged(int step, ThrusterMarker marker, int value)
     {
         ChangeDuration(step, marker, value);
         if (stepsConfig[step].thrust != 0)
@@ -162,10 +120,9 @@ public class Thruster : FutureBehaviour, ITrajectoryUserEventProvider
         for (var i = stepsConfig[step].steps; i < value; i++)
             stepsConfig[step + i] = stepsConfig[step];
         stepsConfig[step].steps = value;
-        marker.SetConfig(stepsConfig[step], this);
     }
 
-    private void OnDirectionChanged(int step, ThrusterMarker marker, Vector2 direction)
+    public void OnDirectionChanged(int step, ThrusterMarker marker, Vector2 direction)
     {
         ChangeDirection(step, marker, direction);
         if (stepsConfig[step].thrust != 0)
@@ -177,7 +134,6 @@ public class Thruster : FutureBehaviour, ITrajectoryUserEventProvider
     private void ChangeDirection(int step, ThrusterMarker marker, Vector2 direction)
     {
         stepsConfig[step].direction = direction;
-        marker.SetConfig(stepsConfig[step], this);
     }
 
     protected override void VirtualStep(int step)
