@@ -10,7 +10,6 @@ public class DirectionSelector : MonoBehaviour, IDragHandler, IPointerClickHandl
     public class DirectionEvent : UnityEvent<Vector2>
     {
     }
-
     public GameObject arrow;
     public readonly DirectionEvent OnValueChanged = new();
     private Vector2 value = Vector2.up;
@@ -20,7 +19,7 @@ public class DirectionSelector : MonoBehaviour, IDragHandler, IPointerClickHandl
         get => value;
         set
         {
-            this.value = value.normalized;
+            this.value = value;
             OnValueChanged.Invoke(this.value);
             arrow.transform.rotation = Quaternion.Euler(new Vector3(0, 0,
                 -Mathf.Rad2Deg * Mathf.Atan2(this.value.x, this.value.y)));
@@ -39,11 +38,17 @@ public class DirectionSelector : MonoBehaviour, IDragHandler, IPointerClickHandl
 
     private void OnArrowMove(PointerEventData eventData)
     {
-        var clickPosition = eventData.position;
 
-        var thisRect = transform as RectTransform;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(thisRect, clickPosition, null,
-            out var result);
-        Value = result;
+        if(transform is RectTransform)
+        {
+            var clickPosition = eventData.position;
+            var thisRect = transform as RectTransform;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(thisRect, clickPosition, null,
+                out var result);
+            Value = result;
+        } else
+        {
+            Value = MouseHandler.WorldMousePosition - arrow.transform.position;
+        }
     }
 }
