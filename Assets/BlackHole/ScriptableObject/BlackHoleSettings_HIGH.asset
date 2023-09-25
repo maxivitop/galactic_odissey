@@ -18,8 +18,8 @@ MonoBehaviour:
   gravitationalConst: 0.49
   attenuation: 2
   maxEffectRadius: 10
-  effectFadeOutDist: 10
-  effectFalloff: 1
+  effectFadeOutDist: 14.07
+  effectFalloff: 3
   debugFalloff: 0
   blueShiftPower: 0
   initialVelocity: 0

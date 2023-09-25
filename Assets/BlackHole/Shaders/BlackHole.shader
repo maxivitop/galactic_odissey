@@ -100,16 +100,17 @@ Shader "Hidden/BlackHole"
                 float3 rayOrigin = _WorldSpaceCameraPos;
                 float3 rayDir = normalize(i.viewVector);
             
-                float speedOfLightSqrd = pow(speedOfLight, 2);
-                float singularityMass = (_SchwarzschildRadius * speedOfLightSqrd) / (_GravitationalConst * 2); // Re-arranged equation of Schwarzschild Radius
+                float singularityMass = _SchwarzschildRadius / (_GravitationalConst * 2); // Re-arranged equation of Schwarzschild Radius
             
                 // Figure out where the effect bounds are
                 float2 boundsHitInfo = raySphere(_Position, _MaxEffectRadius, rayOrigin, rayDir);
                 float dstToBounds = boundsHitInfo.x;
                 float dstThroughBounds = boundsHitInfo.y;
+                float nonLinearDepth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv);
+                float depth = LinearEyeDepth(nonLinearDepth) * length(i.viewVector);
 
                 // If we are looking through the bounds render the black hole
-                if (dstThroughBounds > 0)
+                if (dstThroughBounds > 0 && distance(rayOrigin, _Position) < depth)
                 {            
                     // Move the rayOrigin to the first point within the distortion bounds
                     rayOrigin += rayDir * dstToBounds;
@@ -148,24 +149,23 @@ Shader "Hidden/BlackHole"
                         // ...Otherwise, gravitationally lens the scene
 
                         // Convert the rayPos to a screen space position which can be used to read the screen UVs
-                        float3 distortedRayDir = normalize(rayPos - rayOrigin);
+                        float3 distortedRayDir = normalize(rayDir);
+                        if (dstThroughBounds <= _EffectFadeOutDist)
+                        {
+                            distortedRayDir =
+                                i.viewVector + (distortedRayDir-i.viewVector) * pow(dstThroughBounds / _EffectFadeOutDist, _EffectFalloff);
+                        }
                         float4 rayCameraSpace = mul(unity_WorldToCamera, float4(distortedRayDir, 0));
                         float4 rayUVProjection = mul(unity_CameraProjection, float4(rayCameraSpace));
                         float2 distortedScreenUV = float2(rayUVProjection.x / 2 + 0.5, rayUVProjection.y / 2 + 0.5);
-
-                        // If we are within the fade-out distance, blend the uv's
-                        float blendFactor = 0;
-                        if (dstThroughBounds <= _EffectFadeOutDist)
-                        {
-                            blendFactor = pow(remap01(_EffectFadeOutDist, 0, dstThroughBounds), _EffectFalloff);
-                            #if DEBUGFALLOFF
-                            return blendFactor;
-                            #endif
+                        if (distortedScreenUV.x > 1) {
+                            distortedScreenUV.x = 2-distortedScreenUV.x;
                         }
-
-                        // Interpolate between the original uv and the warped uv according to the blendFactor
-                        float2 uv = lerp(distortedScreenUV, i.uv, blendFactor);
-                        finalCol = tex2D(_MainTex, uv);
+                        if (distortedScreenUV.y > 1) {
+                            distortedScreenUV.y = 2-distortedScreenUV.y;
+                        }
+                        distortedScreenUV = abs(distortedScreenUV);
+                        finalCol = tex2D(_MainTex, distortedScreenUV);
                     }
 
                     // Incorperate the gas disc effect

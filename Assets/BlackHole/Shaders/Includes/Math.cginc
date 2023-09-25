@@ -1,6 +1,6 @@
 static const float maxFloat = 3.402823466e+38;
-static const float speedOfLight = 299792458;
-static const float gravitationalConst = 0.000000000066743;
+static const float speedOfLight = 1;
+static const float gravitationalConst = 1;
 static const float PI = 3.14159265359;
 
 // Returns dstToSphere, dstThroughSphere
