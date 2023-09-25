@@ -2,11 +2,9 @@
 {
 	SubShader
 	{
-		Tags { "Queue" = "Overlay" "RenderType" = "Transparent"}
-		LOD 100
-		ZWrite Off
+		Tags { "Queue" = "Geometry" "RenderType" = "Opaque"}
+		ZWrite On
 		Lighting Off
-      Blend SrcAlpha OneMinusSrcAlpha
 
 		Pass
 		{
@@ -40,7 +38,7 @@
 					o.vertex = UnityObjectToClipPos(v.vertex);
 				
 					float4 starCol = tex2Dlod(_Spectrum, float4(v.uv.y, 0.5, 0, 0));
-					o.col = float4(starCol.rgb, 1);
+					o.col = starCol;
 					o.brightnessFalloff = v.uv.x;
 		
 					return o;
@@ -52,7 +50,7 @@
 				b = saturate (b+0.1);
 				b*=b;
 				
-				return float4(i.col.rgb, i.col.a * b);
+				return float4(i.col.rgb * b, 1);
 			}
 
 			ENDCG

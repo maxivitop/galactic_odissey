@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlanetRotator: MonoBehaviour
@@ -6,6 +7,12 @@ public class PlanetRotator: MonoBehaviour
     public float speed;
     private float rotation;
     public bool rotateIndependently = true;
+
+    private Quaternion startRotation;
+    private void Start()
+    {
+        startRotation = transform.rotation;
+    }
 
     private void Update()
     {
@@ -16,7 +23,7 @@ public class PlanetRotator: MonoBehaviour
     public void SetStep(float step)
     {
         rotation = speed * step / FuturePhysicsRunner.StepsPerSecond;
-        transform.rotation = Quaternion.AngleAxis(rotation, up);
+        transform.rotation = startRotation * Quaternion.AngleAxis(rotation, up);
     }
 
     public void CopyInto(PlanetRotator other)

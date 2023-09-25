@@ -35,13 +35,18 @@ public class MouseHandler : MonoBehaviour
     {
 
         UpdateWorldMousePosition();
+        pointerEventData.position = Input.mousePosition;
         IsMouseOverEmptySpace = !IsMouseOverUiOrGameObject();
     }
 
     private bool IsMouseOverUiOrGameObject()
     {
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            physicsRaycaster.Raycast(pointerEventData, raycastResults);
+            return true;
+        }
         raycastResults.Clear();
-        pointerEventData.position = Input.mousePosition;
         physicsRaycaster.Raycast(pointerEventData, raycastResults);
         return raycastResults.Count > 0;
     }
