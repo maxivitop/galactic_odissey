@@ -10,6 +10,7 @@ public class BlackHoleSettings_Inspector : Editor
     private static bool displayAccretionData = true;
     private static bool displayVolumetricData = true;
 
+    private SerializedProperty shader;
     private SerializedProperty shadowColor;
 
     private SerializedProperty stepCount;
@@ -41,6 +42,7 @@ public class BlackHoleSettings_Inspector : Editor
 
     private void OnEnable()
     {
+        shader = serializedObject.FindProperty("shader");
         shadowColor = serializedObject.FindProperty("shadowColor");
 
         stepCount = serializedObject.FindProperty("stepCount");
@@ -90,6 +92,7 @@ public class BlackHoleSettings_Inspector : Editor
             displayRenderingData = EditorHelper.Foldout(displayRenderingData, "Rendering");
             if (displayRenderingData)
             {
+                EditorGUILayout.PropertyField(shader);
                 EditorGUILayout.PropertyField(shadowColor);
 
                 GUILayout.Space(5f);

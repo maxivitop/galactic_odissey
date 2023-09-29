@@ -12,6 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8bc7ac92d0d6124b9efd3b8794cca1e, type: 3}
   m_Name: BlackHoleSettings_HIGH
   m_EditorClassIdentifier: 
+  active: 1
+  enabled:
+    overrideState: 1
+    value: 0
+  shader: {fileID: 4800000, guid: 99f95e5d4a5319042bbf03bfb6ebb20c, type: 3}
   shadowColor: {r: 0, g: 0, b: 0, a: 1}
   stepCount: 300
   stepSize: 0.2

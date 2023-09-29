@@ -1,9 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class Singularity : MonoBehaviour
 {
+    public static readonly List<Singularity> All = new();
     public const float speedOfLight = 1;
     public const float gravitationalConst = 1f;
 
@@ -18,6 +21,15 @@ public class Singularity : MonoBehaviour
 
     public float SchwarzschildRadius { get { return schwarzschildRadius; } }
     public float Mass { get { return (schwarzschildRadius * Mathf.Pow(speedOfLight, 2f)) / (gravitationalConst * 2f); } }
+
+    private void OnEnable()
+    {
+        All.Add(this);
+    }
+    private void OnDisable()
+    {
+        All.Remove(this);
+    }
 
     //public float SchwarzschildRadius { get { return (2 * gravitationalConst * mass) / Mathf.Pow(speedOfLight, 2f); } } // Equation Source: https://en.wikipedia.org/wiki/Schwarzschild_radius
 

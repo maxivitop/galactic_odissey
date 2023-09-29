@@ -1,13 +1,17 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
 
-[CreateAssetMenu(menuName = "BlackHole/Settings", fileName = "BlackHoleSettings")]
-public class BlackHoleSettings : ScriptableObject
+
+public class BlackHoleSettings : PostProcessEffectSettings
 {
+    public Shader shader;
+    
     [SerializeField][ColorUsage(default, true)]
     private Color shadowColor = Color.black;
-
+    
     [SerializeField]
     private int stepCount = 300;
     [SerializeField]

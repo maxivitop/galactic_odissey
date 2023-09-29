@@ -60,11 +60,7 @@ void sampleGasVolume(inout float3 color, float3 position, float3 rayDir, float3 
     float2 outerHitInfo = raySphere(volCenter, outerRad, scaledPos, scaledDir);
     float2 nextOuterHitInfo = raySphere(volCenter, outerRad, nextScaledPos, scaledDir);
     
-    
-    
     float dstThroughBounds = outerHitInfo.y - nextOuterHitInfo.y;
-
-   
     
     float radialGradient = 1 - saturate((distFromCenter - _AccretionInnerRadius) / _AccretionOuterRadius);
     float density = saturate(6*pow(radialGradient, 12)*(1-radialGradient));
@@ -85,7 +81,6 @@ void blueShift(inout float3 color, float shift) {
         color.b += shiftAmount.g;
         color.b += shiftAmount.b / 2;
         color.r += shiftAmount.b / 2;
-        color = saturate(color);
         shift -= (shiftAmount.r + shiftAmount.g + shiftAmount.b) / 3; 
     }
 }
