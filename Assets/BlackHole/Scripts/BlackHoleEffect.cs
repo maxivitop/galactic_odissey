@@ -56,7 +56,7 @@ public class BlackHoleEffect : PostProcessingEffect
 
             material.SetFloat("_BlueShiftPower", settings.BlueShiftPower);
 
-            material.SetInt("_AccretionQuality", !settings.RenderAccretion ? -1 : (int)settings.AccretionQualityLevel);
+            material.SetInt("_AccretionQuality", !settings.RenderAccretion ? -1 : 0);
             material.SetColor("_AccretionMainColor", settings.AccretionMainColor);
             material.SetColor("_AccretionInnerColor", settings.AccretionInnerColor);
             material.SetFloat("_AccretionColorShift", settings.AccretionColorShift);
@@ -65,7 +65,6 @@ public class BlackHoleEffect : PostProcessingEffect
             material.SetFloat("_AccretionOuterRadius", settings.MaxEffectRadius * settings.AccretionOuterRadius);
             material.SetFloat("_AccretionInnerRadius", settings.MaxEffectRadius * settings.AccretionInnerRadius);
             material.SetFloat("_AccretionWidth", settings.AccretionWidth);
-            material.SetFloat("_AccretionSlope", settings.AccretionSlope);
             material.SetVector("_AccretionDir", instance.transform.up);
             material.SetTexture("_AccretionNoiseTex", settings.AccretionNoiseTex);
 
@@ -90,11 +89,9 @@ public class BlackHoleEffect : PostProcessingEffect
 
             material.SetFloat("_GasCloudThreshold", settings.GasCloudThreshold);
             material.SetFloat("_TransmittancePower", settings.TransmittancePower);
-            material.SetFloat("_DensityPower", settings.DensityPower);
 
             material.SetVector("_Position", instance.transform.position);
             material.SetFloat("_SchwarzschildRadius", instance.SchwarzschildRadius);
-            material.SetFloat("_InitialVelocity", settings.InitialVelocity);
 
             materials.Add(material);
         }

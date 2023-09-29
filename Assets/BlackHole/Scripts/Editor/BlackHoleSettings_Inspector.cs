@@ -23,10 +23,8 @@ public class BlackHoleSettings_Inspector : Editor
     private SerializedProperty debugFalloff;
 
     private SerializedProperty blueShiftPower;
-    private SerializedProperty initialVelocity;
 
     private SerializedProperty renderAccretion;
-    private SerializedProperty accretionQuality;
     private SerializedProperty accretionMainColor;
     private SerializedProperty accretionInnerColor;
     private SerializedProperty accretionColorShift;
@@ -34,7 +32,6 @@ public class BlackHoleSettings_Inspector : Editor
     private SerializedProperty accretionIntensity;
     private SerializedProperty accretionRadius;
     private SerializedProperty accretionWidth;
-    private SerializedProperty accretionSlope;
     private SerializedProperty accretionNoiseTex;
     private SerializedProperty noiseLayers;
 
@@ -57,10 +54,8 @@ public class BlackHoleSettings_Inspector : Editor
         debugFalloff = serializedObject.FindProperty("debugFalloff");
 
         blueShiftPower = serializedObject.FindProperty("blueShiftPower");
-        initialVelocity = serializedObject.FindProperty("initialVelocity");
 
         renderAccretion = serializedObject.FindProperty("renderAccretion");
-        accretionQuality = serializedObject.FindProperty("accretionQuality");
         accretionMainColor = serializedObject.FindProperty("accretionMainColor");
         accretionInnerColor = serializedObject.FindProperty("accretionInnerColor");
         accretionColorShift = serializedObject.FindProperty("accretionColorShift");
@@ -68,7 +63,6 @@ public class BlackHoleSettings_Inspector : Editor
         accretionIntensity = serializedObject.FindProperty("accretionIntensity");
         accretionRadius = serializedObject.FindProperty("accretionRadius");
         accretionWidth = serializedObject.FindProperty("accretionWidth");
-        accretionSlope = serializedObject.FindProperty("accretionSlope");
         accretionNoiseTex = serializedObject.FindProperty("accretionNoiseTex");
         noiseLayers = serializedObject.FindProperty("noiseLayers");
 
@@ -115,7 +109,6 @@ public class BlackHoleSettings_Inspector : Editor
                 GUILayout.Space(5f);
 
                 EditorGUILayout.PropertyField(blueShiftPower);
-                EditorGUILayout.PropertyField(initialVelocity);
             }
             EditorGUI.indentLevel--;
         }
@@ -130,7 +123,6 @@ public class BlackHoleSettings_Inspector : Editor
             if (displayAccretionData)
             {
                 EditorGUILayout.PropertyField(renderAccretion);
-                EditorGUILayout.PropertyField(accretionQuality);
                 EditorGUILayout.PropertyField(accretionMainColor);
                 EditorGUILayout.PropertyField(accretionInnerColor);
 
@@ -141,7 +133,6 @@ public class BlackHoleSettings_Inspector : Editor
                 EditorGUILayout.PropertyField(accretionIntensity);
                 EditorGUILayout.PropertyField(accretionRadius);
                 EditorGUILayout.PropertyField(accretionWidth);
-                EditorGUILayout.PropertyField(accretionSlope);
 
                 GUILayout.Space(5f);
 
@@ -162,7 +153,6 @@ public class BlackHoleSettings_Inspector : Editor
             {
                 EditorGUILayout.PropertyField(gasCloudThreshold);
                 EditorGUILayout.PropertyField(transmittancePower);
-                EditorGUILayout.PropertyField(densityPower);
             }
             EditorGUI.indentLevel--;
         }

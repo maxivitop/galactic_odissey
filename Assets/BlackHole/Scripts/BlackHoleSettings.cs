@@ -5,12 +5,6 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "BlackHole/Settings", fileName = "BlackHoleSettings")]
 public class BlackHoleSettings : ScriptableObject
 {
-    public enum AccretionQuality
-    {
-        low = 1,
-        high = 0
-    }
-
     [SerializeField][ColorUsage(default, true)]
     private Color shadowColor = Color.black;
 
@@ -34,14 +28,9 @@ public class BlackHoleSettings : ScriptableObject
 
     [SerializeField]
     private float blueShiftPower;
-
-    [SerializeField]
-    private float initialVelocity;
     
     [SerializeField]
     private bool renderAccretion;
-    [SerializeField]
-    private AccretionQuality accretionQuality;
     [SerializeField][ColorUsage(default, true)]
     private Color accretionMainColor;
     [SerializeField][ColorUsage(default, true)]
@@ -56,8 +45,6 @@ public class BlackHoleSettings : ScriptableObject
     private Vector2 accretionRadius;
     [SerializeField]
     private float accretionWidth;
-    [SerializeField][Range(0f, 1f)][Tooltip("Controls how sloped the edges of the accretion disc are.")]
-    private float accretionSlope;
     [SerializeField]
     private Texture3D accretionNoiseTex;
     [SerializeField]
@@ -67,8 +54,6 @@ public class BlackHoleSettings : ScriptableObject
     private float gasCloudThreshold;
     [SerializeField][Tooltip("How well light passes through the gas.")]
     private float transmittancePower;
-    [SerializeField][Tooltip("How distinct the gas samples are.")]
-    private float densityPower;
 
     public Color ShadowColor { get { return shadowColor; } }
 
@@ -83,12 +68,9 @@ public class BlackHoleSettings : ScriptableObject
     public bool DebugFalloff { get { return debugFalloff; } }
 
     public float BlueShiftPower { get { return blueShiftPower; } }
-    
-    public float InitialVelocity { get { return initialVelocity; } }
 
 
     public bool RenderAccretion { get { return renderAccretion; } }
-    public AccretionQuality AccretionQualityLevel { get { return accretionQuality; } }
     public Color AccretionMainColor { get { return accretionMainColor; } }
     public Color AccretionInnerColor { get { return accretionInnerColor; } }
     public float AccretionColorShift { get { return accretionColorShift; } }
@@ -97,13 +79,11 @@ public class BlackHoleSettings : ScriptableObject
     public float AccretionOuterRadius { get { return accretionRadius.y; } }
     public float AccretionInnerRadius { get { return accretionRadius.x; } }
     public float AccretionWidth { get { return accretionWidth; } }
-    public float AccretionSlope { get { return accretionSlope; } }
     public Texture3D AccretionNoiseTex { get { return accretionNoiseTex; } }
     public NoiseLayer[] NoiseLayers { get { return noiseLayers; } }
 
     public float GasCloudThreshold { get { return gasCloudThreshold; } }
     public float TransmittancePower { get { return transmittancePower; } }
-    public float DensityPower { get { return densityPower; } }
     private void OnValidate()
     {
         stepCount = Mathf.Max(stepCount, 0);

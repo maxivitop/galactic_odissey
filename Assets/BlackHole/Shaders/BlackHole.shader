@@ -82,17 +82,6 @@ Shader "Hidden/BlackHole"
                 rayDir = normalize(acceleration); // We only want velocity so normalize the acceleration
             }
 
-            // Checks if a given position is within the event horizon
-            // Returns 0 if False, 1 if True
-            int withinEventHorizon(float3 position, float stepSize)
-            {
-                int mask = 0;
-                if (distance(position, _Position) < _SchwarzschildRadius + stepSize){
-                    mask = 1;
-                }
-                return mask;
-            }
-
             fixed4 frag(v2f i) : SV_Target
             {
                 // Determine the origin & direction of our ray to march through the scene
@@ -121,27 +110,24 @@ Shader "Hidden/BlackHole"
                     // March our ray through the scene
                     for (float s = 0; s < _StepCount; s++)
                     {
-                        // Step ray forward
+                        sampleGasVolume(gasVolume, rayPos, rayDir, _Position, _MaxEffectRadius, _StepSize);
                         warpRay(rayDir, rayPos, _StepSize);
                         rayPos += rayDir * _StepSize;
-                        sampleGasVolume(gasVolume, rayPos, rayDir, _Position, _MaxEffectRadius, _StepSize);
-
                         // Ray should be terminated if it falls within the event horizon
-                        shadowMask = withinEventHorizon(rayPos, _StepSize);
-                        if (shadowMask == 1){
+                        float distFromCenter = distance(_Position, rayPos);
+                        if (distFromCenter <= _SchwarzschildRadius) {
+                            shadowMask = 1;
                             break;
                         }
-
                         // ...Likewise if the ray leaves the simulation bounds
-                        if (distance(rayPos, _Position) > _MaxEffectRadius) {
+                        if (distFromCenter > _MaxEffectRadius) {
                             break;
                         }
                     }
-
                     float3 finalCol;
 
                     // If the ray is absorbed by the event horizon, render the shadow
-                    if (shadowMask > 0){
+                    if (shadowMask){
                         finalCol = _ShadowColor;
                     }
                     else
@@ -169,12 +155,9 @@ Shader "Hidden/BlackHole"
                     }
 
                     // Incorperate the gas disc effect
-                    finalCol += (1 - exp(-gasVolume));
-
+                    finalCol += 1 - exp(-gasVolume);
                     // Gravitational blue shifting
-                    float3 gravitationalShift = computeGravitationalShift(rayOrigin, _Position, _GravitationalConst, singularityMass);
-                    finalCol *= gravitationalShift;
-
+                    computeGravitationalShift(finalCol, _WorldSpaceCameraPos, _Position, _GravitationalConst, singularityMass);
                     return float4(finalCol, 1);
                 }
             

@@ -13,34 +13,30 @@ MonoBehaviour:
   m_Name: BlackHoleSettings_HIGH
   m_EditorClassIdentifier: 
   shadowColor: {r: 0, g: 0, b: 0, a: 1}
-  stepCount: 500
-  stepSize: 0.03
-  gravitationalConst: 0.49
+  stepCount: 300
+  stepSize: 0.2
+  gravitationalConst: 3.05
   attenuation: 2
-  maxEffectRadius: 10
-  effectFadeOutDist: 14.07
+  maxEffectRadius: 30
+  effectFadeOutDist: 39.93
   effectFalloff: 3
   debugFalloff: 0
-  blueShiftPower: 0
-  initialVelocity: 0
+  blueShiftPower: 0.2
   renderAccretion: 1
-  accretionQuality: 0
-  accretionMainColor: {r: 0.018500218, g: 0.002731743, b: 0, a: 0}
-  accretionInnerColor: {r: 0.06662595, g: 0.008023192, b: 0, a: 0}
-  accretionColorShift: 1.31
-  accretionFalloff: 7.6
-  accretionIntensity: 24.51
-  accretionRadius: {x: 0.16, y: 0.88}
-  accretionWidth: 0.04
-  accretionSlope: 0
+  accretionMainColor: {r: 0.1882353, g: 0.034763545, b: 0, a: 0}
+  accretionInnerColor: {r: 15.805546, g: 7.8329186, b: 3.678019, a: 0}
+  accretionColorShift: 1
+  accretionFalloff: 0.1
+  accretionIntensity: 1
+  accretionRadius: {x: 0.18, y: 0.6848605}
+  accretionWidth: 0.01
   accretionNoiseTex: {fileID: 11700000, guid: 5ec6abf35914e4e4bade66f3a7cf75ee, type: 2}
   noiseLayers:
   - enabled: 1
-    sampleScale: 2
-    scrollRate: 3
+    sampleScale: 3
+    scrollRate: 30
   - enabled: 1
-    sampleScale: 0.98
-    scrollRate: 10
-  gasCloudThreshold: 0.132
-  transmittancePower: 4
-  densityPower: 8.22
+    sampleScale: 1
+    scrollRate: 20
+  gasCloudThreshold: 0.37
+  transmittancePower: 11
