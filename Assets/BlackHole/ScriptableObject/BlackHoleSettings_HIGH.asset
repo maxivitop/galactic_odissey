@@ -33,7 +33,7 @@ MonoBehaviour:
   accretionColorShift: 1
   accretionFalloff: 0.1
   accretionIntensity: 1
-  accretionRadius: {x: 0.14928149, y: 0.71}
+  accretionRadius: {x: 0.17841212, y: 0.55}
   accretionWidth: 0.01
   accretionNoiseTex: {fileID: 11700000, guid: 5ec6abf35914e4e4bade66f3a7cf75ee, type: 2}
   noiseLayers:

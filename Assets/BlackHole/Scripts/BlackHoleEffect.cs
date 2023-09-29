@@ -1,21 +1,36 @@
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 
-// [CreateAssetMenu(menuName = "PostProcessing/BlackHoleEffect", fileName = "BlackHoleEffect")]
 public class BlackHoleEffect : PostProcessEffectRenderer<BlackHolePostProcessingSettings>
 {
 
-    private Material material;
+    private List<Material> materials = new();
     
     public override void Render(PostProcessRenderContext context)
     {
+        UpdateMaterials();
+        MaterialRenderer.Render(materials, context);
+    }
+
+    private void UpdateMaterials()
+    {
+        var index = 0;
         var blackHoleSettings = settings.blackHole.value;
-        if (material == null)
-        {
-            material = new Material(blackHoleSettings.shader);
-        }
         foreach (var instance in Singularity.All)
         {
+            if (materials.Count <= index)
+            {
+                materials.Add(new Material(blackHoleSettings.shader));
+            }
+            var material = materials[index];
+            if (material.IsDestroyed())
+            {
+                materials[index] = new Material(blackHoleSettings.shader);
+                material = materials[index];
+            }
+
             // Update material to match settings
             material.SetColor("_ShadowColor", blackHoleSettings.ShadowColor);
 
@@ -66,8 +81,7 @@ public class BlackHoleEffect : PostProcessEffectRenderer<BlackHolePostProcessing
 
             material.SetVector("_Position", instance.transform.position);
             material.SetFloat("_SchwarzschildRadius", instance.SchwarzschildRadius);
-
-            context.command.Blit(context.source, context.destination, material);
+            index++;
         }
     }
 }

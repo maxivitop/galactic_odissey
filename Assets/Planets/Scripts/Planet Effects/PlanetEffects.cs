@@ -7,7 +7,7 @@ using UnityEngine;
 */
 
 [CreateAssetMenu (menuName = "PostProcessing/PlanetEffects")]
-public class PlanetEffects : PostProcessingEffect {
+public class PlanetEffects: ScriptableObject {
 
 	public Shader oceanShader;
 	public Shader atmosphereShader;
@@ -20,12 +20,7 @@ public class PlanetEffects : PostProcessingEffect {
 	List<Material> postProcessingMaterials;
 	bool active = true;
 
-	public override void Render (RenderTexture source, RenderTexture destination) {
-		List<Material> materials = GetMaterials ();
-		CustomPostProcessing.RenderMaterials (source, destination, materials);
-	}
-
-	void Init () {
+	public void Init () {
 		if (effectHolders == null || effectHolders.Count == 0 || !Application.isPlaying) {
 			var generators = FindObjectsOfType<CelestialBodyGenerator> ();
 			effectHolders = new List<EffectHolder> (generators.Length);
@@ -88,13 +83,6 @@ public class PlanetEffects : PostProcessingEffect {
 		}
 
 		return postProcessingMaterials;
-	}
-
-	float CalculateMaxClippingDst (Camera cam) {
-		float halfHeight = cam.nearClipPlane * Mathf.Tan (cam.fieldOfView * 0.5f * Mathf.Deg2Rad);
-		float halfWidth = halfHeight * cam.aspect;
-		float dstToNearClipPlaneCorner = new Vector3 (halfWidth, halfHeight, cam.nearClipPlane).magnitude;
-		return dstToNearClipPlaneCorner;
 	}
 
 	public class EffectHolder {

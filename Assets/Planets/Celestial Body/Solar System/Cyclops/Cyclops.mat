@@ -102,7 +102,7 @@ Material:
     - _FresnelStrengthNear: 2
     - _GlossMapScale: 1
     - _Glossiness: 0
-    - _GlossinessFlat: 0.5
+    - _GlossinessFlat: 0.065
     - _GlossyReflections: 1
     - _GrassHeightBlend: 0.138
     - _GrassHeightMax: 0.182

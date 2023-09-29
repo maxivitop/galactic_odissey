@@ -1,6 +1,7 @@
 {
 	"name": "My",
 	"references": [
-		"Unity.TextMeshPro"
+		"Unity.TextMeshPro",
+		"Unity.Postprocessing.Runtime"
 	]
 }
