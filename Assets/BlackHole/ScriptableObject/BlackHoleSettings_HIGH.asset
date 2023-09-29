@@ -20,20 +20,20 @@ MonoBehaviour:
   shadowColor: {r: 0, g: 0, b: 0, a: 1}
   stepCount: 300
   stepSize: 0.2
-  gravitationalConst: 3.05
+  gravitationalConst: 2.55
   attenuation: 2
   maxEffectRadius: 30
   effectFadeOutDist: 39.93
   effectFalloff: 3
   debugFalloff: 0
-  blueShiftPower: 0.2
+  blueShiftPower: 0.17
   renderAccretion: 1
-  accretionMainColor: {r: 0.1882353, g: 0.034763545, b: 0, a: 0}
-  accretionInnerColor: {r: 15.805546, g: 7.8329186, b: 3.678019, a: 0}
+  accretionMainColor: {r: 0.3490566, g: 0.019713169, b: 0, a: 0}
+  accretionInnerColor: {r: 26.445095, g: 10.457813, b: 4.656996, a: 0}
   accretionColorShift: 1
   accretionFalloff: 0.1
   accretionIntensity: 1
-  accretionRadius: {x: 0.18, y: 0.6848605}
+  accretionRadius: {x: 0.14928149, y: 0.71}
   accretionWidth: 0.01
   accretionNoiseTex: {fileID: 11700000, guid: 5ec6abf35914e4e4bade66f3a7cf75ee, type: 2}
   noiseLayers:
@@ -43,5 +43,5 @@ MonoBehaviour:
   - enabled: 1
     sampleScale: 1
     scrollRate: 20
-  gasCloudThreshold: 0.37
+  gasCloudThreshold: 0.459
   transmittancePower: 11

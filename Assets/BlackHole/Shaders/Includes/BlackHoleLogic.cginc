@@ -26,7 +26,7 @@ float sampleNoiseTexture(float3 position)
     for (int n = 0; n < _NoiseLayerCount; n++)
     {
         float3 offsetCoord = position;
-        offsetCoord.y += _Time.x * _ScrollRates[n];
+        offsetCoord.y += _Time.x * _ScrollRates[n] - position.x;
         float noiseValue = tex3Dlod(_AccretionNoiseTex, float4(offsetCoord / _SampleScales[n] / PI * 2, 0.0f));
         value += max(0, noiseValue - _GasCloudThreshold) * _TransmittancePower;
     }
