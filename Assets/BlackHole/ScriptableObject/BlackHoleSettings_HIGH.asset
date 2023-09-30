@@ -17,31 +17,32 @@ MonoBehaviour:
     overrideState: 1
     value: 0
   shader: {fileID: 4800000, guid: 99f95e5d4a5319042bbf03bfb6ebb20c, type: 3}
+  schwarzschildRadiusRadius: 1
   shadowColor: {r: 0, g: 0, b: 0, a: 1}
   stepCount: 300
   stepSize: 0.2
-  gravitationalConst: 2.55
+  gravitationalConst: 3.54
   attenuation: 2
   maxEffectRadius: 30
   effectFadeOutDist: 39.93
   effectFalloff: 3
-  debugFalloff: 0
-  blueShiftPower: 0.17
+  blueShiftPower: 0.1
   renderAccretion: 1
   accretionMainColor: {r: 0.3490566, g: 0.019713169, b: 0, a: 0}
   accretionInnerColor: {r: 26.445095, g: 10.457813, b: 4.656996, a: 0}
   accretionColorShift: 1
-  accretionFalloff: 0.1
+  accretionFalloff: 0.16
   accretionIntensity: 1
-  accretionRadius: {x: 0.17841212, y: 0.55}
+  accretionRadius: {x: 0.23784122, y: 1}
   accretionWidth: 0.01
   accretionNoiseTex: {fileID: 11700000, guid: 5ec6abf35914e4e4bade66f3a7cf75ee, type: 2}
   noiseLayers:
   - enabled: 1
-    sampleScale: 3
-    scrollRate: 30
+    sampleScale: {x: 5.08, y: 3, z: 1}
+    scrollRate: {x: 10, y: 20, z: 0}
   - enabled: 1
-    sampleScale: 1
-    scrollRate: 20
+    sampleScale: {x: 0.9, y: 1, z: 1}
+    scrollRate: {x: 8, y: 30, z: 0}
   gasCloudThreshold: 0.459
-  transmittancePower: 11
+  transmittancePower: 10.6
+  spiralStrength: 0

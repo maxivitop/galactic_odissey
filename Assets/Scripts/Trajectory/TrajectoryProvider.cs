@@ -39,7 +39,7 @@ public class TrajectoryProvider : FutureBehaviour
 
     private void UpdateTrajectory(int step)
     {
-        trajectoryStartStep = FuturePhysicsRunner.renderFramePrevStep;
+        trajectoryStartStep = FuturePhysicsRunner.Instance.renderFramePrevStep;
         var frameOfReferenceTransform 
             = ReferenceFrameHost.ReferenceFrame.trajectoryProvider.futureTransform;
         trajectory.size = Mathf.Min(
@@ -61,7 +61,7 @@ public class TrajectoryProvider : FutureBehaviour
         }
 
         animator.Animate(trajectory);
-        validAtStep = FuturePhysics.lastVirtualStep + FuturePhysicsRunner.renderFrameStepPart;
+        validAtStep = FuturePhysics.lastVirtualStep + FuturePhysicsRunner.Instance.renderFrameStepPart;
     }
 
     private void Update()
@@ -71,7 +71,7 @@ public class TrajectoryProvider : FutureBehaviour
         if (animator.IsRunning()) validAtStep = -1;
 
         // ReSharper disable once CompareOfFloatsByEqualityOperator
-        if (validAtStep != FuturePhysics.lastVirtualStep + FuturePhysicsRunner.renderFrameStepPart)
+        if (validAtStep != FuturePhysics.lastVirtualStep + FuturePhysicsRunner.Instance.renderFrameStepPart)
         {
             UpdateTrajectory(FuturePhysics.lastVirtualStep);
         }

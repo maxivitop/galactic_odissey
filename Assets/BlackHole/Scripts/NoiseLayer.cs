@@ -5,14 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class NoiseLayer
 {
-    [SerializeField]
-    private bool enabled = true;
-    [SerializeField]
-    private float sampleScale = 2f;
-    [SerializeField]
-    private float scrollRate;
-
-    public bool Enabled { get { return enabled; } }
-    public float SampleScale { get { return sampleScale; } }
-    public float ScrollRate { get { return scrollRate; } }
+    public bool enabled = true;
+    public Vector3 sampleScale = Vector3.one;
+    public Vector3 scrollRate;
 }

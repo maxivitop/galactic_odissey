@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8bc7ac92d0d6124b9efd3b8794cca1e, type: 3}
+  m_Name: StarBlackHole
+  m_EditorClassIdentifier: 
+  active: 1
+  enabled:
+    overrideState: 1
+    value: 0
+  shader: {fileID: 4800000, guid: 99f95e5d4a5319042bbf03bfb6ebb20c, type: 3}
+  schwarzschildRadiusRadius: 8.86
+  shadowColor: {r: 0.3251033, g: 0, b: 0, a: 1}
+  stepCount: 30
+  stepSize: 2
+  gravitationalConst: 0
+  attenuation: 0
+  maxEffectRadius: 26.09
+  effectFadeOutDist: 0
+  effectFalloff: 1
+  blueShiftPower: 100000
+  renderAccretion: 1
+  accretionMainColor: {r: 7.9668403, g: 0, b: 1.786236, a: 0}
+  accretionInnerColor: {r: 3.9533494, g: 1.0349082, b: 0.37256697, a: 0}
+  accretionColorShift: 0.01
+  accretionFalloff: 0.3
+  accretionIntensity: 1
+  accretionRadius: {x: 0.05, y: 1}
+  accretionWidth: 1
+  accretionNoiseTex: {fileID: 11700000, guid: 5ec6abf35914e4e4bade66f3a7cf75ee, type: 2}
+  noiseLayers:
+  - enabled: 1
+    sampleScale: {x: 2.9, y: 3, z: 1}
+    scrollRate: {x: -5, y: 15, z: 0}
+  - enabled: 1
+    sampleScale: {x: 4.16, y: 1, z: 1}
+    scrollRate: {x: -8, y: 10, z: 0}
+  gasCloudThreshold: 0.616
+  transmittancePower: 2.86
+  spiralStrength: 0

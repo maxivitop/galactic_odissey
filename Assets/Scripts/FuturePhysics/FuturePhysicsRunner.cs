@@ -8,6 +8,7 @@ using ThreadPriority = System.Threading.ThreadPriority;
 
 public class FuturePhysicsRunner : MonoBehaviour
 {
+    public static FuturePhysicsRunner Instance;
     public delegate void ExecuteOnUpdateDelegate();
 
     public const float StepsPerSecond = 40f;
@@ -16,30 +17,32 @@ public class FuturePhysicsRunner : MonoBehaviour
     public TextMeshProUGUI bgThreadWait;
     public TextMeshProUGUI fps;
     
-    private static volatile Thread activeThread;
-    private static volatile Thread bgThread;
-    private static bool isQuitting;
-    private static readonly AutoResetEvent mainThreadFinished = new(false);
-    private static readonly AutoResetEvent bgThreadFinished = new(true);
-    private static readonly List<ExecuteOnUpdateDelegate> executeOnUpdateQueue = new();
+    private volatile Thread activeThread;
+    private volatile Thread bgThread;
+    private bool isQuitting;
+    private readonly AutoResetEvent mainThreadFinished = new(false);
+    private readonly AutoResetEvent bgThreadFinished = new(true);
+    private readonly List<ExecuteOnUpdateDelegate> executeOnUpdateQueue = new();
 
     private bool isThreadStarted;
     private IEnumerator mainThreadFinishedNotifier;
-    private static volatile bool isMainThreadWaiting = true;
-    private static volatile bool hasBgThreadWorked = true;
-    private static volatile bool isBgThreadAlive = true;
+    private volatile bool isMainThreadWaiting = true;
+    private volatile bool hasBgThreadWorked = true;
+    private volatile bool isBgThreadAlive = true;
     private float maxDeltaTimeThisSecond;
     private int trackedSecond;
     private float avgDeltaTimeSum;
     private int avgDeltaTimeCount;
-    public static float renderFrame;
-    public static int renderFrameNextStep;
-    public static int renderFramePrevStep;
-    public static float renderFrameStepPart;
+    public float renderFrame;
+    public int renderFrameNextStep;
+    public int renderFramePrevStep;
+    public float renderFrameStepPart;
 
 
     private void Awake()
     {
+        Instance = this;
+        FuturePhysics.FullReset();
         activeThread = Thread.CurrentThread;
         mainThreadFinishedNotifier = MainThreadFinishedNotifier();
         StartCoroutine(mainThreadFinishedNotifier);
@@ -95,7 +98,7 @@ public class FuturePhysicsRunner : MonoBehaviour
     }
     
     // IEnumerator is called after all Updates
-    private static IEnumerator MainThreadFinishedNotifier()
+    private IEnumerator MainThreadFinishedNotifier()
     {
         yield return 0;
         while (true)
@@ -137,30 +140,32 @@ public class FuturePhysicsRunner : MonoBehaviour
 
     public static void ExecuteOnUpdate(ExecuteOnUpdateDelegate executeOnUpdateDelegate)
     {
-        executeOnUpdateQueue.Add(executeOnUpdateDelegate);
+        Instance.executeOnUpdateQueue.Add(executeOnUpdateDelegate);
     }
 
 
     public static void CheckThread()
     {
-        if (activeThread == Thread.CurrentThread)
+        if (Instance.activeThread == Thread.CurrentThread)
         {
             return;
         }
         Debug.LogError("Incorrect thread access from " +
-            (Thread.CurrentThread == bgThread ? "bg" : "main") +
-            " thread, isMainThreadWaiting=" + isMainThreadWaiting);
+            (Thread.CurrentThread == Instance.bgThread ? "bg" : "main") +
+            " thread, isMainThreadWaiting=" + Instance.isMainThreadWaiting);
     }
 
     private void OnDestroy()
     {
         isBgThreadAlive = false;
+        mainThreadFinished.Set();
         bgThread?.Abort();
     }
 
     private void OnApplicationQuit()
     {
         isBgThreadAlive = false;
+        mainThreadFinished.Set();
         bgThread?.Abort();
     }
 }

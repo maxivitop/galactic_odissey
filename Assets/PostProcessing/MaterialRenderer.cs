@@ -9,6 +9,7 @@ public static class MaterialRenderer
     {
         if (materials.Count == 0)
         {
+            context.command.Blit(context.source, context.destination);
             return;
         } 
         if (materials.Count == 1)

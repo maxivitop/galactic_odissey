@@ -13,15 +13,16 @@ public class FutureTransform : FutureBehaviour, IFuturePositionProvider
 
     private void Update()
     {
-        if (disabledFromStep <= FuturePhysicsRunner.renderFrameNextStep || FuturePhysicsRunner.renderFramePrevStep < startStep)
+        if (disabledFromStep <= FuturePhysicsRunner.Instance.renderFrameNextStep ||
+            FuturePhysicsRunner.Instance.renderFramePrevStep < startStep)
         {
             return;
         }
-        for(int i = position.capacityArray.size; i< FuturePhysicsRunner.renderFrameNextStep; i++)
+        for(int i = position.capacityArray.size; i< FuturePhysicsRunner.Instance.renderFrameNextStep; i++)
             GetFuturePosition(i);
         transform.position = GetFuturePosition(
-            FuturePhysicsRunner.renderFramePrevStep,
-            FuturePhysicsRunner.renderFrameStepPart);
+            FuturePhysicsRunner.Instance.renderFramePrevStep,
+            FuturePhysicsRunner.Instance.renderFrameStepPart);
     }
     
     public Vector3 GetFuturePosition(int step, float dt=0)

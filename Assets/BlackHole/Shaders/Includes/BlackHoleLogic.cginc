@@ -11,8 +11,9 @@ float3 _AccretionDir;
 sampler3D _AccretionNoiseTex;
 
 int _NoiseLayerCount;
-float _SampleScales[4];
-float _ScrollRates[4];
+float3 _SampleScales[4];
+float3 _ScrollRates[4];
+float _SpiralStrength;
 
 float _GasCloudThreshold;
 float _TransmittancePower;
@@ -26,8 +27,11 @@ float sampleNoiseTexture(float3 position)
     for (int n = 0; n < _NoiseLayerCount; n++)
     {
         float3 offsetCoord = position;
-        offsetCoord.y += _Time.x * _ScrollRates[n] - position.x;
-        float noiseValue = tex3Dlod(_AccretionNoiseTex, float4(offsetCoord / _SampleScales[n] / PI * 2, 0.0f));
+        offsetCoord += _Time.x * _ScrollRates[n];
+        offsetCoord.y -= position.x * _SpiralStrength;
+        offsetCoord /= PI / 2;
+        offsetCoord /= _SampleScales[n];
+        float noiseValue = tex3Dlod(_AccretionNoiseTex, float4(offsetCoord, 0.0f));
         value += max(0, noiseValue - _GasCloudThreshold) * _TransmittancePower;
     }
     return value;
@@ -74,26 +78,19 @@ void sampleGasVolume(inout float3 color, float3 position, float3 rayDir, float3 
 
 
 void blueShift(inout float3 color, float shift) {
-    for (float i = 0; shift > 0 && i < 3; i++) {
-        float3 shiftAmount = min(shift, color);
-        color -= shiftAmount;
-        color.g += shiftAmount.r;
-        color.b += shiftAmount.g;
-        color.b += shiftAmount.b / 2;
-        color.r += shiftAmount.b / 2;
-        shift -= (shiftAmount.r + shiftAmount.g + shiftAmount.b) / 3; 
-    }
+    float3 shiftAmount = min(shift, color);
+    float totalShift = shiftAmount.r + shiftAmount.g + shiftAmount.b;
+    color -= shiftAmount;
+    color.r += totalShift * 0.33;
+    color.b += totalShift * 0.66;
 }
 
 // Gravitational shift source: https://astronomy.swin.edu.au/cosmos/g/Gravitational+Redshift
 // As a photon travels toward/away from a mass, it may gain or lose energy causing it to change frequency
 // The closer we are to a large mass, photons get blue shifted
-void computeGravitationalShift(inout float3 color, float3 position, float3 center, float gravConst, float mass)
+void computeGravitationalShift(inout float3 color, float3 position, float3 center)
 {
     float dist = distance(position, center);
-    if (_BlueShiftPower <= 0 || dist < 0.001f){
-        return;
-    }
     float shift = exp(-dist * _BlueShiftPower);
     blueShift(color, shift);
 }

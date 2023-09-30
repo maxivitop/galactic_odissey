@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /*
@@ -14,26 +15,20 @@ public class PlanetEffects: ScriptableObject {
 	public bool displayOceans = true;
 	public bool displayAtmospheres = true;
 
-	List<EffectHolder> effectHolders;
-	List<float> sortDistances;
+	List<EffectHolder> effectHolders = new();
+	List<float> sortDistances = new();
 
-	List<Material> postProcessingMaterials;
+	List<Material> postProcessingMaterials = new();
 	bool active = true;
 
 	public void Init () {
-		if (effectHolders == null || effectHolders.Count == 0 || !Application.isPlaying) {
+		if (effectHolders.Count == 0 || effectHolders[0].generator == null || !Application.isPlaying) {
+			effectHolders.Clear();
+			
 			var generators = FindObjectsOfType<CelestialBodyGenerator> ();
-			effectHolders = new List<EffectHolder> (generators.Length);
-			for (int i = 0; i < generators.Length; i++) {
-				effectHolders.Add (new EffectHolder (generators[i]));
-			}
+			effectHolders.AddRange(generators.Select(x => new EffectHolder(x)));
 		}
-		if (postProcessingMaterials == null) {
-			postProcessingMaterials = new List<Material> ();
-		}
-		if (sortDistances == null) {
-			sortDistances = new List<float> ();
-		}
+		
 		sortDistances.Clear ();
 		postProcessingMaterials.Clear ();
 	}

@@ -135,7 +135,7 @@ Shader "Hidden/BlackHole"
                         // ...Otherwise, gravitationally lens the scene
 
                         // Convert the rayPos to a screen space position which can be used to read the screen UVs
-                        float3 distortedRayDir = normalize(rayDir);
+                        float3 distortedRayDir = rayDir * length(i.viewVector);
                         if (dstThroughBounds <= _EffectFadeOutDist)
                         {
                             distortedRayDir =
@@ -155,13 +155,14 @@ Shader "Hidden/BlackHole"
                     }
 
                     // Incorperate the gas disc effect
-                    finalCol += 1 - exp(-gasVolume);
+                    finalCol += gasVolume;
                     // Gravitational blue shifting
-                    computeGravitationalShift(finalCol, _WorldSpaceCameraPos, _Position, _GravitationalConst, singularityMass);
+                    computeGravitationalShift(finalCol, _WorldSpaceCameraPos, _Position);
                     return float4(finalCol, 1);
                 }
             
                 // If we are not looking through the render bounds, just return the un-modified scene color
+                computeGravitationalShift(originalCol.xyz, _WorldSpaceCameraPos, _Position);
                 return originalCol;
             }
             ENDCG

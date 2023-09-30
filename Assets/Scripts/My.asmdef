@@ -2,6 +2,7 @@
 	"name": "My",
 	"references": [
 		"Unity.TextMeshPro",
-		"Unity.Postprocessing.Runtime"
+		"MyPostProcessing",
+		"BlackHole"
 	]
 }

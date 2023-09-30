@@ -42,6 +42,9 @@ public class CameraMover : MonoBehaviour
     private float unusedXMouseMovement;
     private float unusedYMouseMovement;
 
+    public Vector3 CenterPosition =>
+        referencePos + centerPosition;
+
     private void Awake()
     {
         Instance = this;
@@ -193,7 +196,7 @@ public class CameraMover : MonoBehaviour
         zoom = relativePosition.magnitude;
         return mouseZAxis * mouseZAxis > Mathf.Epsilon;
     }
-
+    
     private static void GetSmoothRawAxis(string name, ref float axis, float sensitivity = 3f,
         float gravity = 3f)
     {

@@ -34,7 +34,6 @@ public class ReferenceFrameHost : MonoBehaviour, IPointerClickHandler
                                " and " + ReferenceFrame.gameObject.name);
             ReferenceFrame = this;
         }
-
         futureTransform = GetComponent<FutureTransform>();
         trajectoryProvider = GetComponent<TrajectoryProvider>();
     }
@@ -42,10 +41,10 @@ public class ReferenceFrameHost : MonoBehaviour, IPointerClickHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         if (eventData.button != PointerEventData.InputButton.Left) return;
-        CameraMover.Instance.Follow(futureTransform);
-        if (eventData.clickCount == 2)
+        if (Vector3.Distance(CameraMover.Instance.CenterPosition, transform.position) < 1f) // sufficiently close
         {
             ReferenceFrame = this;
         }
+        CameraMover.Instance.Follow(futureTransform);
     }
 }

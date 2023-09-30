@@ -91,4 +91,12 @@ public class FuturePhysics
     {
         return futureObjects.Where(obj => obj.IsAlive(step));
     }
+
+    public static void FullReset()
+    {
+        futureObjects.Clear();
+        catchingUp.Clear();
+        currentStep = 0;
+        lastVirtualStep = 0;
+    }
 }

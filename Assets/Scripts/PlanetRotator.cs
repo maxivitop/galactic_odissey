@@ -17,7 +17,7 @@ public class PlanetRotator: MonoBehaviour
     private void Update()
     {
         if (!rotateIndependently) return;
-        SetStep(FuturePhysicsRunner.renderFrame);
+        SetStep(FuturePhysicsRunner.Instance.renderFrame);
     }
 
     public void SetStep(float step)

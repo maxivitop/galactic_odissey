@@ -1,0 +1,7 @@
+﻿{
+  "name": "BlackHole",
+  "references": [
+    "Unity.Postprocessing.Runtime",
+    "MyPostProcessing"
+  ]
+}

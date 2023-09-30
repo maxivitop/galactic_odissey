@@ -17,7 +17,7 @@ public class Projectile: MonoBehaviour
 
     public void Launch(int step, Vector3[] trajectory, int trajectoryLength)
     {
-        var lostSteps = FuturePhysicsRunner.renderFrameNextStep - step;
+        var lostSteps = FuturePhysicsRunner.Instance.renderFrameNextStep - step;
         if (lostSteps > trajectoryLength)
         {
             Debug.LogWarning("Dispatched Launch too late lostSteps=" + lostSteps 
