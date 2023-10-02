@@ -3,19 +3,18 @@ Shader "Hidden/BlackHole"
     Properties
     {
         _MainTex("Texture", 2D) = "white" {}
+        _Skybox("SkyBox", Cube) = "white" {}
     }
     SubShader
     {
         // No culling or depth
         Cull Off
         ZWrite Off
-        ZTest Always
         Pass
         {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma shader_feature DEBUGFALLOFF
 
             #include "UnityCG.cginc"
             #include "./Includes/Math.cginc"
@@ -33,10 +32,13 @@ Shader "Hidden/BlackHole"
                 float4 vertex : SV_POSITION;
                 float3 worldPos : TEXCOORD1;
                 float3 viewVector : TEXCOORD2;
+                float centerDepth : TEXCOORD3;
             };
 
             sampler2D _MainTex;
-            sampler2D _CameraDepthTexture;
+            UNITY_DECLARE_DEPTH_TEXTURE(_CameraDepthTexture);
+            samplerCUBE _Skybox;
+            half4 _Skybox_HDR;
             float3 _Position;
             float _SchwarzschildRadius;
 
@@ -51,6 +53,11 @@ Shader "Hidden/BlackHole"
             float _EffectFadeOutDist;
             float _EffectFalloff;
 
+            float LinearDepthToRawDepth(float linearDepth)
+            {
+                return (1.0f - (linearDepth * _ZBufferParams.y)) / (linearDepth * _ZBufferParams.x);
+            }
+
             v2f vert(appdata v)
             {
                 v2f o;
@@ -60,7 +67,11 @@ Shader "Hidden/BlackHole"
                 float2 uv = v.uv * 2 - 1; // Re-maps the uv so that it is centered on the screen
                 float3 viewVector = mul(unity_CameraInvProjection, float4(uv.x, uv.y, 0, -1));
                 o.viewVector = mul(unity_CameraToWorld, float4(viewVector, 0));
-
+                const float nearPlane = _ProjectionParams.y;
+                const float farPlane = _ProjectionParams.z;
+                
+                o.centerDepth = (distance(_Position, _WorldSpaceCameraPos) - nearPlane) / (farPlane - nearPlane);
+                o.centerDepth = LinearDepthToRawDepth(o.centerDepth);
                 o.uv = v.uv;
                 return o;
             }
@@ -82,15 +93,29 @@ Shader "Hidden/BlackHole"
                 rayDir = normalize(acceleration); // We only want velocity so normalize the acceleration
             }
 
+             float3 RotateAroundYInDegrees(float3 vertex, float degrees) {
+                float alpha = degrees * UNITY_PI / 180.0;
+                float sina, cosa;
+                sincos(alpha, sina, cosa);
+                float2x2 m = float2x2(cosa, -sina, sina, cosa);
+                return float3(mul(m, vertex.xz), vertex.y).xzy;
+            }
+
+            float4 sampleSkybox(float3 dir) {
+                half4 tex = texCUBE(_Skybox, normalize(dir));
+                half3 c = DecodeHDR(tex, _Skybox_HDR);
+                // c *= unity_ColorSpaceDouble.rgb;
+                c *= 0.215; // _Exposure
+                return half4(c, 1);
+            }
+
             fixed4 frag(v2f i) : SV_Target
             {
                 // Determine the origin & direction of our ray to march through the scene
                 float4 originalCol = tex2D(_MainTex, i.uv);
                 float3 rayOrigin = _WorldSpaceCameraPos;
                 float3 rayDir = normalize(i.viewVector);
-            
-                float singularityMass = _SchwarzschildRadius / (_GravitationalConst * 2); // Re-arranged equation of Schwarzschild Radius
-            
+                
                 // Figure out where the effect bounds are
                 float2 boundsHitInfo = raySphere(_Position, _MaxEffectRadius, rayOrigin, rayDir);
                 float dstToBounds = boundsHitInfo.x;
@@ -99,7 +124,7 @@ Shader "Hidden/BlackHole"
                 float depth = LinearEyeDepth(nonLinearDepth) * length(i.viewVector);
 
                 // If we are looking through the bounds render the black hole
-                if (dstThroughBounds > 0 && distance(rayOrigin, _Position) < depth)
+                if (dstThroughBounds > 0 && distance(rayOrigin, _Position) < depth - 0.1) // 0.1 to not distort object at center
                 {            
                     // Move the rayOrigin to the first point within the distortion bounds
                     rayOrigin += rayDir * dstToBounds;
@@ -144,19 +169,24 @@ Shader "Hidden/BlackHole"
                         float4 rayCameraSpace = mul(unity_WorldToCamera, float4(distortedRayDir, 0));
                         float4 rayUVProjection = mul(unity_CameraProjection, float4(rayCameraSpace));
                         float2 distortedScreenUV = float2(rayUVProjection.x / 2 + 0.5, rayUVProjection.y / 2 + 0.5);
-                        if (distortedScreenUV.x > 1) {
-                            distortedScreenUV.x = 2-distortedScreenUV.x;
+                         if (distortedScreenUV.x > 1 ||
+                            distortedScreenUV.y > 1 ||
+                            distortedScreenUV.x < 0 ||
+                            distortedScreenUV.y < 0) {
+                            finalCol = sampleSkybox(RotateAroundYInDegrees(rayDir, 90));
+                        } else {
+                            float distortedNonLinearDepth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, distortedScreenUV);
+                            if (distortedNonLinearDepth > i.centerDepth && distortedNonLinearDepth > 0) {
+                                finalCol = sampleSkybox(RotateAroundYInDegrees(rayDir, 90));
+                            } else {
+                                finalCol = tex2D(_MainTex, distortedScreenUV);
+                            }
                         }
-                        if (distortedScreenUV.y > 1) {
-                            distortedScreenUV.y = 2-distortedScreenUV.y;
-                        }
-                        distortedScreenUV = abs(distortedScreenUV);
-                        finalCol = tex2D(_MainTex, distortedScreenUV);
                     }
 
                     // Incorperate the gas disc effect
                     finalCol += gasVolume;
-                    // Gravitational blue shifting
+                    // // Gravitational blue shifting
                     computeGravitationalShift(finalCol, _WorldSpaceCameraPos, _Position);
                     return float4(finalCol, 1);
                 }

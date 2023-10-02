@@ -5,9 +5,10 @@ using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 
 
-public class BlackHoleSettings : PostProcessEffectSettings
+public class BlackHoleSettings : ScriptableObject
 {
     public Shader shader;
+    public Cubemap skybox;
     public float schwarzschildRadiusRadius;
     [ColorUsage(default, true)]
     public Color shadowColor = Color.black;

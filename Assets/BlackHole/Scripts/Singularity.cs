@@ -41,6 +41,7 @@ public class Singularity : MonoBehaviour
     private void InterpolateSettings()
     {
         settings.shader = start.shader;
+        settings.skybox = start.skybox;
         settings.schwarzschildRadiusRadius = Mathf.Lerp(start.schwarzschildRadiusRadius, end.schwarzschildRadiusRadius, t);
         settings.shadowColor = Color.Lerp(start.shadowColor, end.shadowColor, t);
         settings.stepCount = Mathf.RoundToInt(Mathf.Lerp(start.stepCount, end.stepCount, t));

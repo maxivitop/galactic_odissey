@@ -33,7 +33,7 @@ public class PlanetEffects: ScriptableObject {
 		postProcessingMaterials.Clear ();
 	}
 
-	public List<Material> GetMaterials () {
+	public List<Material> GetMaterials (bool closerThanBlackHole) {
 
 		if (!active) {
 			return null;
@@ -44,10 +44,13 @@ public class PlanetEffects: ScriptableObject {
 			Camera cam = Camera.current;
 			Vector3 camPos = cam.transform.position;
 
-			SortFarToNear (camPos);
+			var activeHolders = effectHolders
+				.Where(x => x.DstFromSurface(camPos) < camPos.magnitude ^ closerThanBlackHole)
+				.OrderByDescending(x => x.DstFromSurface(camPos))
+				.ToList();
 
-			for (int i = 0; i < effectHolders.Count; i++) {
-				EffectHolder effectHolder = effectHolders[i];
+			for (int i = 0; i < activeHolders.Count; i++) {
+				EffectHolder effectHolder = activeHolders[i];
 				Material underwaterMaterial = null;
 				// Oceans
 				if (displayOceans) {
@@ -97,26 +100,6 @@ public class PlanetEffects: ScriptableObject {
 
 		public float DstFromSurface (Vector3 viewPos) {
 			return Mathf.Max (0, (generator.transform.position - viewPos).magnitude - generator.BodyScale);
-		}
-	}
-
-	void SortFarToNear (Vector3 viewPos) {
-		for (int i = 0; i < effectHolders.Count; i++) {
-			float dstToSurface = effectHolders[i].DstFromSurface (viewPos);
-			sortDistances.Add (dstToSurface);
-		}
-
-		for (int i = 0; i < effectHolders.Count - 1; i++) {
-			for (int j = i + 1; j > 0; j--) {
-				if (sortDistances[j - 1] < sortDistances[j]) {
-					float tempDst = sortDistances[j - 1];
-					var temp = effectHolders[j - 1];
-					sortDistances[j - 1] = sortDistances[j];
-					sortDistances[j] = tempDst;
-					effectHolders[j - 1] = effectHolders[j];
-					effectHolders[j] = temp;
-				}
-			}
 		}
 	}
 }

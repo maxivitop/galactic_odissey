@@ -186,6 +186,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   layer: 3
+  registerSelf: 1
   radius: 0.5
 --- !u!114 &-2481495934591180773
 MonoBehaviour:

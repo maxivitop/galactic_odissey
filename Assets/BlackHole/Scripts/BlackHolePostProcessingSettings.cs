@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 
 [Serializable]
-[PostProcess(typeof(BlackHoleEffect), PostProcessEvent.BeforeTransparent, "Custom/BlackHole")]
+[PostProcess(typeof(BlackHoleEffect), PostProcessEvent.BeforeStack, "Custom/BlackHole")]
 public class BlackHolePostProcessingSettings: PostProcessEffectSettings
 {
 }

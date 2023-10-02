@@ -1311,6 +1311,25 @@ MonoBehaviour:
       - 0.5
       - 0.5
       - 0.5
+--- !u!114 &-5927868557911986051
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb30ba3b3e3c4012855c8e68959c4e68, type: 3}
+  m_Name: PlanetPostProcessingEffectsSettingsAfterBlackHole
+  m_EditorClassIdentifier: 
+  active: 1
+  enabled:
+    overrideState: 1
+    value: 1
+  effects:
+    overrideState: 1
+    value: {fileID: 11400000, guid: 2a0830d1f8e1c4c019b5757c93f3297a, type: 2}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1329,6 +1348,7 @@ MonoBehaviour:
   - {fileID: -7617538850021052722}
   - {fileID: 1270261326075886154}
   - {fileID: 4365353922663320978}
+  - {fileID: -5927868557911986051}
 --- !u!114 &737496809652005183
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -1389,9 +1409,6 @@ MonoBehaviour:
   enabled:
     overrideState: 1
     value: 1
-  blackHole:
-    overrideState: 1
-    value: {fileID: 11400000, guid: d03d1c821e0ace2448d578cbfd8a4394, type: 2}
 --- !u!114 &4107977219865815359
 MonoBehaviour:
   m_ObjectHideFlags: 3

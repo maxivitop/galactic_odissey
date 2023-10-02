@@ -5,7 +5,7 @@ public class PlanetPostProcessingEffectsRenderer : PostProcessEffectRenderer<Pla
 
     public override void Render(PostProcessRenderContext context)
     {
-        MaterialRenderer.Render(settings.effects.value.GetMaterials(), context);
+        MaterialRenderer.Render(settings.effects.value.GetMaterials(false), context);
     }
 
 }

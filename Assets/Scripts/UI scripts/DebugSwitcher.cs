@@ -23,6 +23,7 @@ public class DebugSwitcher: MonoBehaviour
     {
         projectileLauncherRelativePosition = 
             projectileLauncher.transform.position - projectileLauncherPlanet.transform.position;
+        projectileLauncher.SetActive(false);
         initialLightIntensity = pointLight.intensity;
     }
 
@@ -41,13 +42,12 @@ public class DebugSwitcher: MonoBehaviour
         if (Input.GetKeyDown(KeyCode.B))
         {
             isBlackHoleEnabled = !isBlackHoleEnabled;
-            blackHoleClickHelper.SetActive(isBlackHoleEnabled);
         }
         
         transitionFraction += Time.deltaTime * blackHoleSwitchSpeed * (isBlackHoleEnabled ? 1 : -1);
         transitionFraction = Mathf.Clamp01(transitionFraction);
-        float t = SCurve(transitionFraction);
-        starSingularity.t = t;
+        var t = SCurve(transitionFraction);
+        starSingularity.t = t*t;
         
         pointLight.intensity = initialLightIntensity + BellCurve(transitionFraction) * lightIntensityMax;
         

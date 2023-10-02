@@ -32,6 +32,7 @@ public class BlackHoleEffect : PostProcessEffectRenderer<BlackHolePostProcessing
             }
 
             // Update material to match settings
+            material.SetTexture("_Skybox", blackHoleSettings.skybox);
             material.SetColor("_ShadowColor", blackHoleSettings.shadowColor);
 
             material.SetInt("_StepCount", blackHoleSettings.stepCount);

@@ -2,14 +2,8 @@
 using UnityEngine.Rendering.PostProcessing;
 
 [Serializable]
-[PostProcess(typeof(PlanetPostProcessingEffectsRenderer), PostProcessEvent.BeforeTransparent, "Custom/Planets")]
+[PostProcess(typeof(PlanetPostProcessingEffectsRenderer), PostProcessEvent.BeforeStack, "Custom/Planets")]
 public class PlanetPostProcessingEffectsSettings: PostProcessEffectSettings
 {
     public PlanetEffectsParameter effects = new();
-    
-    [Serializable]
-    public sealed class PlanetEffectsParameter : ParameterOverride<PlanetEffects>
-    {
-    }
-    
 }

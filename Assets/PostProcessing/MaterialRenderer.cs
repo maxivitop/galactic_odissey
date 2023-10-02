@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.PostProcessing;
 
@@ -19,8 +20,8 @@ public static class MaterialRenderer
         }
         int tmpId1 = 69420123;
         int tmpId2 = 69420124;
-        context.command.GetTemporaryRT(tmpId1, context.width, context.height);
-        context.command.GetTemporaryRT(tmpId2, context.width, context.height);
+        context.command.GetTemporaryRT(tmpId1, context.width, context.height, 24, FilterMode.Point, GraphicsFormat.R16G16B16A16_SFloat);
+        context.command.GetTemporaryRT(tmpId2, context.width, context.height, 24, FilterMode.Point, GraphicsFormat.R16G16B16A16_SFloat);
         var tmpRenderTextureIdentifier1 = new RenderTargetIdentifier(tmpId1);
         var tmpRenderTextureIdentifier2 = new RenderTargetIdentifier(tmpId2);
         for (var index = 0; index < materials.Count; index++)
