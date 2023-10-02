@@ -171,7 +171,7 @@ public class TrajectoryUserEventCreator : MonoBehaviour
 
     private void MoveMarker()
     {
-        if (!MouseHandler.IsMouseOverEmptySpace)
+        if (!MouseHandler.IsMouseOverEmptySpace || Time.timeScale != 0)
         {
             RemoveCurrentMarker();
             return;
