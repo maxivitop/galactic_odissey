@@ -176,6 +176,24 @@ Shader "Hidden/BlackHole"
                             finalCol = sampleSkybox(RotateAroundYInDegrees(rayDir, 90));
                         } else {
                             float distortedNonLinearDepth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, distortedScreenUV);
+                            const float2 offset = 1/_ScreenParams;
+                            distortedNonLinearDepth = max(distortedNonLinearDepth, SAMPLE_DEPTH_TEXTURE(
+                                _CameraDepthTexture,
+                                float2(distortedScreenUV.x + offset.x, distortedScreenUV.y)
+                            ));
+                            distortedNonLinearDepth = max(distortedNonLinearDepth, SAMPLE_DEPTH_TEXTURE(
+                                _CameraDepthTexture,
+                                float2(distortedScreenUV.x - offset.x, distortedScreenUV.y)
+                            ));
+                            distortedNonLinearDepth = max(distortedNonLinearDepth, SAMPLE_DEPTH_TEXTURE(
+                                _CameraDepthTexture,
+                                float2(distortedScreenUV.x, distortedScreenUV.y + offset.y)
+                            ));
+                            distortedNonLinearDepth = max(distortedNonLinearDepth, SAMPLE_DEPTH_TEXTURE(
+                                _CameraDepthTexture,
+                                float2(distortedScreenUV.x, distortedScreenUV.y - offset.y)
+                            ));
+
                             if (distortedNonLinearDepth > i.centerDepth && distortedNonLinearDepth > 0) {
                                 finalCol = sampleSkybox(RotateAroundYInDegrees(rayDir, 90));
                             } else {

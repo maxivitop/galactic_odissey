@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class MouseHandler : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class MouseHandler : MonoBehaviour
     private bool isMouseOverObject;
     private readonly PointerEventData pointerEventData = new(EventSystem.current);
     private PhysicsRaycaster physicsRaycaster;
+    private GraphicRaycaster graphicsRaycaster;
     private static Plane worldPlane = new Plane(Vector3.forward, 0);
     private static Camera myCamera;
 
@@ -29,25 +31,34 @@ public class MouseHandler : MonoBehaviour
     {
         myCamera = Camera.main!;
         physicsRaycaster = Camera.main!.GetComponent<PhysicsRaycaster>();
+        graphicsRaycaster = FindObjectOfType<GraphicRaycaster>();
     }
 
     private void Update()
     {
 
         UpdateWorldMousePosition();
-        pointerEventData.position = Input.mousePosition;
         IsMouseOverEmptySpace = !IsMouseOverUiOrGameObject();
     }
 
     private bool IsMouseOverUiOrGameObject()
     {
-        if (EventSystem.current.IsPointerOverGameObject())
+        pointerEventData.position = Input.mousePosition;
+        raycastResults.Clear();
+        graphicsRaycaster.Raycast(pointerEventData, raycastResults);
+        if (raycastResults.Count > 0)
         {
-            physicsRaycaster.Raycast(pointerEventData, raycastResults);
             return true;
         }
         raycastResults.Clear();
         physicsRaycaster.Raycast(pointerEventData, raycastResults);
-        return raycastResults.Count > 0;
+        foreach (var raycastResult in raycastResults)
+        {
+            if (raycastResult.worldPosition.z < 0)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
