@@ -1,5 +1,7 @@
+using System;
 using UnityEngine;
 
+[Serializable]
 public class GeneratorTileData : BaseTileData
 {
     public int radius = 1;

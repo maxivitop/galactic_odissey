@@ -1,5 +1,7 @@
+using System;
 using UnityEngine;
 
+[Serializable]
 public class TileBgData : ITileData
 {
     public TileState State { get; set; }

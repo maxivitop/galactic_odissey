@@ -108,6 +108,16 @@ public struct Hex
         return new Hex(lhs.q - rhs.q, lhs.r - rhs.r, lhs.s - rhs.s);
     }
 
+    public static Hex operator *(Hex lhs, int rhs)
+    {
+        return new Hex(lhs.q * rhs, lhs.r * rhs, lhs.s * rhs);
+    }
+    
+    public static Hex operator /(Hex lhs, int rhs)
+    {
+        return new Hex(lhs.q / rhs, lhs.r / rhs, lhs.s / rhs);
+    }
+
     public static Hex operator -(Hex hex)
     {
         return new Hex(-hex.q, -hex.r, -hex.s);
