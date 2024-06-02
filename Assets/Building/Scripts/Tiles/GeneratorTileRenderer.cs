@@ -11,7 +11,8 @@ public class GeneratorTileRenderer : BaseTileRenderer<Transform, GeneratorTileDa
 {
     public FilledHexTile indicatorPrefab;
     public Color indicatorColor;
-    private readonly PrefabSpawner<FilledHexTile> indicatorSpawner = new();
+    private readonly PrefabSpawner<FilledHexTile> indicatorSpawner =
+        PrefabSpawner<FilledHexTile>.Obtain();
 
     protected override void Awake()
     {
@@ -19,22 +20,28 @@ public class GeneratorTileRenderer : BaseTileRenderer<Transform, GeneratorTileDa
         indicatorSpawner.prefab = indicatorPrefab;
     }
 
-    public override void Render(ITileData data, Vector3 position)
+    public override void Render(ITileData data, Vector3 position, Quaternion rotation)
     {
-        base.Render(data, position);
+        base.Render(data, position, rotation);
         if (data.State != TileState.Hovered) return;
         var generatorData = (GeneratorTileData) data;
         foreach (var neighbour in Hex.Circle(Hex.zero, generatorData.radius))
         {
             var indicator = 
-                indicatorSpawner.Spawn(position + (Vector3) neighbour.ToCartesian());
+                indicatorSpawner.Spawn(position + (Vector3) neighbour.ToCartesian(), rotation);
             indicator.spriteRenderer.color = indicatorColor;
         }
     }
 
-    public override void Clear()
+    public override void OnRenderingStarted()
     {
-        base.Clear();
-        indicatorSpawner.Clear();
+        base.OnRenderingStarted();
+        indicatorSpawner.OnRenderingStarted();
+    }
+    
+    public override void OnRenderingFinished()
+    {
+        base.OnRenderingFinished();
+        indicatorSpawner.OnRenderingFinished();
     }
 }

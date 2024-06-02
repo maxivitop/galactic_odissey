@@ -5,8 +5,11 @@ using UnityEngine;
 
 public class ShipLayout : MonoBehaviour
 {
+    public static ShipLayout Instance;
     public int mapSize = 3;
     public Transform shopPivot;
+    public float shipRotationDeg;
+
     private readonly Ship ship = new();
     private readonly Shop shop = new();
     private readonly ISet<Hex> map = new HashSet<Hex>();
@@ -18,6 +21,12 @@ public class ShipLayout : MonoBehaviour
     private Hex mouseShopPositionHex;
     private TileBgData tileBgData = new();
     [CanBeNull] private ITileData draggingTile;
+    private Quaternion rotation;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Start()
     {
@@ -39,10 +48,11 @@ public class ShipLayout : MonoBehaviour
     }
 
     private void Update()
-    {
+    { 
+        rotation = Quaternion.Euler(0, 0, shipRotationDeg);
         foreach (var (_, tileRenderer) in renderers)
         {
-            tileRenderer.Clear();
+            tileRenderer.OnRenderingStarted();
         }
         
         UpdateOutline();
@@ -50,9 +60,31 @@ public class ShipLayout : MonoBehaviour
         mousePosition = Camera.main!.ScreenToWorldPoint(AddCameraDepth(Input.mousePosition));
         mouseShipPositionHex = Hex.FromCartesian(mousePosition - transform.position);
         mouseShopPositionHex = Hex.FromCartesian(mousePosition - shopPosition);
-        DrawMapAndShip();
-        DrawShop();
-        DrawDraggingTile();
+        if (ModeSwitcher.CurrentMode != ModeSwitcher.Mode.Building)
+        {
+            DrawShipOnly();
+        }
+        else
+        {
+            DrawMapAndShip();
+            DrawShop();
+            DrawDraggingTile();
+        }
+        
+        foreach (var (_, tileRenderer) in renderers)
+        {
+            tileRenderer.OnRenderingFinished();
+        }
+    }
+    
+    private void DrawShipOnly()
+    {
+        foreach (var (hex, tile) in ship.tiles)
+        {
+            var position = HexToPos(hex);
+            DrawTile(tileBgData, TileState.Normal, position, rotation);
+            DrawTile(tile, TileState.Normal, position, rotation);
+        }
     }
 
     private void DrawMapAndShip()
@@ -76,14 +108,22 @@ public class ShipLayout : MonoBehaviour
             {
                 state = TileState.Selected;
             }
-            Vector3 position = hex.ToCartesian();
-            position += transform.position;
-            DrawTile(tileBgData, state, position);
+
+            var position = HexToPos(hex);
+            DrawTile(tileBgData, state, position, rotation);
             if (ship.tiles.TryGetValue(hex, out var shipData))
             {
-                DrawTile(shipData, state, position);
+                DrawTile(shipData, state, position, rotation);
             }
         }
+    }
+
+    private Vector3 HexToPos(Hex hex)
+    {
+        Vector3 position = hex.ToCartesian();
+        position = rotation * position;
+        position += transform.position;
+        return position;
     }
     
     private void UpdateShopPosition()
@@ -109,12 +149,15 @@ public class ShipLayout : MonoBehaviour
 
             if (shopItem == shop.dummy)
             {
-                DrawTile(tileBgData, TileState.Empty, position.ToCartesian() + shopPosV2);
+                DrawTile(tileBgData, TileState.Empty, position.ToCartesian() + shopPosV2,
+                    Quaternion.identity);
             }
             else
             {
-                DrawTile(tileBgData, TileState.Normal, position.ToCartesian() + shopPosV2);
-                DrawTile(shopItem, TileState.Normal, position.ToCartesian() + shopPosV2);
+                DrawTile(tileBgData, TileState.Normal, position.ToCartesian() + shopPosV2,
+                    Quaternion.identity);
+                DrawTile(shopItem, TileState.Normal, position.ToCartesian() + shopPosV2,
+                    Quaternion.identity);
                 shop.shopPositionToIndex[position] = i;
             }
             position += i % 2 == 0 ? Hex.downRight : Hex.downLeft;
@@ -160,14 +203,15 @@ public class ShipLayout : MonoBehaviour
 
         if (draggingTile != null)
         {
-            DrawTile(draggingTile, TileState.Hovered, mousePosition);
+            DrawTile(draggingTile, TileState.Hovered, mousePosition, rotation);
         }
     }
 
-    private void DrawTile(ITileData tileData, TileState state, Vector3 position)
+    private void DrawTile(ITileData tileData, TileState state, Vector3 position,
+        Quaternion tileRotation)
     {
         tileData.State = state;
-        renderers[tileData.GetType()].Render(tileData, position);
+        renderers[tileData.GetType()].Render(tileData, position, tileRotation);
     }
 
 

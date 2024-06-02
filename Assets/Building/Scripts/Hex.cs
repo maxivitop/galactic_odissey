@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public struct Hex
 {
+    public static readonly IEnumerable<Hex> emptyIEnumerable = Enumerable.Empty<Hex>();
     public static readonly Hex zero = new Hex(0, 0, 0);
     public static readonly Hex invalid = new Hex(-100, -100) { s=-100 };
     public static readonly Hex downLeft = new Hex(0, -1, +1);

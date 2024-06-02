@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 8602405595229200917}
   - component: {fileID: 7828595706310826976}
   - component: {fileID: 5496067942939955131}
-  m_Layer: 0
+  - component: {fileID: 8512601782591360970}
+  m_Layer: 7
   m_Name: HexTile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31,7 +32,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &7828595706310826976
 SpriteRenderer:
@@ -98,3 +99,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spriteRenderer: {fileID: 0}
+--- !u!60 &8512601782591360970
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3503012265479962307}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 4.52, y: 5.2}
+    newSize: {x: 4.52, y: 5.2}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: 2.258211, y: 1.3133676}
+      - {x: 0.0018370599, y: 2.6172545}
+      - {x: -2.2599714, y: 1.3126295}
+      - {x: -2.260211, y: -1.3072107}
+      - {x: 0.002501484, y: -2.6244602}
+      - {x: 2.2592185, y: -1.3049041}
+  m_UseDelaunayMesh: 0

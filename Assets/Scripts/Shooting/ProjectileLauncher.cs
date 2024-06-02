@@ -168,7 +168,7 @@ public class ProjectileLauncher : FutureBehaviour
     private void OnDestroy()
     {
         positions?.Dispose();
-        output.Dispose();
+        output?.Dispose();
         tmp.Dispose();
         tmpTraj.Dispose();
         trajLenAndDistance.Dispose();

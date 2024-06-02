@@ -13,15 +13,20 @@ public abstract class BaseTileRenderer<TM, TD> : MonoBehaviour, ITileRenderer
         spawner.prefab = prefab;
     }
 
-    public virtual void Render(ITileData data, Vector3 position)
+    public virtual void Render(ITileData data, Vector3 position, Quaternion rotation)
     {
-        var spawned = spawner.Spawn(position);
+        var spawned = spawner.Spawn(position, rotation);
         Customize(spawned, (TD) data);
     }
 
-    public virtual void Clear()
+    public virtual void OnRenderingStarted()
     {
-        spawner.Clear();
+        spawner.OnRenderingStarted();
+    }
+    
+    public virtual void OnRenderingFinished()
+    {
+        spawner.OnRenderingFinished();
     }
 
     protected virtual void Customize(TM obj, TD data) {}
